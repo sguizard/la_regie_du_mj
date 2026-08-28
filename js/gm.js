@@ -48,7 +48,10 @@ export async function initGM() {
     updateBlackoutBtn();
     setPlayerPill(_pillOn);
     if (!selectedId) $('#scene-name').textContent = tr('topbar.noScene');
-    if (stage.selectedIds.size >= 2) $('#mp-title').textContent = tr('multi.title', { n: stage.selectedIds.size });
+    if (stage.selectedIds.size >= 2) {
+      $('#mp-title').textContent = tr('multi.title', { n: stage.selectedIds.size });
+      $('#mp-delete').textContent = tr('multi.delete', { n: stage.selectedIds.size });
+    }
     renderSidebar();
     renderTokenList();
   });
@@ -586,6 +589,7 @@ function applySelectionUI() {
   if (n >= 2) {
     $('#token-props').classList.add('hidden');
     $('#mp-title').textContent = tr('multi.title', { n });
+    $('#mp-delete').textContent = tr('multi.delete', { n });
     $('#mp-size').value = '';
     $('#mp-init').value = '';
     $('#mp-hpmax').value = '';
