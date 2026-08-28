@@ -84,17 +84,18 @@ doivent tourner **dans le même navigateur sur la même machine**.
      sélection (ajoute à la sélection si Maj est maintenu). Quand plusieurs tokens sont
      sélectionnés, un panneau **édition groupée** remplace les propriétés : dégâts /
      soin, type, taille, initiative, PV max, couleur, visibilité joueurs, PV vus par
-     les joueurs, et suppression — appliqués à tous d'un coup (mettre PV max à 0
-     retire les PV). Glisser un token sélectionné déplace
-     **tout le groupe** en gardant la formation. `Suppr` supprime toute la sélection,
-     `Échap` la vide.
+     les joueurs, **duplication** et suppression — appliqués à tous d'un coup (mettre
+     PV max à 0 retire les PV). Glisser un token sélectionné déplace
+     **tout le groupe** en gardant la formation. **Ctrl/⌘ + D** duplique la sélection
+     (copies décalées d'une case, tout est repris : PV, initiative, états…).
+     `Suppr` supprime toute la sélection, `Échap` la vide.
    - **Tri** (menu en haut de la liste, mémorisé) : *initiative décroissante* (les
      tokens sans valeur en bas) ou *type puis nom* (PJ d'abord, puis PNJ, par ordre
      alphabétique). Le tri n'affecte que la liste, pas l'empilement des tokens sur la carte.
    - **Propriétés** — s'ouvre **uniquement via l'engrenage ⚙** de la ligne : nom,
      type, initiative, couleur, taille, PV / PV max, **Apparence** (disque plein ou une
      image importée), « PV vus par les joueurs » (*masqués* / *barre seule* /
-     *barre + chiffres* ; le MJ voit toujours les chiffres), **États**.
+     *barre + chiffres* ; le MJ voit toujours les chiffres), **États**, **Dupliquer**.
    - **États** (dans les propriétés) : une rangée d'icônes prédéfinies (poison,
      étourdi, endormi, en feu, saigne, à terre, entravé, protégé, hâté, ralenti) —
      clic pour appliquer / retirer — plus **＋** pour un état personnalisé (emoji ou
@@ -155,6 +156,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `A` | Ajouter un token au centre |
 | `M` (maintenu) + glisser | Règle de mesure |
 | `N` | Combattant suivant (suivi d'initiative) |
+| `Ctrl`/`⌘` + `D` | Dupliquer le(s) token(s) sélectionné(s) |
 | `G` | Ouvrir/fermer le panneau ⚙ Grille |
 | `F` | Ajuster la vue |
 | `Espace` + glisser | Déplacer la vue |

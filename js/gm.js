@@ -125,8 +125,10 @@ export async function initGM() {
     setPlayerPill(_pillOn);
     if (!selectedId) $('#scene-name').textContent = tr('topbar.noScene');
     if (stage.selectedIds.size >= 2) {
-      $('#mp-title').textContent = tr('multi.title', { n: stage.selectedIds.size });
-      $('#mp-delete').textContent = tr('multi.delete', { n: stage.selectedIds.size });
+      const n = stage.selectedIds.size;
+      $('#mp-title').textContent = tr('multi.title', { n });
+      $('#mp-delete').textContent = tr('multi.delete', { n });
+      $('#mp-dup').textContent = tr('multi.duplicate', { n });
     }
     renderSidebar();
     renderTokenList();
@@ -717,6 +719,7 @@ function wireToolbar() {
   $('#tp-dmg').addEventListener('click', () => adjustHp(-1));
   $('#tp-heal').addEventListener('click', () => adjustHp(+1));
 
+  $('#tp-dup').addEventListener('click', duplicateSelectedTokens);
   $('#tp-delete').addEventListener('click', async () => {
     stage.tokens = stage.tokens.filter((x) => x.id !== stage.selectedTokenId);
     stage.clearSelection();
@@ -978,6 +981,7 @@ function applySelectionUI() {
     $('#token-props').classList.add('hidden');
     $('#mp-title').textContent = tr('multi.title', { n });
     $('#mp-delete').textContent = tr('multi.delete', { n });
+    $('#mp-dup').textContent = tr('multi.duplicate', { n });
     $('#mp-size').value = '';
     $('#mp-init').value = '';
     $('#mp-hpmax').value = '';
@@ -989,6 +993,29 @@ function applySelectionUI() {
     if (n === 0) $('#token-props').classList.add('hidden');
   }
   renderTokenList();
+}
+
+/** Duplique le(s) token(s) sélectionné(s), décalé(s) d'une case, et sélectionne les copies. */
+async function duplicateSelectedTokens() {
+  const originals = stage.selectedTokens();
+  if (!originals.length || !stage.scene) return;
+  const cell = stage.scene.grid?.cellPx || 70;
+  const newIds = [];
+  for (const src of originals) {
+    const copy = structuredClone(src);
+    copy.id = uid('t');
+    copy.pos = stage.snapWorld({ x: src.pos.x + cell, y: src.pos.y + cell });
+    stage.tokens.push(copy);
+    newIds.push(copy.id);
+  }
+  const propsOpen = !$('#token-props').classList.contains('hidden');
+  stage.setSelection(newIds);
+  if (newIds.length === 1 && propsOpen) {
+    openTokenProps(stage.tokens.find((t) => t.id === newIds[0]));
+  } else {
+    applySelectionUI();
+  }
+  await afterTokenEdit();
 }
 
 function openTokenProps(t) {
@@ -1122,6 +1149,7 @@ function wireMultiProps() {
   });
   $('#mp-show').addEventListener('click', () => { for (const t of sel()) t.visibleToPlayers = true; commit(); });
   $('#mp-hide').addEventListener('click', () => { for (const t of sel()) t.visibleToPlayers = false; commit(); });
+  $('#mp-dup').addEventListener('click', duplicateSelectedTokens);
   $('#mp-delete').addEventListener('click', () => {
     const ids = new Set(stage.selectedIds);
     stage.tokens = stage.tokens.filter((t) => !ids.has(t.id));
@@ -1683,6 +1711,12 @@ function wireKeyboard() {
     if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) {
       e.preventDefault();
       fogUndo();
+      return;
+    }
+    // Ctrl/Cmd+D : dupliquer le(s) token(s) sélectionné(s)
+    if ((e.ctrlKey || e.metaKey) && k === 'd') {
+      e.preventDefault();
+      duplicateSelectedTokens();
       return;
     }
     if (e.ctrlKey || e.metaKey || e.altKey) return; // laisse les raccourcis navigateur

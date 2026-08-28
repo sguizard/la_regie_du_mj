@@ -135,6 +135,7 @@ const DICT = {
     'props.hpShareFull': 'Barre + chiffres',
     'props.conditions': 'États',
     'props.condPrompt': 'État (emoji ou texte court) :',
+    'props.duplicate': 'Dupliquer le token',
     'props.delete': 'Supprimer le token',
     'props.close': 'Fermer',
 
@@ -151,6 +152,7 @@ const DICT = {
     'multi.allVisible': '👁 Tous visibles',
     'multi.allHidden': '🚫 Tous masqués',
     'multi.delete': 'Supprimer les {n} tokens',
+    'multi.duplicate': 'Dupliquer les {n} tokens',
     'multi.hint': '{n} tokens sélectionnés',
 
     'combat.toggleTitle': "Suivi d'initiative (ordre de jeu)",
@@ -308,6 +310,7 @@ const DICT = {
     'props.hpShareFull': 'Bar + numbers',
     'props.conditions': 'Conditions',
     'props.condPrompt': 'Condition (emoji or short text):',
+    'props.duplicate': 'Duplicate the token',
     'props.delete': 'Delete the token',
     'props.close': 'Close',
 
@@ -324,6 +327,7 @@ const DICT = {
     'multi.allVisible': '👁 All visible',
     'multi.allHidden': '🚫 All hidden',
     'multi.delete': 'Delete the {n} tokens',
+    'multi.duplicate': 'Duplicate the {n} tokens',
     'multi.hint': '{n} tokens selected',
 
     'combat.toggleTitle': 'Initiative tracker (turn order)',
@@ -481,6 +485,7 @@ const DICT = {
     'props.hpShareFull': 'Barra + números',
     'props.conditions': 'Estados',
     'props.condPrompt': 'Estado (emoji o texto corto):',
+    'props.duplicate': 'Duplicar el token',
     'props.delete': 'Eliminar el token',
     'props.close': 'Cerrar',
 
@@ -497,6 +502,7 @@ const DICT = {
     'multi.allVisible': '👁 Todos visibles',
     'multi.allHidden': '🚫 Todos ocultos',
     'multi.delete': 'Eliminar los {n} tokens',
+    'multi.duplicate': 'Duplicar los {n} tokens',
     'multi.hint': '{n} tokens seleccionados',
 
     'combat.toggleTitle': 'Seguimiento de iniciativa (orden de turnos)',
