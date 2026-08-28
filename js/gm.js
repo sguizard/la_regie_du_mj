@@ -881,6 +881,14 @@ function wireCanvas() {
   }, { passive: false });
   cv.addEventListener('pointerleave', () => stage.setBrushCursor(null));
 
+  // double-clic = ping (« regarde ici ») pour soi + les joueurs
+  cv.addEventListener('dblclick', (e) => {
+    if (!stage.scene) return;
+    const w = stage.screenToWorld(stage.localPoint(e));
+    stage.addPing(w);
+    if (selectedId === presentingId) push('ping', { sceneId: selectedId, x: w.x, y: w.y });
+  });
+
   cv.addEventListener('pointerdown', (e) => {
     if (!stage.scene) return;
     cv.setPointerCapture(e.pointerId);

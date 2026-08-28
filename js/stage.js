@@ -40,6 +40,7 @@ export class Stage {
     this.selectedTokenId = null;
     this.brushCursor = null;   // { x, y, r, mode } en px écran — aperçu du pinceau (régie)
     this.calibrateRect = null; // { x0, y0, x1, y1 } en coords monde — aperçu du calibrage
+    this.pings = [];           // { x, y, t0, color } — repères temporaires « regarde ici »
 
     this._dirty = true;
     this._veil = document.createElement('canvas');
@@ -117,6 +118,7 @@ export class Stage {
     this.tokens = scene?.tokens ? structuredClone(scene.tokens) : [];
     this.selectedTokenId = null;
     this.calibrateRect = null;
+    this.pings = [];
     if (scene && this.imgW) {
       if (!this.scene.grid) this.scene.grid = defaultGrid();
       this.fog = new FogMask(this.imgW, this.imgH);
@@ -130,6 +132,12 @@ export class Stage {
   setTokenImages(map) { this.tokenImages = map || new Map(); this.invalidate(); }
   setGrid(grid) { if (this.scene) { this.scene.grid = grid; this.invalidate(); } }
   setTokens(tokens) { this.tokens = structuredClone(tokens || []); this.invalidate(); }
+
+  /** Ajoute un « ping » animé (repère temporaire) à la position monde donnée. */
+  addPing(world, { color = '#ffcf3f' } = {}) {
+    this.pings.push({ x: world.x, y: world.y, t0: performance.now(), color });
+    this.invalidate();
+  }
 
   tokenRadiusWorld(t) {
     const cell = this.scene?.grid?.cellPx || DEFAULT_CELL;
@@ -171,6 +179,37 @@ export class Stage {
     if (this.fog) this._drawFog(ctx);
     if (this.mode === 'gm' && this.brushCursor) this._drawBrushCursor(ctx);
     if (this.mode === 'gm' && this.calibrateRect) this._drawCalibrateRect(ctx);
+    if (this.pings.length) this._drawPings(ctx);
+  }
+
+  _drawPings(ctx) {
+    const DUR = 1700;
+    const now = performance.now();
+    this.pings = this.pings.filter((p) => now - p.t0 < DUR);
+    if (!this.pings.length) return;
+    const baseR = (this.scene?.grid?.cellPx || 60) * this.cam.zoom;
+    ctx.save();
+    for (const p of this.pings) {
+      const age = (now - p.t0) / DUR;
+      const c = this.worldToScreen(p);
+      for (let k = 0; k < 3; k++) {
+        const ph = age - k * 0.16;
+        if (ph <= 0 || ph >= 1) continue;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, baseR * (0.15 + ph * 0.95), 0, Math.PI * 2);
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = (1 - ph) * 0.9;
+        ctx.lineWidth = Math.max(2, baseR * 0.09);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = Math.max(0, 1 - age * 1.4) * 0.95;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, Math.max(3, baseR * 0.13), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    this.invalidate(); // continue l'animation tant qu'il reste des pings
   }
 
   _drawBrushCursor(ctx) {

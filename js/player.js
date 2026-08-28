@@ -29,6 +29,7 @@ export async function initPlayer() {
   bus.on('fog', (m) => live(m, 'fog', async () => {
     if (stage.fog) { await stage.fog.loadBlob(m.blob); stage.invalidate(); }
   }));
+  bus.on('ping', (m) => { if (m.sceneId === currentSceneId) stage.addPing({ x: m.x, y: m.y }); });
   bus.on('clear', () => {
     loadSeq++;
     currentSceneId = null;

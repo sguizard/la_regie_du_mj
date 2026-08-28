@@ -92,6 +92,9 @@ La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 
 **Molette de la souris** sur n'importe quel champ numérique ou curseur (PV, initiative,
 taille de case, pinceau…) : ajuste la valeur d'un cran.
 
+**Ping** : double-clique n'importe où sur la carte pour faire apparaître un repère
+animé « regarde ici » — visible sur ta régie et sur la vue joueurs.
+
 Une fois la carte présentée, chaque déplacement de token, coup de pinceau ou dégât
 est répercuté en direct sur la vue joueurs.
 
@@ -111,6 +114,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `F` | Ajuster la vue |
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |
+| double-clic sur la carte | Ping (repère « regarde ici ») |
 | `Suppr` | Supprimer le token sélectionné |
 | `Échap` | Fermer les panneaux |
 
