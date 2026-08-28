@@ -72,6 +72,28 @@ export async function makeThumbnail(blob, maxSide = 320) {
   return new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.82));
 }
 
+/**
+ * Réduit une image si son plus grand côté dépasse `maxSide`. Sinon renvoie le
+ * Blob d'origine tel quel. Conserve le PNG (transparence), sinon ré-encode en JPEG.
+ * @param {Blob} blob
+ * @param {number} maxSide
+ */
+export async function downscaleImage(blob, maxSide, { quality = 0.9 } = {}) {
+  let bmp;
+  try { bmp = await createImageBitmap(blob); } catch { return blob; }
+  if (Math.max(bmp.width, bmp.height) <= maxSide) { bmp.close?.(); return blob; }
+  const scale = maxSide / Math.max(bmp.width, bmp.height);
+  const w = Math.max(1, Math.round(bmp.width * scale));
+  const h = Math.max(1, Math.round(bmp.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  canvas.getContext('2d').drawImage(bmp, 0, 0, w, h);
+  bmp.close?.();
+  const type = blob.type === 'image/png' ? 'image/png' : 'image/jpeg';
+  const out = await new Promise((res) => canvas.toBlob(res, type, quality));
+  return (out && out.size < blob.size) ? out : blob;
+}
+
 /** Dimensions natives d'une image Blob. */
 export async function imageSize(blob) {
   const bmp = await createImageBitmap(blob);

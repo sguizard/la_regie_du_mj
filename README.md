@@ -47,9 +47,12 @@ doivent tourner **dans le même navigateur sur la même machine**.
 
 1. **+ Ajouter une carte** (ou glisser-déposer des images dans la zone de la barre
    latérale). Chaque carte est une scène tactique. Sélectionne-la, puis
-   **« Présenter aux joueurs »** pour l'envoyer sur la TV. Le **✕** qui apparaît au
-   survol d'une ligne supprime la carte (avec confirmation) — grille, tokens et
-   brouillard compris ; si elle était présentée, la vue joueurs repasse en attente.
+   **« Présenter aux joueurs »** pour l'envoyer sur la TV. Au survol d'une ligne :
+   **⧉** duplique la carte (grille, tokens, brouillard, suivi d'initiative) ;
+   **✕** la supprime (avec confirmation) — si elle était présentée, la vue joueurs
+   repasse en attente.
+   Les images trop grandes (carte > 2560 px, token > 512 px) sont **réduites
+   automatiquement** à l'import pour économiser l'espace de stockage.
 2. **🚫 Masquer joueurs** (barre du haut) : bascule la vue joueurs en **écran noir**
    pendant que tu prépares la suite ; re-clique (**👁 Afficher joueurs**) pour révéler.
    L'état est conservé au rechargement.
@@ -91,7 +94,12 @@ doivent tourner **dans le même navigateur sur la même machine**.
    - **Propriétés** — s'ouvre **uniquement via l'engrenage ⚙** de la ligne : nom,
      type, initiative, couleur, taille, PV / PV max, **Apparence** (disque plein ou une
      image importée), « PV vus par les joueurs » (*masqués* / *barre seule* /
-     *barre + chiffres* ; le MJ voit toujours les chiffres).
+     *barre + chiffres* ; le MJ voit toujours les chiffres), **États**.
+   - **États** (dans les propriétés) : une rangée d'icônes prédéfinies (poison,
+     étourdi, endormi, en feu, saigne, à terre, entravé, protégé, hâté, ralenti) —
+     clic pour appliquer / retirer — plus **＋** pour un état personnalisé (emoji ou
+     texte court). Les états apparaissent en petites pastilles au bord du token, sur
+     la régie **et** la vue joueurs.
    - À 0 PV, le token est grisé avec une croix rouge.
 5. Outils **🔦 Révéler** / **🌫 Cacher** : peins le brouillard au pinceau (un cercle
    d'aperçu suit le curseur, vert pour révéler, rouge pour cacher). Le réglage de
@@ -102,6 +110,11 @@ doivent tourner **dans le même navigateur sur la même machine**.
 
 La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 révéler ·
 🌫 cacher · ⛃ token · ▦ grille · ⚙ réglages de grille (survole pour l'infobulle).
+
+**Règle de mesure** : maintiens **M** et glisse sur la carte. La distance s'affiche
+en cases — en cases de grille (diagonale = 1) et, entre parenthèses, à vol d'oiseau.
+Relâche M ou appuie sur `Échap` pour effacer. Les extrémités s'aimantent si
+l'aimantation de la grille est active.
 
 ### Suivi d'initiative (ordre de jeu)
 
@@ -140,6 +153,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `H` | Pinceau cacher |
 | `T` | Outil poser un token |
 | `A` | Ajouter un token au centre |
+| `M` (maintenu) + glisser | Règle de mesure |
 | `N` | Combattant suivant (suivi d'initiative) |
 | `G` | Ouvrir/fermer le panneau ⚙ Grille |
 | `F` | Ajuster la vue |

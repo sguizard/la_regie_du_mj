@@ -38,6 +38,8 @@ const DICT = {
     'deck.newName': 'Nouveau deck',
     'deck.namePrompt': 'Nom du deck :',
     'scene.deleteTitle': 'Supprimer la carte',
+    'scene.duplicateTitle': 'Dupliquer la carte',
+    'scene.copySuffix': '(copie)',
     'dialog.confirm': 'Confirmer',
     'dialog.cancel': 'Annuler',
     'dialog.ok': 'OK',
@@ -131,6 +133,8 @@ const DICT = {
     'props.hpShareOff': 'Masqués',
     'props.hpShareBar': 'Barre seule',
     'props.hpShareFull': 'Barre + chiffres',
+    'props.conditions': 'États',
+    'props.condPrompt': 'État (emoji ou texte court) :',
     'props.delete': 'Supprimer le token',
     'props.close': 'Fermer',
 
@@ -159,6 +163,8 @@ const DICT = {
 
     'hint.calibrate': "Tracez la diagonale d'UNE case sur la carte.",
     'hint.cellSize': 'Case : {px} px',
+    'ruler.hint': 'Glisse sur la carte pour mesurer (touche M maintenue).',
+    'ruler.cells': 'cases',
 
     'confirm.wipe': 'Effacer TOUTES les cartes, decks et tokens ? Action irréversible.',
     'confirm.deleteDeck': 'Supprimer ce deck ? Les cartes seront déplacées vers « Sans deck ».',
@@ -205,6 +211,8 @@ const DICT = {
     'deck.newName': 'New deck',
     'deck.namePrompt': 'Deck name:',
     'scene.deleteTitle': 'Delete map',
+    'scene.duplicateTitle': 'Duplicate map',
+    'scene.copySuffix': '(copy)',
     'dialog.confirm': 'Confirm',
     'dialog.cancel': 'Cancel',
     'dialog.ok': 'OK',
@@ -298,6 +306,8 @@ const DICT = {
     'props.hpShareOff': 'Hidden',
     'props.hpShareBar': 'Bar only',
     'props.hpShareFull': 'Bar + numbers',
+    'props.conditions': 'Conditions',
+    'props.condPrompt': 'Condition (emoji or short text):',
     'props.delete': 'Delete the token',
     'props.close': 'Close',
 
@@ -326,6 +336,8 @@ const DICT = {
 
     'hint.calibrate': 'Draw the diagonal of ONE cell on the map.',
     'hint.cellSize': 'Cell: {px} px',
+    'ruler.hint': 'Drag on the map to measure (hold the M key).',
+    'ruler.cells': 'cells',
 
     'confirm.wipe': 'Erase ALL maps, decks and tokens? This cannot be undone.',
     'confirm.deleteDeck': 'Delete this deck? Its maps will move to "No deck".',
@@ -372,6 +384,8 @@ const DICT = {
     'deck.newName': 'Nuevo mazo',
     'deck.namePrompt': 'Nombre del mazo:',
     'scene.deleteTitle': 'Eliminar el mapa',
+    'scene.duplicateTitle': 'Duplicar el mapa',
+    'scene.copySuffix': '(copia)',
     'dialog.confirm': 'Confirmar',
     'dialog.cancel': 'Cancelar',
     'dialog.ok': 'OK',
@@ -465,6 +479,8 @@ const DICT = {
     'props.hpShareOff': 'Ocultos',
     'props.hpShareBar': 'Solo barra',
     'props.hpShareFull': 'Barra + números',
+    'props.conditions': 'Estados',
+    'props.condPrompt': 'Estado (emoji o texto corto):',
     'props.delete': 'Eliminar el token',
     'props.close': 'Cerrar',
 
@@ -493,6 +509,8 @@ const DICT = {
 
     'hint.calibrate': 'Traza la diagonal de UNA casilla en el mapa.',
     'hint.cellSize': 'Casilla: {px} px',
+    'ruler.hint': 'Arrastra sobre el mapa para medir (mantén la tecla M).',
+    'ruler.cells': 'casillas',
 
     'confirm.wipe': '¿Borrar TODOS los mapas, mazos y tokens? Acción irreversible.',
     'confirm.deleteDeck': '¿Eliminar este mazo? Los mapas pasarán a «Sin mazo».',

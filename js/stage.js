@@ -44,6 +44,7 @@ export class Stage {
     this.calibrateRect = null; // { x0, y0, x1, y1 } en coords monde — aperçu du calibrage
     this.pings = [];           // { x, y, t0, color } — repères temporaires « regarde ici »
     this.turnTokenId = null;   // token dont c'est le tour (suivi d'initiative)
+    this.ruler = null;         // { x0, y0, x1, y1, text } coords monde — règle de mesure (régie)
 
     this._dirty = true;
     this._veil = document.createElement('canvas');
@@ -125,6 +126,7 @@ export class Stage {
     this.calibrateRect = null;
     this.pings = [];
     this.turnTokenId = null;
+    this.ruler = null;
     if (scene && this.imgW) {
       if (!this.scene.grid) this.scene.grid = defaultGrid();
       this.fog = new FogMask(this.imgW, this.imgH);
@@ -139,6 +141,7 @@ export class Stage {
   setGrid(grid) { if (this.scene) { this.scene.grid = grid; this.invalidate(); } }
   setTokens(tokens) { this.tokens = structuredClone(tokens || []); this.invalidate(); }
   setTurn(id) { this.turnTokenId = id || null; this.invalidate(); }
+  setRuler(rect) { this.ruler = rect; this.invalidate(); }
 
   /** Ajoute un « ping » animé (repère temporaire) à la position monde donnée. */
   addPing(world, { color = '#ffcf3f' } = {}) {
@@ -219,7 +222,47 @@ export class Stage {
     if (this.mode === 'gm' && this.brushCursor) this._drawBrushCursor(ctx);
     if (this.mode === 'gm' && this.calibrateRect) this._drawCalibrateRect(ctx);
     if (this.mode === 'gm' && this.marquee) this._drawMarquee(ctx);
+    if (this.mode === 'gm' && this.ruler) this._drawRuler(ctx);
     if (this.pings.length) this._drawPings(ctx);
+  }
+
+  _drawRuler(ctx) {
+    const rl = this.ruler;
+    const a = this.worldToScreen({ x: rl.x0, y: rl.y0 });
+    const b = this.worldToScreen({ x: rl.x1, y: rl.y1 });
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.setLineDash([7, 5]);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(0,0,0,.55)';
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#f2d574';
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.setLineDash([]);
+    for (const p of [a, b]) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#f2d574';
+      ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.stroke();
+    }
+    if (rl.text) {
+      ctx.font = '600 13px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const tx = b.x;
+      const ty = b.y - 20;
+      const w = ctx.measureText(rl.text).width + 14;
+      ctx.fillStyle = 'rgba(20,22,28,.92)';
+      ctx.strokeStyle = 'rgba(242,213,116,.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(tx - w / 2, ty - 11, w, 22, 5);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.fillText(rl.text, tx, ty);
+    }
+    ctx.restore();
   }
 
   _drawMarquee(ctx) {
@@ -497,8 +540,34 @@ export class Stage {
         ctx.stroke();
       }
       if (t.id === this.turnTokenId) this._drawTurnMarker(ctx, c, r, t);
+      if (t.conditions?.length) this._drawConditions(ctx, c, r, t.conditions);
       ctx.restore();
     }
+  }
+
+  /** Pastilles d'état (emoji / texte court) empilées au bord droit du token. */
+  _drawConditions(ctx, c, r, conditions) {
+    const sz = Math.max(11, r * 0.5);
+    ctx.save();
+    ctx.font = `${sz}px system-ui, "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const cx = c.x + r + sz * 0.35;
+    let cy = c.y - r + sz * 0.55;
+    for (const raw of conditions.slice(0, 6)) {
+      const label = [...String(raw)].slice(0, 2).join('');
+      ctx.beginPath();
+      ctx.arc(cx, cy, sz * 0.64, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(15,16,20,.82)';
+      ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,.28)';
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, cx, cy + sz * 0.05);
+      cy += sz * 1.3;
+    }
+    ctx.restore();
   }
 
   /** Chevron doré au-dessus du token dont c'est le tour. */

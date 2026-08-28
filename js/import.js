@@ -1,7 +1,10 @@
 // La Régie du MJ — Copyright (C) 2026 Sébastien Guizard — GPL-3.0-or-later
 // ===== Import d'images : cartes tactiques + tokens =====
 
-import { uid, makeThumbnail } from './util.js';
+import { uid, makeThumbnail, downscaleImage } from './util.js';
+
+const MAX_MAP_SIDE = 2560;   // au-delà : la carte est réduite à l'import
+const MAX_TOKEN_SIDE = 512;  // idem pour les images de tokens
 import { put, getAll } from './db.js';
 import { defaultGrid } from './stage.js';
 import { t as tr } from './i18n.js';
@@ -22,7 +25,7 @@ export async function importScenes(files, deckId = null) {
   let order = await nextOrder('scenes', deckId);
   for (const file of files) {
     if (!file.type.startsWith('image/')) continue;
-    const imageBlob = file.slice(0, file.size, file.type);
+    const imageBlob = await downscaleImage(file.slice(0, file.size, file.type), MAX_MAP_SIDE);
     const thumbBlob = await makeThumbnail(imageBlob, 320);
     const scene = {
       id: uid('scene'),
@@ -47,7 +50,7 @@ export async function importTokens(files) {
   const created = [];
   for (const file of files) {
     if (!file.type.startsWith('image/')) continue;
-    const imageBlob = file.slice(0, file.size, file.type);
+    const imageBlob = await downscaleImage(file.slice(0, file.size, file.type), MAX_TOKEN_SIDE);
     const thumbBlob = await makeThumbnail(imageBlob, 128);
     const tok = { id: uid('tok'), name: baseName(file), imageBlob, thumbBlob };
     await put('tokenLibrary', tok);

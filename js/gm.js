@@ -478,9 +478,11 @@ function sceneRow(s) {
   const thumb = el('img', { class: 'scene-thumb', alt: '' });
   if (thumbUrls.has(s.id)) thumb.src = thumbUrls.get(s.id);
   const label = el('span', { class: 'scene-label', text: s.name, title: s.name });
+  const dup = el('button', { class: 'scene-dup', title: tr('scene.duplicateTitle'), text: '⧉' });
+  dup.addEventListener('click', (e) => { e.stopPropagation(); duplicateScene(s.id); });
   const del = el('button', { class: 'scene-del', title: tr('scene.deleteTitle'), text: '✕' });
   del.addEventListener('click', (e) => { e.stopPropagation(); deleteScene(s.id); });
-  row.append(thumb, label, del);
+  row.append(thumb, label, dup, del);
 
   row.addEventListener('click', () => selectScene(s.id));
   label.addEventListener('dblclick', (e) => {
@@ -531,6 +533,28 @@ async function removeDeck(deckId) {
   for (const s of scenes.filter((x) => x.deckId === deckId)) { s.deckId = null; await db.put('scenes', s); }
   await db.del('decks', deckId);
   await reloadAll();
+}
+
+async function duplicateScene(id) {
+  const s = scenes.find((x) => x.id === id);
+  if (!s) return;
+  const sib = scenes.filter((x) => (x.deckId ?? null) === (s.deckId ?? null));
+  const copy = {
+    id: uid('scene'),
+    kind: s.kind || 'battlemap',
+    name: `${s.name} ${tr('scene.copySuffix')}`,
+    deckId: s.deckId ?? null,
+    order: sib.reduce((m, x) => Math.max(m, x.order ?? 0), 0) + 1,
+    grid: structuredClone(s.grid ?? null),
+    tokens: structuredClone(s.tokens ?? []),
+    combat: structuredClone(s.combat ?? null),
+    imageBlob: s.imageBlob,
+    thumbBlob: s.thumbBlob,
+    fogBlob: s.fogBlob ?? null,
+  };
+  await db.put('scenes', copy);
+  await reloadAll();
+  await selectScene(copy.id);
 }
 
 async function deleteScene(id) {
@@ -981,7 +1005,53 @@ function openTokenProps(t) {
   $('#tp-hpshare').value = t.hpShare || 'off';
   $('#token-props').classList.remove('hidden');
   renderAppearance();
+  renderTokenConditions();
   renderTokenList();
+}
+
+// ---------------------------------------------------------------- états (conditions)
+const CONDITION_PRESETS = ['☠️', '😵', '💤', '🔥', '🩸', '⬇️', '🕸️', '🛡️', '⚡', '🐌'];
+
+function renderTokenConditions() {
+  const presetHost = $('#tp-cond-presets');
+  const listHost = $('#tp-cond-list');
+  if (!presetHost || !listHost) return;
+  presetHost.innerHTML = '';
+  listHost.innerHTML = '';
+  const t = stage.tokens.find((x) => x.id === stage.selectedTokenId);
+  if (!t) return;
+  const conds = t.conditions || [];
+
+  for (const emo of CONDITION_PRESETS) {
+    const b = el('button', { class: 'cond-btn' + (conds.includes(emo) ? ' active' : ''), text: emo });
+    b.addEventListener('click', () => toggleCondition(t, emo));
+    presetHost.append(b);
+  }
+  for (const c of conds.filter((x) => !CONDITION_PRESETS.includes(x))) {
+    const x = el('button', { class: 'cond-x', text: '✕' });
+    x.addEventListener('click', () => toggleCondition(t, c));
+    listHost.append(el('span', { class: 'cond-chip' }, [el('span', { text: c }), x]));
+  }
+  const add = el('button', { class: 'cond-btn cond-add', text: '＋', title: tr('props.condPrompt') });
+  add.addEventListener('click', async () => {
+    const v = ((await askPrompt(tr('props.condPrompt'))) || '').trim();
+    if (v && !(t.conditions || []).includes(v)) {
+      (t.conditions ||= []).push(v);
+      afterTokenEdit();
+      renderTokenConditions();
+    }
+  });
+  listHost.append(add);
+}
+
+function toggleCondition(t, c) {
+  t.conditions ||= [];
+  const i = t.conditions.indexOf(c);
+  if (i >= 0) t.conditions.splice(i, 1);
+  else t.conditions.push(c);
+  if (!t.conditions.length) delete t.conditions;
+  afterTokenEdit();
+  renderTokenConditions();
 }
 
 // ---------------------------------------------------------------- liste des tokens (combat)
@@ -1324,6 +1394,16 @@ const broadcastGridThrottled = throttle(() => {
   if (stage.scene && selectedId === presentingId) push('grid', { sceneId: selectedId, grid: stage.scene.grid });
 }, 80);
 
+/** Met à jour la règle de mesure entre deux points monde (a = origine, b = fin). */
+function updateRuler(a, b) {
+  const cell = stage.scene?.grid?.cellPx || 70;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const euclid = Math.hypot(dx, dy) / cell;
+  const squares = Math.max(Math.abs(dx), Math.abs(dy)) / cell;
+  const text = `${Math.round(squares)} ${tr('ruler.cells')} (~${euclid.toFixed(1)})`;
+  stage.setRuler({ x0: a.x, y0: a.y, x1: b.x, y1: b.y, text });
+}
+
 function wireCanvas() {
   const cv = $('#gm-canvas');
   let mode = null;            // 'pan' | 'token-drag' | 'fog' | 'calibrate' | 'grid-move' | 'grid-size' | 'marquee'
@@ -1336,6 +1416,7 @@ function wireCanvas() {
   let marqStart = null;       // point monde au début du rectangle de sélection
   let gridMoveStart = null;   // { world, offX, offY }
   let gridSizeStart = null;   // { y, cell }
+  let rulerStart = null;      // point monde au début d'une mesure
 
   const isBrushTool = () => tool === 'reveal' || tool === 'hide';
   const updateBrush = (p) => {
@@ -1369,6 +1450,14 @@ function wireCanvas() {
     const p = stage.localPoint(e);
     last = p;
     const wantPan = e.button === 1 || e.button === 2 || spaceHeld;
+
+    // touche M maintenue : mesure de distance (prioritaire sur l'outil courant)
+    if (rulerHeld && e.button === 0) {
+      mode = 'ruler';
+      rulerStart = stage.snapWorld(stage.screenToWorld(p));
+      updateRuler(rulerStart, rulerStart);
+      return;
+    }
 
     if (calibrating && e.button === 0) {
       mode = 'calibrate';
@@ -1453,6 +1542,8 @@ function wireCanvas() {
     } else if (mode === 'marquee' && marqStart) {
       const w = stage.screenToWorld(p);
       stage.setMarquee({ x0: marqStart.x, y0: marqStart.y, x1: w.x, y1: w.y });
+    } else if (mode === 'ruler' && rulerStart) {
+      updateRuler(rulerStart, stage.snapWorld(stage.screenToWorld(p)));
     } else if (mode === 'fog') {
       const w = stage.screenToWorld(p);
       const radius = (brushPx / 2) / stage.cam.zoom;
@@ -1493,6 +1584,12 @@ function wireCanvas() {
       dragGroup = null; dragOrigin = null;
       await persistCurrentScene();
       broadcastTokens();
+    } else if (finished === 'ruler') {
+      // clic sans glisser : rien à mesurer, on efface
+      if (stage.ruler && stage.ruler.x0 === stage.ruler.x1 && stage.ruler.y0 === stage.ruler.y1) {
+        stage.setRuler(null);
+      }
+      rulerStart = null;
     } else if (finished === 'marquee') {
       const m = stage.marquee;
       stage.setMarquee(null);
@@ -1569,12 +1666,19 @@ function quickAddToken() {
 
 // ---------------------------------------------------------------- clavier
 let spaceHeld = false;
+let rulerHeld = false;
 function wireKeyboard() {
   window.addEventListener('keydown', (e) => {
     if (e.target?.matches?.('input, textarea, select, [contenteditable="true"]')) return;
     if (e.code === 'Space') { spaceHeld = true; $('#gm-canvas').style.cursor = 'grab'; return; }
     if (!stage.scene) return;
     const k = e.key.toLowerCase();
+    // M maintenu : règle de mesure (glisser sur la carte)
+    if (k === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (!rulerHeld) { rulerHeld = true; showHint(tr('ruler.hint')); }
+      $('#gm-canvas').style.cursor = 'crosshair';
+      return;
+    }
     // Ctrl/Cmd+Z : annuler le dernier coup de pinceau de brouillard
     if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) {
       e.preventDefault();
@@ -1601,11 +1705,18 @@ function wireKeyboard() {
     if (e.key === 'Escape') {
       stage.clearSelection();
       applySelectionUI();
+      stage.setRuler(null);
       closeFloaties(); closeAppearanceMenu(); calibrating = false; stage.setCalibrateRect(null); hideHint();
     }
   });
   window.addEventListener('keyup', (e) => {
     if (e.code === 'Space') { spaceHeld = false; setTool(tool); }
+    if (e.key.toLowerCase() === 'm' && rulerHeld) {
+      rulerHeld = false;
+      stage.setRuler(null);
+      hideHint();
+      setTool(tool);
+    }
   });
 }
 

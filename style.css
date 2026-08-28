@@ -142,12 +142,13 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .deck-head:hover .deck-del { opacity: 1; }
 .deck-del:hover { color: var(--danger); }
 
-.scene-del {
+.scene-del, .scene-dup {
   opacity: 0; border: none; background: none; color: var(--text-dim);
   cursor: pointer; font-size: 13px; padding: 0 2px; flex: 0 0 auto;
 }
-.scene-row:hover .scene-del { opacity: 1; }
+.scene-row:hover .scene-del, .scene-row:hover .scene-dup { opacity: 1; }
 .scene-del:hover { color: var(--danger); }
+.scene-dup:hover { color: var(--accent-2); }
 
 .deck-scenes { display: flex; flex-direction: column; padding: 4px; gap: 3px; min-height: 8px; }
 
@@ -419,3 +420,22 @@ button.tl-name.tl-add { text-align: left; }
 }
 .pi-chip.current { background: var(--accent); color: #1a1a1a; font-weight: 700; }
 .pi-num { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---------- États (conditions) sur un token ---------- */
+.cond-presets { display: flex; flex-wrap: wrap; gap: 4px; }
+.cond-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.cond-btn {
+  border: 1px solid var(--border); background: var(--bg-elev-2); color: var(--text);
+  border-radius: 6px; padding: 2px 6px; font-size: 15px; line-height: 1.25; cursor: pointer;
+}
+.cond-btn:hover { background: #2d3242; }
+.cond-btn.active { background: var(--accent); border-color: var(--accent); }
+.cond-btn.active:hover { background: var(--accent); }
+.cond-add { font-weight: 700; }
+.cond-chip {
+  display: inline-flex; align-items: center; gap: 3px; font-size: 13px;
+  background: var(--bg-elev-2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px 4px 2px 7px;
+}
+.cond-x { border: none; background: none; color: var(--text-dim); cursor: pointer; font-size: 11px; padding: 0 2px; }
+.cond-x:hover { color: var(--danger); }
