@@ -1,5 +1,7 @@
 # La Régie du MJ
 
+**Français** · [English](README.en.md) · [Español](README.es.md)
+
 Cartes tactiques pour parties de JDR en présentiel : grille, tokens, points de vie,
 brouillard de guerre. Deux fenêtres synchronisées en local :
 
