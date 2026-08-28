@@ -20,17 +20,28 @@ one entry in `DICT` in [`js/i18n.js`](js/i18n.js) with the same keys.
 
 ## Running it
 
-A local static server is required (ES modules + reliable sync between windows):
+A local static server is required (ES modules + reliable sync between windows) — it
+**disables the browser cache** so a plain reload is enough after a code change.
 
-```bash
-./serve.sh
-```
+- **macOS / Linux**: `./serve.sh`
+- **Windows**: double-click **`serve.bat`** (or type `serve.bat` in PowerShell / cmd)
 
-then open **http://localhost:8000** and click **"Open the console"**.
+Then open **http://localhost:8000** (Chrome, Edge or Firefox) and click **"Open the
+console"**. Other port: `./serve.sh 9000` or `serve.bat 9000`.
 
-`serve.sh` launches `serve.py` (python3) — a tiny server that **disables the browser
-cache**, so a plain reload is enough after a code change. Falls back to `npx serve` if
-python3 is missing. Other port: `./serve.sh 9000`.
+Both scripts launch `serve.py` if **Python 3** is present, otherwise fall back to
+`npx serve` (Node.js, without cache-disabling — then use `Ctrl+Shift+R` after an
+update).
+
+### Prerequisites
+
+**Python 3** — [python.org](https://www.python.org/downloads/) or the Microsoft Store.
+On Windows, tick **"Add python.exe to PATH"** during installation. If you only have
+**Node.js**, the `npx serve` path takes over.
+
+Get the project with `git clone https://github.com/sguizard/la_regie_du_mj.git` or, on
+GitHub, **"Code" → "Download ZIP"** and extract. On the first run, Windows may ask for
+a firewall permission — you can deny public-network access, `localhost` still works.
 
 Reloading the console or the player view at any time is safe: the presented scene and
 its state (grid, tokens, HP, fog) are restored, and the two windows re-sync.
@@ -191,7 +202,7 @@ Tested on Chrome / Firefox. **Safari does not handle IndexedDB reliably in local
 ```
 index.html      entry point (console, player view, landing)
 style.css
-serve.sh / serve.py   local static server without caching
+serve.sh / serve.bat / serve.py   local static server without caching (Unix / Windows)
 js/
   main.js       language + role routing
   i18n.js       translations (fr / en / es) + selector

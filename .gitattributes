@@ -1,0 +1,2 @@
+# Script batch Windows : fins de ligne CRLF (cmd.exe est capricieux avec LF).
+serve.bat text eol=crlf

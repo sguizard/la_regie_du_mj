@@ -23,17 +23,29 @@ claves.
 ## Cómo ejecutarlo
 
 Se necesita un servidor estático local (módulos ES + sincronización fiable entre
-ventanas):
+ventanas) — **desactiva la caché del navegador** para que baste con recargar tras un
+cambio de código.
 
-```bash
-./serve.sh
-```
+- **macOS / Linux**: `./serve.sh`
+- **Windows**: doble clic en **`serve.bat`** (o escribe `serve.bat` en PowerShell / cmd)
 
-luego abre **http://localhost:8000** y haz clic en **«Abrir la consola»**.
+Luego abre **http://localhost:8000** (Chrome, Edge o Firefox) y haz clic en **«Abrir la
+consola»**. Otro puerto: `./serve.sh 9000` o `serve.bat 9000`.
 
-`serve.sh` lanza `serve.py` (python3) — un pequeño servidor que **desactiva la caché
-del navegador**, para que baste con recargar tras un cambio de código. Alternativa
-`npx serve` si no hay python3. Otro puerto: `./serve.sh 9000`.
+Ambos scripts lanzan `serve.py` si **Python 3** está presente; si no, recurren a
+`npx serve` (Node.js, sin desactivar la caché — entonces usa `Ctrl+Mayús+R` tras una
+actualización).
+
+### Requisitos
+
+**Python 3** — [python.org](https://www.python.org/downloads/) o el Microsoft Store.
+En Windows, marca **«Add python.exe to PATH»** durante la instalación. Si solo tienes
+**Node.js**, se usa la ruta `npx serve`.
+
+Obtén el proyecto con `git clone https://github.com/sguizard/la_regie_du_mj.git` o, en
+GitHub, **«Code» → «Download ZIP»** y descomprime. En el primer arranque, Windows puede
+pedir un permiso de cortafuegos — puedes denegar el acceso a redes públicas,
+`localhost` funciona igualmente.
 
 Recargar la consola o la vista de jugadores en cualquier momento es seguro: la escena
 presentada y su estado (rejilla, tokens, PV, niebla) se restauran, y las dos ventanas
@@ -204,7 +216,7 @@ local** — usa Chrome o Firefox.
 ```
 index.html      punto de entrada (consola, vista de jugadores, inicio)
 style.css
-serve.sh / serve.py   servidor estático local sin caché
+serve.sh / serve.bat / serve.py   servidor estático local sin caché (Unix / Windows)
 js/
   main.js       idioma + enrutado de rol
   i18n.js       traducciones (fr / en / es) + selector

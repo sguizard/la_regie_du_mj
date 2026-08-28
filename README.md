@@ -21,17 +21,30 @@ entrée dans `DICT` de [`js/i18n.js`](js/i18n.js) avec les mêmes clés.
 
 ## Lancer
 
-Un serveur statique local est nécessaire (modules ES + synchro fiable entre fenêtres) :
+Un serveur statique local est nécessaire (modules ES + synchro fiable entre fenêtres) —
+il **désactive le cache navigateur** pour qu'un simple rechargement suffise après une
+mise à jour du code.
 
-```bash
-./serve.sh
-```
+- **macOS / Linux** : `./serve.sh`
+- **Windows** : double-clique **`serve.bat`** (ou tape `serve.bat` dans PowerShell / cmd)
 
-puis ouvre **http://localhost:8000** et clique **« Ouvrir la régie »**.
+Puis ouvre **http://localhost:8000** (Chrome, Edge ou Firefox) et clique
+**« Ouvrir la régie »**. Autre port : `./serve.sh 9000` ou `serve.bat 9000`.
 
-`serve.sh` lance `serve.py` (python3) — un petit serveur qui **désactive le cache
-navigateur**, pour qu'un simple rechargement suffise après une mise à jour du code.
-Fallback `npx serve` si python3 est absent. Autre port : `./serve.sh 9000`.
+Les deux scripts lancent `serve.py` si **Python 3** est présent, sinon `npx serve`
+en secours (Node.js, sans désactivation du cache — pense alors à `Ctrl+Maj+R` après
+une mise à jour).
+
+### Prérequis
+
+**Python 3** — [python.org](https://www.python.org/downloads/) ou le Microsoft Store.
+Sous Windows, coche **« Add python.exe to PATH »** pendant l'installation. Si tu n'as
+que **Node.js**, le chemin `npx serve` prend le relais.
+
+Récupère le projet avec `git clone https://github.com/sguizard/la_regie_du_mj.git`
+ou, sur GitHub, **« Code » → « Download ZIP »** puis décompresse. Au premier lancement,
+Windows peut demander une autorisation pare-feu : tu peux refuser l'accès aux réseaux
+publics, `localhost` fonctionne quand même.
 
 Recharger la régie ou la vue joueurs à tout moment est sans risque : la scène
 présentée et son état (grille, tokens, PV, brouillard) sont restaurés, et les deux
@@ -199,7 +212,7 @@ local** — utilise Chrome ou Firefox.
 ```
 index.html      point d'entrée (régie, vue joueurs, accueil)
 style.css
-serve.sh / serve.py   serveur statique local sans cache
+serve.sh / serve.bat / serve.py   serveur statique local sans cache (Unix / Windows)
 js/
   main.js       langue + routage de rôle
   i18n.js       traductions (fr / en / es) + sélecteur
