@@ -26,26 +26,35 @@ Se necesita un servidor estático local (módulos ES + sincronización fiable en
 ventanas) — **desactiva la caché del navegador** para que baste con recargar tras un
 cambio de código.
 
+### Windows — lo más sencillo
+
+En la página **[Releases](https://github.com/sguizard/la_regie_du_mj/releases)**,
+descarga el `.zip` `…-windows`, descomprímelo y **haz doble clic en `serve.exe`**. No
+hay que instalar nada, el navegador se abre solo.
+
+En el primer arranque, Windows SmartScreen puede avisar de un editor desconocido (el
+ejecutable no está firmado): **Más información → Ejecutar de todas formas**. También
+puede aparecer un aviso del cortafuegos — puedes denegar el acceso a redes públicas,
+`localhost` funciona igualmente.
+
+### Desde el código fuente (Python 3 o Node.js)
+
 - **macOS / Linux**: `./serve.sh`
 - **Windows**: doble clic en **`serve.bat`** (o escribe `serve.bat` en PowerShell / cmd)
-
-Luego abre **http://localhost:8000** (Chrome, Edge o Firefox) y haz clic en **«Abrir la
-consola»**. Otro puerto: `./serve.sh 9000` o `serve.bat 9000`.
 
 Ambos scripts lanzan `serve.py` si **Python 3** está presente; si no, recurren a
 `npx serve` (Node.js, sin desactivar la caché — entonces usa `Ctrl+Mayús+R` tras una
 actualización).
 
-### Requisitos
+**Python 3**: [python.org](https://www.python.org/downloads/) o el Microsoft Store —
+en Windows, marca **«Add python.exe to PATH»** durante la instalación. Obtén el
+proyecto con `git clone https://github.com/sguizard/la_regie_du_mj.git` o, en GitHub,
+**«Code» → «Download ZIP»**.
 
-**Python 3** — [python.org](https://www.python.org/downloads/) o el Microsoft Store.
-En Windows, marca **«Add python.exe to PATH»** durante la instalación. Si solo tienes
-**Node.js**, se usa la ruta `npx serve`.
+### Después
 
-Obtén el proyecto con `git clone https://github.com/sguizard/la_regie_du_mj.git` o, en
-GitHub, **«Code» → «Download ZIP»** y descomprime. En el primer arranque, Windows puede
-pedir un permiso de cortafuegos — puedes denegar el acceso a redes públicas,
-`localhost` funciona igualmente.
+Abre **http://localhost:8000** (Chrome, Edge o Firefox) y haz clic en **«Abrir la
+consola»**. Otro puerto: `./serve.sh 9000`, `serve.bat 9000` o `serve.exe 9000`.
 
 Recargar la consola o la vista de jugadores en cualquier momento es seguro: la escena
 presentada y su estado (rejilla, tokens, PV, niebla) se restauran, y las dos ventanas

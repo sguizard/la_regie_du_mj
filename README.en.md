@@ -23,25 +23,34 @@ one entry in `DICT` in [`js/i18n.js`](js/i18n.js) with the same keys.
 A local static server is required (ES modules + reliable sync between windows) — it
 **disables the browser cache** so a plain reload is enough after a code change.
 
+### Windows — the easy way
+
+On the **[Releases](https://github.com/sguizard/la_regie_du_mj/releases)** page,
+download the `…-windows` `.zip`, extract it, then **double-click `serve.exe`**.
+Nothing to install, the browser opens on its own.
+
+On the first run, Windows SmartScreen may flag an unknown publisher (the executable is
+unsigned): **More info → Run anyway**. A firewall prompt may also appear — you can deny
+public-network access, `localhost` still works.
+
+### From source (Python 3 or Node.js)
+
 - **macOS / Linux**: `./serve.sh`
 - **Windows**: double-click **`serve.bat`** (or type `serve.bat` in PowerShell / cmd)
-
-Then open **http://localhost:8000** (Chrome, Edge or Firefox) and click **"Open the
-console"**. Other port: `./serve.sh 9000` or `serve.bat 9000`.
 
 Both scripts launch `serve.py` if **Python 3** is present, otherwise fall back to
 `npx serve` (Node.js, without cache-disabling — then use `Ctrl+Shift+R` after an
 update).
 
-### Prerequisites
+**Python 3**: [python.org](https://www.python.org/downloads/) or the Microsoft Store —
+on Windows, tick **"Add python.exe to PATH"** during installation. Get the project with
+`git clone https://github.com/sguizard/la_regie_du_mj.git` or, on GitHub,
+**"Code" → "Download ZIP"**.
 
-**Python 3** — [python.org](https://www.python.org/downloads/) or the Microsoft Store.
-On Windows, tick **"Add python.exe to PATH"** during installation. If you only have
-**Node.js**, the `npx serve` path takes over.
+### Then
 
-Get the project with `git clone https://github.com/sguizard/la_regie_du_mj.git` or, on
-GitHub, **"Code" → "Download ZIP"** and extract. On the first run, Windows may ask for
-a firewall permission — you can deny public-network access, `localhost` still works.
+Open **http://localhost:8000** (Chrome, Edge or Firefox) and click **"Open the
+console"**. Other port: `./serve.sh 9000`, `serve.bat 9000` or `serve.exe 9000`.
 
 Reloading the console or the player view at any time is safe: the presented scene and
 its state (grid, tokens, HP, fog) are restored, and the two windows re-sync.

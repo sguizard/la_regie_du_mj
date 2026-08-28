@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build standalone Windows server
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pyinstaller --onefile --name serve --console serve.py
+
+      - name: Assemble the Windows package
+        shell: pwsh
+        run: |
+          $pkg = 'la-regie-du-mj'
+          New-Item -ItemType Directory -Force -Path $pkg | Out-Null
+          Copy-Item -Recurse -Force `
+            index.html, style.css, LICENSE, CHANGELOG.md, `
+            README.md, README.en.md, README.es.md, `
+            js, serve.sh, serve.bat, serve.py $pkg
+          Copy-Item -Force dist/serve.exe $pkg
+          $zip = "la-regie-du-mj-$env:GITHUB_REF_NAME-windows.zip"
+          Compress-Archive -Path $pkg -DestinationPath $zip -Force
+          "ZIP=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Extract release notes from CHANGELOG
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          awk -v tag="## [$version]" '
+            index($0, tag) == 1        { flag = 1; next }
+            /^## \[/ || /^\[[^]]+\]: / { flag = 0 }
+            flag
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || printf "La Régie du MJ %s\n" "$GITHUB_REF_NAME" > notes.md
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "**Windows** — télécharge \`$ZIP\`, décompresse, double-clique \`serve.exe\` (aucun prérequis)."
+            echo "**macOS / Linux** — récupère le code source ci-dessous et lance \`./serve.sh\`."
+          } >> notes.md
+          cat notes.md
+
+      - name: Publish the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$ZIP" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "La Régie du MJ $GITHUB_REF_NAME" \
+              --notes-file notes.md \
+              "$ZIP"
+          fi

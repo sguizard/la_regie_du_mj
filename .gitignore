@@ -6,3 +6,10 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# PyInstaller (build local de serve.exe) + paquet de release
+/build/
+/dist/
+/*.spec
+/la-regie-du-mj/
+/la-regie-du-mj-*.zip

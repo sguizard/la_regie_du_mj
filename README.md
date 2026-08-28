@@ -25,26 +25,35 @@ Un serveur statique local est nécessaire (modules ES + synchro fiable entre fen
 il **désactive le cache navigateur** pour qu'un simple rechargement suffise après une
 mise à jour du code.
 
+### Windows — le plus simple
+
+Sur la page **[Releases](https://github.com/sguizard/la_regie_du_mj/releases)**,
+télécharge le `.zip` `…-windows`, décompresse-le, puis **double-clique `serve.exe`**.
+Rien à installer, le navigateur s'ouvre tout seul.
+
+Au premier lancement, Windows SmartScreen peut signaler un éditeur inconnu
+(l'exécutable n'est pas signé) : **Informations complémentaires → Exécuter quand
+même**. Une autorisation pare-feu peut aussi être demandée — tu peux refuser l'accès
+aux réseaux publics, `localhost` fonctionne quand même.
+
+### Depuis les sources (Python 3 ou Node.js)
+
 - **macOS / Linux** : `./serve.sh`
 - **Windows** : double-clique **`serve.bat`** (ou tape `serve.bat` dans PowerShell / cmd)
-
-Puis ouvre **http://localhost:8000** (Chrome, Edge ou Firefox) et clique
-**« Ouvrir la régie »**. Autre port : `./serve.sh 9000` ou `serve.bat 9000`.
 
 Les deux scripts lancent `serve.py` si **Python 3** est présent, sinon `npx serve`
 en secours (Node.js, sans désactivation du cache — pense alors à `Ctrl+Maj+R` après
 une mise à jour).
 
-### Prérequis
+**Python 3** : [python.org](https://www.python.org/downloads/) ou le Microsoft Store —
+sous Windows, coche **« Add python.exe to PATH »** à l'installation. Récupère le projet
+avec `git clone https://github.com/sguizard/la_regie_du_mj.git` ou, sur GitHub,
+**« Code » → « Download ZIP »**.
 
-**Python 3** — [python.org](https://www.python.org/downloads/) ou le Microsoft Store.
-Sous Windows, coche **« Add python.exe to PATH »** pendant l'installation. Si tu n'as
-que **Node.js**, le chemin `npx serve` prend le relais.
+### Ensuite
 
-Récupère le projet avec `git clone https://github.com/sguizard/la_regie_du_mj.git`
-ou, sur GitHub, **« Code » → « Download ZIP »** puis décompresse. Au premier lancement,
-Windows peut demander une autorisation pare-feu : tu peux refuser l'accès aux réseaux
-publics, `localhost` fonctionne quand même.
+Ouvre **http://localhost:8000** (Chrome, Edge ou Firefox) et clique **« Ouvrir la
+régie »**. Autre port : `./serve.sh 9000`, `serve.bat 9000` ou `serve.exe 9000`.
 
 Recharger la régie ou la vue joueurs à tout moment est sans risque : la scène
 présentée et son état (grille, tokens, PV, brouillard) sont restaurés, et les deux
