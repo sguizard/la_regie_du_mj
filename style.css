@@ -142,6 +142,13 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .deck-head:hover .deck-del { opacity: 1; }
 .deck-del:hover { color: var(--danger); }
 
+.scene-del {
+  opacity: 0; border: none; background: none; color: var(--text-dim);
+  cursor: pointer; font-size: 13px; padding: 0 2px; flex: 0 0 auto;
+}
+.scene-row:hover .scene-del { opacity: 1; }
+.scene-del:hover { color: var(--danger); }
+
 .deck-scenes { display: flex; flex-direction: column; padding: 4px; gap: 3px; min-height: 8px; }
 
 .scene-row {

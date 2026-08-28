@@ -37,6 +37,7 @@ const DICT = {
     'deck.deleteTitle': 'Supprimer le deck',
     'deck.newName': 'Nouveau deck',
     'deck.namePrompt': 'Nom du deck :',
+    'scene.deleteTitle': 'Supprimer la carte',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -139,6 +140,7 @@ const DICT = {
 
     'confirm.wipe': 'Effacer TOUTES les cartes, decks et tokens ? Action irréversible.',
     'confirm.deleteDeck': 'Supprimer ce deck ? Les cartes seront déplacées vers « Sans deck ».',
+    'confirm.deleteScene': 'Supprimer la carte « {name} » ? Sa grille, ses tokens et son brouillard seront perdus. Action irréversible.',
 
     'player.waiting': 'En attente du MJ…',
     'player.fullscreenTitle': 'Plein écran',
@@ -180,6 +182,7 @@ const DICT = {
     'deck.deleteTitle': 'Delete deck',
     'deck.newName': 'New deck',
     'deck.namePrompt': 'Deck name:',
+    'scene.deleteTitle': 'Delete map',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -282,6 +285,7 @@ const DICT = {
 
     'confirm.wipe': 'Erase ALL maps, decks and tokens? This cannot be undone.',
     'confirm.deleteDeck': 'Delete this deck? Its maps will move to "No deck".',
+    'confirm.deleteScene': 'Delete the map "{name}"? Its grid, tokens and fog will be lost. This cannot be undone.',
 
     'player.waiting': 'Waiting for the GM…',
     'player.fullscreenTitle': 'Fullscreen',
@@ -323,6 +327,7 @@ const DICT = {
     'deck.deleteTitle': 'Eliminar el mazo',
     'deck.newName': 'Nuevo mazo',
     'deck.namePrompt': 'Nombre del mazo:',
+    'scene.deleteTitle': 'Eliminar el mapa',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -425,6 +430,7 @@ const DICT = {
 
     'confirm.wipe': '¿Borrar TODOS los mapas, mazos y tokens? Acción irreversible.',
     'confirm.deleteDeck': '¿Eliminar este mazo? Los mapas pasarán a «Sin mazo».',
+    'confirm.deleteScene': '¿Eliminar el mapa «{name}»? Se perderán su cuadrícula, sus tokens y su niebla. Acción irreversible.',
 
     'player.waiting': 'Esperando al Máster…',
     'player.fullscreenTitle': 'Pantalla completa',

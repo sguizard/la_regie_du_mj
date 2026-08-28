@@ -327,7 +327,9 @@ function sceneRow(s) {
   const thumb = el('img', { class: 'scene-thumb', alt: '' });
   if (thumbUrls.has(s.id)) thumb.src = thumbUrls.get(s.id);
   const label = el('span', { class: 'scene-label', text: s.name, title: s.name });
-  row.append(thumb, label);
+  const del = el('button', { class: 'scene-del', title: tr('scene.deleteTitle'), text: '✕' });
+  del.addEventListener('click', (e) => { e.stopPropagation(); deleteScene(s.id); });
+  row.append(thumb, label, del);
 
   row.addEventListener('click', () => selectScene(s.id));
   label.addEventListener('dblclick', (e) => {
@@ -378,6 +380,36 @@ async function removeDeck(deckId) {
   for (const s of scenes.filter((x) => x.deckId === deckId)) { s.deckId = null; await db.put('scenes', s); }
   await db.del('decks', deckId);
   await reloadAll();
+}
+
+async function deleteScene(id) {
+  const s = scenes.find((x) => x.id === id);
+  if (!s) return;
+  if (!confirmAction(tr('confirm.deleteScene', { name: s.name }))) return;
+
+  await db.del('scenes', id);
+  if (thumbUrls.has(id)) { URL.revokeObjectURL(thumbUrls.get(id)); thumbUrls.delete(id); }
+
+  if (id === presentingId) {
+    presentingId = null;
+    await db.setMeta('presentingSceneId', null);
+    bus.send({ t: 'clear' });
+  }
+  if (id === selectedId) {
+    selectedId = null;
+    await db.setMeta('gmSceneId', null);
+    stage.setScene(null, null);
+    $('#scene-name').textContent = tr('topbar.noScene');
+    $('#btn-present').disabled = true;
+    $('#map-toolbar').classList.add('hidden');
+    $('.side-tokens').classList.add('hidden');
+    setConfigOpen(false);
+    $('#token-props').classList.add('hidden');
+    $('#multi-props').classList.add('hidden');
+  }
+
+  await reloadAll();
+  refreshStorage();
 }
 
 // ---------------------------------------------------------------- sélection de scène

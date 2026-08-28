@@ -47,7 +47,9 @@ doivent tourner **dans le même navigateur sur la même machine**.
 
 1. **+ Ajouter une carte** (ou glisser-déposer des images dans la zone de la barre
    latérale). Chaque carte est une scène tactique. Sélectionne-la, puis
-   **« Présenter aux joueurs »** pour l'envoyer sur la TV.
+   **« Présenter aux joueurs »** pour l'envoyer sur la TV. Le **✕** qui apparaît au
+   survol d'une ligne supprime la carte (avec confirmation) — grille, tokens et
+   brouillard compris ; si elle était présentée, la vue joueurs repasse en attente.
 2. **🚫 Masquer joueurs** (barre du haut) : bascule la vue joueurs en **écran noir**
    pendant que tu prépares la suite ; re-clique (**👁 Afficher joueurs**) pour révéler.
    L'état est conservé au rechargement.
