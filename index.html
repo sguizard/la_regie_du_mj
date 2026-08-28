@@ -41,6 +41,10 @@
           </div>
           <div id="deck-list" class="deck-list"></div>
           <div id="dropzone" class="dropzone" data-i18n="sidebar.dropzone">Déposez des images de cartes ici</div>
+          <div class="backup-actions">
+            <button id="btn-export" class="btn btn-small" data-i18n="backup.export" data-i18n-title="backup.exportTitle">⬇ Exporter</button>
+            <button id="btn-import" class="btn btn-small" data-i18n="backup.import" data-i18n-title="backup.importTitle">⬆ Importer</button>
+          </div>
         </div>
 
         <div class="side-section side-tokens hidden">
@@ -78,6 +82,7 @@
             <input id="brush-size" type="range" min="10" max="400" value="90" data-i18n-title="tool.brushTitle">
             <button id="btn-reveal-all" class="btn btn-small" data-i18n="tool.revealAll" data-i18n-title="tool.revealAllTitle">🔦&nbsp;tout</button>
             <button id="btn-hide-all" class="btn btn-small" data-i18n="tool.hideAll" data-i18n-title="tool.hideAllTitle">🌫&nbsp;tout</button>
+            <button id="btn-fog-undo" class="btn btn-small" data-i18n-title="tool.fogUndoTitle" disabled>↶</button>
           </div>
         </div>
 
@@ -239,6 +244,20 @@
       </div>
     </div>
   </div>
+
+  <!-- ============ BOÎTE DE SAISIE ============ -->
+  <div id="prompt-modal" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="prompt-modal-text">
+      <p id="prompt-modal-text"></p>
+      <input id="prompt-modal-input" type="text" autocomplete="off">
+      <div class="modal-actions">
+        <button id="prompt-modal-cancel" class="btn btn-small" data-i18n="dialog.cancel">Annuler</button>
+        <button id="prompt-modal-ok" class="btn btn-small btn-primary" data-i18n="dialog.ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <input id="file-backup" type="file" accept="application/json,.json" hidden>
 
   <script type="module" src="js/main.js"></script>
 </body>

@@ -95,8 +95,10 @@ doivent tourner **dans le même navigateur sur la même machine**.
    - À 0 PV, le token est grisé avec une croix rouge.
 5. Outils **🔦 Révéler** / **🌫 Cacher** : peins le brouillard au pinceau (un cercle
    d'aperçu suit le curseur, vert pour révéler, rouge pour cacher). Le réglage de
-   taille et les boutons **tout révéler / tout cacher** n'apparaissent dans la barre
-   d'outils que quand un de ces deux outils est sélectionné.
+   taille, les boutons **tout révéler / tout cacher** et **↶ annuler** (revient sur le
+   dernier coup de pinceau, aussi avec **Ctrl+Z** ; une douzaine de niveaux)
+   n'apparaissent dans la barre d'outils que quand un de ces deux outils est
+   sélectionné.
 
 La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 révéler ·
 🌫 cacher · ⛃ token · ▦ grille · ⚙ réglages de grille (survole pour l'infobulle).
@@ -127,6 +129,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |
 | double-clic sur la carte | Ping (repère « regarde ici ») |
+| `Ctrl`/`⌘` + `Z` | Annuler le dernier coup de pinceau de brouillard |
 | `Ctrl`/`⌘` + clic · `Maj` + clic · `Maj` + glisser | Sélection multiple de tokens |
 | `Suppr` | Supprimer le(s) token(s) sélectionné(s) |
 | `Échap` | Vider la sélection / fermer les panneaux |
@@ -139,6 +142,17 @@ Tout est stocké dans le navigateur (IndexedDB, origine `http://localhost:8000`)
 - L'espace utilisé s'affiche dans la barre du haut ; **« Vider tout »** efface tout
   (avec confirmation).
 - Vider les données de navigation du site supprime aussi les scènes.
+
+### Exporter / Importer
+
+En bas de la liste des cartes : **⬇ Exporter** télécharge un fichier `.json`
+autoportant contenant **toutes** les cartes, decks et tokens (images comprises).
+**⬆ Importer** restaure depuis un tel fichier — il **remplace** l'intégralité des
+données actuelles (confirmation demandée).
+
+À faire régulièrement : c'est la seule vraie sauvegarde, et le seul moyen de passer
+ta prep d'une machine (ou d'un navigateur) à une autre. Un gros fichier est normal :
+il embarque les images en clair.
 
 ## Navigateurs
 
@@ -157,8 +171,9 @@ js/
   db.js         IndexedDB (decks, scenes, tokenLibrary, meta)
   sync.js       BroadcastChannel entre les deux fenêtres
   import.js     import d'images (cartes, tokens) + vignettes
+  backup.js     export / import JSON de toute la campagne
   stage.js      caméra pan/zoom + rendu image / grille / tokens / brouillard
-  fog.js        masque de brouillard (pinceau, gomme)
+  fog.js        masque de brouillard (pinceau, gomme, annulation)
   gm.js         écran régie
   player.js     écran vue joueurs
 ```

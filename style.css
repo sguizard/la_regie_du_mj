@@ -356,4 +356,12 @@ button.tl-name.tl-add { text-align: left; }
   box-shadow: 0 18px 50px rgba(0,0,0,.6);
 }
 .modal p { margin: 0 0 16px; line-height: 1.45; }
+.modal input {
+  width: 100%; margin: 0 0 16px; padding: 7px 9px; font: inherit;
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  border-radius: var(--radius);
+}
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.backup-actions { flex: 0 0 auto; display: flex; gap: 8px; }
+.backup-actions .btn { flex: 1; }

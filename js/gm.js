@@ -6,6 +6,7 @@ import * as db from './db.js';
 import { Bus } from './sync.js';
 import { Stage, defaultGrid } from './stage.js';
 import { importScenes, importTokens } from './import.js';
+import { buildBackup, restoreBackup, isBackupFormat, isEmptyBackup } from './backup.js';
 import { t as tr, applyI18n } from './i18n.js';
 
 let stage, bus;
@@ -54,6 +55,47 @@ function askConfirm(message) {
     cancel.addEventListener('click', onCancel);
     modal.addEventListener('click', onBackdrop);
     document.addEventListener('keydown', onKey, true);
+  });
+}
+
+/** Saisie via une boîte de dialogue interne (remplace window.prompt, bloqué par
+ *  le navigateur après plusieurs pop-ups). Renvoie la valeur, ou null si annulé. */
+function askPrompt(message, { value = '', type = 'text', min, step } = {}) {
+  return new Promise((resolve) => {
+    const modal = $('#prompt-modal');
+    const input = $('#prompt-modal-input');
+    const ok = $('#prompt-modal-ok');
+    const cancel = $('#prompt-modal-cancel');
+    $('#prompt-modal-text').textContent = message;
+    input.type = type;
+    if (min != null) input.min = min; else input.removeAttribute('min');
+    if (step != null) input.step = step; else input.removeAttribute('step');
+    input.value = value;
+    modal.classList.remove('hidden');
+    input.focus();
+    input.select();
+
+    const done = (v) => {
+      modal.classList.add('hidden');
+      ok.removeEventListener('click', onOk);
+      cancel.removeEventListener('click', onCancel);
+      modal.removeEventListener('click', onBackdrop);
+      input.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onDocKey, true);
+      resolve(v);
+    };
+    const onOk = () => done(input.value);
+    const onCancel = () => done(null);
+    const onBackdrop = (e) => { if (e.target === modal) done(null); };
+    const onKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); done(input.value); } };
+    const onDocKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(null); }
+    };
+    ok.addEventListener('click', onOk);
+    cancel.addEventListener('click', onCancel);
+    modal.addEventListener('click', onBackdrop);
+    input.addEventListener('keydown', onKey);
+    document.addEventListener('keydown', onDocKey, true);
   });
 }
 
@@ -263,6 +305,14 @@ function wireSidebar() {
     e.target.value = '';
   });
 
+  $('#btn-export').addEventListener('click', exportCampaign);
+  $('#btn-import').addEventListener('click', () => $('#file-backup').click());
+  $('#file-backup').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (file) await importCampaign(file);
+  });
+
   const dz = $('#dropzone');
   ;['dragenter', 'dragover'].forEach((ev) => dz.addEventListener(ev, (e) => {
     e.preventDefault(); dz.classList.add('drag-over');
@@ -277,11 +327,67 @@ function wireSidebar() {
 }
 
 async function addDeck() {
-  const name = prompt(tr('deck.namePrompt'), tr('deck.newName'));
-  if (!name) return;
+  const name = await askPrompt(tr('deck.namePrompt'), { value: tr('deck.newName') });
+  if (!name || !name.trim()) return;
   const order = decks.reduce((m, d) => Math.max(m, d.order), 0) + 1;
   await db.put('decks', { id: uid('deck'), name: name.trim(), order });
   await reloadAll();
+}
+
+// ---------------------------------------------------------------- sauvegarde
+async function exportCampaign() {
+  const data = await buildBackup();
+  if (isEmptyBackup(data)) { showHint(tr('backup.empty')); return; }
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = el('a', { href: url, download: `regie-du-mj-${new Date().toISOString().slice(0, 10)}.json` });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  showHint(tr('backup.exported'));
+}
+
+async function importCampaign(file) {
+  let data;
+  try {
+    data = JSON.parse(await file.text());
+  } catch {
+    showHint(tr('backup.badFile'));
+    return;
+  }
+  if (!isBackupFormat(data)) { showHint(tr('backup.badFile')); return; }
+  if (!(await askConfirm(tr('backup.confirmImport')))) return;
+
+  try {
+    await restoreBackup(data);
+  } catch {
+    showHint(tr('backup.badFile'));
+    await reloadAll();
+    return;
+  }
+
+  // vue joueurs + affichage régie remis à zéro
+  for (const u of thumbUrls.values()) URL.revokeObjectURL(u);
+  thumbUrls.clear();
+  tokenImages.clear();
+  selectedId = presentingId = null;
+  await db.setMeta('gmSceneId', null);
+  await db.setMeta('presentingSceneId', null);
+  if (blackout) await setBlackout(false);
+  stage.setScene(null, null);
+  bus.send({ t: 'clear' });
+  $('#scene-name').textContent = tr('topbar.noScene');
+  $('#btn-present').disabled = true;
+  $('#map-toolbar').classList.add('hidden');
+  $('.side-tokens').classList.add('hidden');
+  setConfigOpen(false);
+  $('#token-props').classList.add('hidden');
+  $('#multi-props').classList.add('hidden');
+
+  await reloadAll();
+  refreshStorage();
+  showHint(tr('backup.done'));
 }
 
 function renderSidebar() { renderDeckList(); }
@@ -457,6 +563,7 @@ async function selectScene(id) {
   const image = await blobToBitmap(s.imageBlob);
   stage.setScene(s, image, { fit: true });
   if (stage.fog) await stage.fog.loadBlob(s.fogBlob || null);
+  updateFogUndoBtn();
   stage.invalidate();
   $('#map-toolbar').classList.remove('hidden');
   $('.side-tokens').classList.remove('hidden');
@@ -477,6 +584,7 @@ function wireToolbar() {
   });
   $('#btn-reveal-all').addEventListener('click', () => bulkFog('reveal'));
   $('#btn-hide-all').addEventListener('click', () => bulkFog('hide'));
+  $('#btn-fog-undo').addEventListener('click', fogUndo);
 
   $('#btn-config').addEventListener('click', toggleConfig);
   $('#config-panel-close').addEventListener('click', () => setConfigOpen(false));
@@ -634,10 +742,32 @@ function syncGridPanel() {
 
 async function bulkFog(mode) {
   if (!stage.fog) return;
+  stage.fog.pushUndo();
   if (mode === 'reveal') stage.fog.revealAll(); else stage.fog.hideAll();
   stage.invalidate();
+  updateFogUndoBtn();
+  await commitFog();
+}
+
+/** Persiste le masque de brouillard et le diffuse à la vue joueurs si besoin. */
+async function commitFog() {
   await persistCurrentScene();
-  if (selectedId === presentingId) push('fog', { sceneId: selectedId, blob: await stage.fog.toBlob() });
+  if (selectedId === presentingId && stage.fog) {
+    push('fog', { sceneId: selectedId, blob: await stage.fog.toBlob() });
+  }
+}
+
+function updateFogUndoBtn() {
+  const b = $('#btn-fog-undo');
+  if (b) b.disabled = !(stage.fog && stage.fog.canUndo);
+}
+
+/** Annule le dernier coup de pinceau / « tout révéler-cacher ». */
+async function fogUndo() {
+  if (!stage.fog || !stage.fog.undo()) return;
+  stage.invalidate();
+  updateFogUndoBtn();
+  await commitFog();
 }
 
 /** Ouvre les propriétés du token, ou les referme si elles sont déjà ouvertes pour lui. */
@@ -803,9 +933,9 @@ function tokenListRow(t) {
   let init;
   if (t.initiative == null) {
     init = el('button', { class: 'tl-add tl-init-slot', text: tr('tokens.addInit'), title: tr('tokens.addInitTitle') });
-    init.addEventListener('click', (e) => {
+    init.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const v = prompt('Initiative ?', '');
+      const v = await askPrompt(tr('tokens.initPrompt'), { type: 'number', step: '1' });
       if (v !== null && v.trim() !== '') { t.initiative = Math.round(+v) || 0; afterTokenEdit(); }
     });
   } else {
@@ -848,9 +978,9 @@ function tokenListRow(t) {
     name = el('span', { class: 'tl-name', text: t.label, title: t.label });
   } else {
     name = el('button', { class: 'tl-name tl-add', text: tr('tokens.addName') });
-    name.addEventListener('click', (e) => {
+    name.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const v = (prompt(tr('tokens.namePrompt'), '') || '').trim();
+      const v = ((await askPrompt(tr('tokens.namePrompt'))) || '').trim();
       if (v) { t.label = v; afterTokenEdit(); }
     });
   }
@@ -899,9 +1029,11 @@ function tokenListRow(t) {
     hpWrap.append(dmg, bar, cur, el('span', { class: 'tl-hp-max', text: `/ ${t.hpMax}` }), heal);
   } else {
     const add = el('button', { class: 'tl-add', text: tr('tokens.addHp') });
-    add.addEventListener('click', (e) => {
+    add.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const v = Math.max(0, Math.round(+prompt(tr('tokens.hpMaxPrompt'), '10') || 0));
+      const raw = await askPrompt(tr('tokens.hpMaxPrompt'), { value: '10', type: 'number', min: '0', step: '1' });
+      if (raw === null) return;
+      const v = Math.max(0, Math.round(+raw || 0));
       if (v > 0) { t.hpMax = v; t.hp = v; afterTokenEdit(); }
     });
     hpWrap.append(add);
@@ -1109,6 +1241,7 @@ function wireCanvas() {
       }
     } else if (tool === 'reveal' || tool === 'hide') {
       mode = 'fog';
+      stage.fog.pushUndo(); // mémorise l'état d'avant le trait (Ctrl+Z)
       const w = stage.screenToWorld(p);
       const radius = (brushPx / 2) / stage.cam.zoom;
       stage.fog.strokeSeg(w, w, radius, tool === 'hide' ? 'hide' : 'reveal');
@@ -1208,8 +1341,8 @@ function wireCanvas() {
       await persistCurrentScene();
       if (selectedId === presentingId) push('grid', { sceneId: selectedId, grid: stage.scene.grid });
     } else if (finished === 'fog') {
-      await persistCurrentScene();
-      if (selectedId === presentingId) push('fog', { sceneId: selectedId, blob: await stage.fog.toBlob() });
+      updateFogUndoBtn();
+      await commitFog();
     } else if (finished === 'calibrate' && calStart) {
       const end = stage.screenToWorld(stage.localPoint(e));
       const cell = Math.round(Math.max(Math.abs(end.x - calStart.x), Math.abs(end.y - calStart.y)));
@@ -1272,6 +1405,13 @@ function wireKeyboard() {
     if (e.code === 'Space') { spaceHeld = true; $('#gm-canvas').style.cursor = 'grab'; return; }
     if (!stage.scene) return;
     const k = e.key.toLowerCase();
+    // Ctrl/Cmd+Z : annuler le dernier coup de pinceau de brouillard
+    if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      fogUndo();
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return; // laisse les raccourcis navigateur
     if (k === 'f') stage.fit();
     if (k === 'v') setTool('move');
     if (k === 'r') setTool('reveal');

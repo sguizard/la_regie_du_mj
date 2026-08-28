@@ -40,6 +40,17 @@ const DICT = {
     'scene.deleteTitle': 'Supprimer la carte',
     'dialog.confirm': 'Confirmer',
     'dialog.cancel': 'Annuler',
+    'dialog.ok': 'OK',
+
+    'backup.export': '⬇ Exporter',
+    'backup.exportTitle': 'Télécharger une sauvegarde (cartes, decks, tokens, images)',
+    'backup.import': '⬆ Importer',
+    'backup.importTitle': 'Restaurer depuis un fichier de sauvegarde',
+    'backup.empty': 'Rien à exporter pour le moment.',
+    'backup.exported': 'Sauvegarde téléchargée.',
+    'backup.confirmImport': 'Importer cette sauvegarde ? Elle remplacera TOUTES les cartes, decks et tokens actuels. Action irréversible.',
+    'backup.badFile': 'Fichier de sauvegarde invalide ou illisible.',
+    'backup.done': 'Sauvegarde importée.',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -80,6 +91,7 @@ const DICT = {
     'tool.hideAll': '🌫 tout',
     'tool.revealAllTitle': 'Tout révéler',
     'tool.hideAllTitle': 'Tout cacher',
+    'tool.fogUndoTitle': 'Annuler le dernier coup de pinceau (Ctrl+Z)',
 
     'config.grid': 'Grille',
     'config.cellSize': 'Taille de case (px)',
@@ -187,6 +199,17 @@ const DICT = {
     'scene.deleteTitle': 'Delete map',
     'dialog.confirm': 'Confirm',
     'dialog.cancel': 'Cancel',
+    'dialog.ok': 'OK',
+
+    'backup.export': '⬇ Export',
+    'backup.exportTitle': 'Download a backup (maps, decks, tokens, images)',
+    'backup.import': '⬆ Import',
+    'backup.importTitle': 'Restore from a backup file',
+    'backup.empty': 'Nothing to export yet.',
+    'backup.exported': 'Backup downloaded.',
+    'backup.confirmImport': 'Import this backup? It will replace ALL current maps, decks and tokens. This cannot be undone.',
+    'backup.badFile': 'Invalid or unreadable backup file.',
+    'backup.done': 'Backup imported.',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -227,6 +250,7 @@ const DICT = {
     'tool.hideAll': '🌫 all',
     'tool.revealAllTitle': 'Reveal everything',
     'tool.hideAllTitle': 'Hide everything',
+    'tool.fogUndoTitle': 'Undo last brush stroke (Ctrl+Z)',
 
     'config.grid': 'Grid',
     'config.cellSize': 'Cell size (px)',
@@ -334,6 +358,17 @@ const DICT = {
     'scene.deleteTitle': 'Eliminar el mapa',
     'dialog.confirm': 'Confirmar',
     'dialog.cancel': 'Cancelar',
+    'dialog.ok': 'OK',
+
+    'backup.export': '⬇ Exportar',
+    'backup.exportTitle': 'Descargar una copia de seguridad (mapas, mazos, tokens, imágenes)',
+    'backup.import': '⬆ Importar',
+    'backup.importTitle': 'Restaurar desde un archivo de copia de seguridad',
+    'backup.empty': 'Nada que exportar por ahora.',
+    'backup.exported': 'Copia de seguridad descargada.',
+    'backup.confirmImport': '¿Importar esta copia de seguridad? Reemplazará TODOS los mapas, mazos y tokens actuales. Acción irreversible.',
+    'backup.badFile': 'Archivo de copia de seguridad no válido o ilegible.',
+    'backup.done': 'Copia de seguridad importada.',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -374,6 +409,7 @@ const DICT = {
     'tool.hideAll': '🌫 todo',
     'tool.revealAllTitle': 'Revelar todo',
     'tool.hideAllTitle': 'Ocultar todo',
+    'tool.fogUndoTitle': 'Deshacer el último trazo de pincel (Ctrl+Z)',
 
     'config.grid': 'Rejilla',
     'config.cellSize': 'Tamaño de casilla (px)',

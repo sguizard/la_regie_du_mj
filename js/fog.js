@@ -21,8 +21,30 @@ export class FogMask {
     this.ctx = this.canvas.getContext('2d');
     this.ctx.lineCap = 'round';
     this.ctx.lineJoin = 'round';
+    this._undo = []; // pile d'ImageData : états précédents, pour Ctrl+Z
     // état initial : tout caché (canvas transparent)
   }
+
+  /** Mémorise l'état courant du masque avant une modification (coup de pinceau, tout révéler…). */
+  pushUndo() {
+    try {
+      this._undo.push(this.ctx.getImageData(0, 0, this.w, this.h));
+      if (this._undo.length > 12) this._undo.shift();
+    } catch { /* getImageData peut échouer sur de très grands canvas — on renonce à l'undo */ }
+  }
+
+  get canUndo() { return this._undo.length > 0; }
+
+  /** Restaure l'état précédent. Renvoie false s'il n'y a rien à annuler. */
+  undo() {
+    const img = this._undo.pop();
+    if (!img) return false;
+    this.ctx.globalCompositeOperation = 'source-over';
+    this.ctx.putImageData(img, 0, 0);
+    return true;
+  }
+
+  clearUndo() { this._undo = []; }
 
   /** Peint un segment de pinceau en coordonnées MONDE. mode: 'reveal' | 'hide'. */
   strokeSeg(fromWorld, toWorld, worldRadius, mode) {
@@ -59,6 +81,7 @@ export class FogMask {
 
   async loadBlob(blob) {
     this.hideAll();
+    this.clearUndo(); // charger une scène = historique d'annulation remis à zéro
     if (!blob) return;
     const bmp = await createImageBitmap(blob);
     this.ctx.globalCompositeOperation = 'source-over';
