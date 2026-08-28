@@ -73,6 +73,15 @@ doivent tourner **dans le même navigateur sur la même machine**.
    PV + PV modifiables, boutons **−/+** appliquant le **montant ±** en haut de la liste.
    Cliquer la ligne (ou le token sur la carte) le **sélectionne** et **centre la carte
    dessus** — sans ouvrir de fenêtre.
+   - **Sélection multiple** : **Ctrl/⌘ + clic** (sur la carte ou dans la liste) ajoute
+     ou retire un token de la sélection ; **Maj + clic** dans la liste sélectionne une
+     plage ; **Maj + glisser** sur une zone vide de la carte trace un rectangle de
+     sélection (ajoute à la sélection si Maj est maintenu). Quand plusieurs tokens sont
+     sélectionnés, un panneau **édition groupée** remplace les propriétés : dégâts /
+     soin, type, taille, couleur, visibilité joueurs, PV vus par les joueurs, et
+     suppression — appliqués à tous d'un coup. Glisser un token sélectionné déplace
+     **tout le groupe** en gardant la formation. `Suppr` supprime toute la sélection,
+     `Échap` la vide.
    - **Tri** (menu en haut de la liste, mémorisé) : *initiative décroissante* (les
      tokens sans valeur en bas) ou *type puis nom* (PJ d'abord, puis PNJ, par ordre
      alphabétique). Le tri n'affecte que la liste, pas l'empilement des tokens sur la carte.
@@ -115,8 +124,9 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |
 | double-clic sur la carte | Ping (repère « regarde ici ») |
-| `Suppr` | Supprimer le token sélectionné |
-| `Échap` | Fermer les panneaux |
+| `Ctrl`/`⌘` + clic · `Maj` + clic · `Maj` + glisser | Sélection multiple de tokens |
+| `Suppr` | Supprimer le(s) token(s) sélectionné(s) |
+| `Échap` | Vider la sélection / fermer les panneaux |
 
 ## Données & sauvegarde
 

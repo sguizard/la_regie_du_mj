@@ -127,6 +127,13 @@ const DICT = {
     'appearance.confirmRemoveLib': 'Retirer « {name} » de la bibliothèque ?',
     'appearance.noImages': 'Aucune image importée.',
 
+    'multi.title': '{n} tokens',
+    'multi.keep': '— (inchangé)',
+    'multi.allVisible': '👁 Tous visibles',
+    'multi.allHidden': '🚫 Tous masqués',
+    'multi.delete': 'Supprimer les {n} tokens',
+    'multi.hint': '{n} tokens sélectionnés',
+
     'hint.calibrate': "Tracez la diagonale d'UNE case sur la carte.",
     'hint.cellSize': 'Case : {px} px',
 
@@ -263,6 +270,13 @@ const DICT = {
     'appearance.confirmRemoveLib': 'Remove "{name}" from the library?',
     'appearance.noImages': 'No image imported.',
 
+    'multi.title': '{n} tokens',
+    'multi.keep': '— (unchanged)',
+    'multi.allVisible': '👁 All visible',
+    'multi.allHidden': '🚫 All hidden',
+    'multi.delete': 'Delete the {n} tokens',
+    'multi.hint': '{n} tokens selected',
+
     'hint.calibrate': 'Draw the diagonal of ONE cell on the map.',
     'hint.cellSize': 'Cell: {px} px',
 
@@ -398,6 +412,13 @@ const DICT = {
     'appearance.removeLibTitle': 'Quitar de la biblioteca',
     'appearance.confirmRemoveLib': '¿Quitar «{name}» de la biblioteca?',
     'appearance.noImages': 'Ninguna imagen importada.',
+
+    'multi.title': '{n} tokens',
+    'multi.keep': '— (sin cambios)',
+    'multi.allVisible': '👁 Todos visibles',
+    'multi.allHidden': '🚫 Todos ocultos',
+    'multi.delete': 'Eliminar los {n} tokens',
+    'multi.hint': '{n} tokens seleccionados',
 
     'hint.calibrate': 'Traza la diagonal de UNA casilla en el mapa.',
     'hint.cellSize': 'Casilla: {px} px',

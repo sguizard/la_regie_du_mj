@@ -39,6 +39,7 @@ export async function initGM() {
   wireTopbar();
   wireSidebar();
   wireToolbar();
+  wireMultiProps();
   wireCanvas();
   wireKeyboard();
   wireWheelNumbers();
@@ -47,6 +48,7 @@ export async function initGM() {
     updateBlackoutBtn();
     setPlayerPill(_pillOn);
     if (!selectedId) $('#scene-name').textContent = tr('topbar.noScene');
+    if (stage.selectedIds.size >= 2) $('#mp-title').textContent = tr('multi.title', { n: stage.selectedIds.size });
     renderSidebar();
     renderTokenList();
   });
@@ -184,6 +186,7 @@ async function wipeAll() {
   $('.side-tokens').classList.add('hidden');
   setConfigOpen(false);
   $('#token-props').classList.add('hidden');
+  $('#multi-props').classList.add('hidden');
   refreshStorage();
 }
 
@@ -392,6 +395,7 @@ async function selectScene(id) {
   syncGridPanel();
   setTool('move');
   $('#token-props').classList.add('hidden');
+  $('#multi-props').classList.add('hidden');
   renderTokenList();
   renderSidebar();
 }
@@ -498,8 +502,9 @@ function wireToolbar() {
 
   $('#tp-delete').addEventListener('click', async () => {
     stage.tokens = stage.tokens.filter((x) => x.id !== stage.selectedTokenId);
-    stage.selectedTokenId = null;
+    stage.clearSelection();
     $('#token-props').classList.add('hidden');
+    applySelectionUI();
     await afterTokenEdit();
   });
 }
@@ -575,9 +580,26 @@ function toggleTokenProps(t) {
   else openTokenProps(t);
 }
 
+/** Affiche le bon panneau selon le nombre de tokens sélectionnés. */
+function applySelectionUI() {
+  const n = stage.selectedIds.size;
+  if (n >= 2) {
+    $('#token-props').classList.add('hidden');
+    $('#mp-title').textContent = tr('multi.title', { n });
+    $('#mp-size').value = '';
+    $('#mp-type').value = '';
+    $('#mp-hpshare').value = '';
+    $('#multi-props').classList.remove('hidden');
+  } else {
+    $('#multi-props').classList.add('hidden');
+    if (n === 0) $('#token-props').classList.add('hidden');
+  }
+  renderTokenList();
+}
+
 function openTokenProps(t) {
-  stage.selectedTokenId = t.id;
-  stage.invalidate();
+  stage.selectOnly(t.id);
+  $('#multi-props').classList.add('hidden');
   $('#tp-label').value = t.label || '';
   $('#tp-type').value = t.type === 'pj' || t.type === 'pnj' ? t.type : '';
   $('#tp-init').value = t.initiative ?? '';
@@ -605,6 +627,53 @@ function setTokenHp(t, value) {
   t.hp = Math.max(0, Math.round(value || 0));
   if (stage.selectedTokenId === t.id) $('#tp-hp').value = t.hp;
   afterTokenEdit();
+}
+
+// ---------------------------------------------------------------- édition groupée
+function wireMultiProps() {
+  const sel = () => stage.selectedTokens();
+  const commit = () => afterTokenEdit();
+  const amount = () => Math.max(1, Math.round(+$('#mp-amount').value || 1));
+
+  $('#mp-dmg').addEventListener('click', () => {
+    for (const t of sel()) if (t.hpMax > 0) t.hp = Math.max(0, (t.hp ?? t.hpMax) - amount());
+    commit();
+  });
+  $('#mp-heal').addEventListener('click', () => {
+    for (const t of sel()) if (t.hpMax > 0) t.hp = (t.hp ?? 0) + amount();
+    commit();
+  });
+  $('#mp-type').addEventListener('change', (e) => {
+    const v = ['pj', 'pnj'].includes(e.target.value) ? e.target.value : null;
+    if (e.target.value === '') return;
+    for (const t of sel()) t.type = v;
+    commit();
+  });
+  $('#mp-size').addEventListener('change', (e) => {
+    if (e.target.value === '') return;
+    const v = clamp(+e.target.value || 1, 0.25, 8);
+    for (const t of sel()) t.sizeCells = v;
+    commit();
+  });
+  $('#mp-color').addEventListener('input', (e) => {
+    for (const t of sel()) t.color = e.target.value;
+    commit();
+  });
+  $('#mp-hpshare').addEventListener('change', (e) => {
+    if (e.target.value === '') return;
+    for (const t of sel()) t.hpShare = e.target.value;
+    commit();
+  });
+  $('#mp-show').addEventListener('click', () => { for (const t of sel()) t.visibleToPlayers = true; commit(); });
+  $('#mp-hide').addEventListener('click', () => { for (const t of sel()) t.visibleToPlayers = false; commit(); });
+  $('#mp-delete').addEventListener('click', () => {
+    const ids = new Set(stage.selectedIds);
+    stage.tokens = stage.tokens.filter((t) => !ids.has(t.id));
+    stage.clearSelection();
+    applySelectionUI();
+    afterTokenEdit();
+  });
+  $('#multi-props-close').addEventListener('click', () => $('#multi-props').classList.add('hidden'));
 }
 
 function renderTokenList() {
@@ -641,7 +710,7 @@ function tokenListRow(t) {
 
   const row = el('div', {
     class: 'tl-row' + (t.type ? ' tl-' + t.type : '')
-      + (t.id === stage.selectedTokenId ? ' sel' : '') + (downed ? ' downed' : ''),
+      + (stage.selectedIds.has(t.id) ? ' sel' : '') + (downed ? ' downed' : ''),
   });
 
   // initiative : « + init » si non définie, sinon champ éditable (aligné à droite)
@@ -717,9 +786,11 @@ function tokenListRow(t) {
   del.addEventListener('click', (e) => {
     e.stopPropagation();
     stage.tokens = stage.tokens.filter((x) => x.id !== t.id);
-    if (stage.selectedTokenId === t.id) {
-      stage.selectedTokenId = null;
+    if (stage.selectedIds.has(t.id)) {
+      stage.selectedIds.delete(t.id);
+      stage.selectedTokenId = [...stage.selectedIds].pop() ?? null;
       $('#token-props').classList.add('hidden');
+      applySelectionUI();
     }
     afterTokenEdit();
   });
@@ -750,11 +821,24 @@ function tokenListRow(t) {
     hpWrap.append(add);
   }
 
-  row.addEventListener('click', () => {
-    stage.selectedTokenId = t.id;
-    stage.centerOn(t.pos);
-    stage.invalidate();
-    renderTokenList();
+  row.addEventListener('click', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      stage.toggleSelected(t.id);
+    } else if (e.shiftKey && stage.selectedTokenId) {
+      const order = sortedTokens();
+      const a = order.findIndex((x) => x.id === stage.selectedTokenId);
+      const b = order.findIndex((x) => x.id === t.id);
+      if (a >= 0 && b >= 0) {
+        const [lo, hi] = a < b ? [a, b] : [b, a];
+        const anchor = stage.selectedTokenId;
+        stage.setSelection([...new Set([...stage.selectedIds, ...order.slice(lo, hi + 1).map((x) => x.id)])]);
+        stage.selectedTokenId = anchor;
+      }
+    } else {
+      stage.selectOnly(t.id);
+      stage.centerOn(t.pos);
+    }
+    applySelectionUI();
   });
 
   line2.append(hpWrap);
@@ -801,9 +885,8 @@ let appearanceTargetId = null;
 function openAppearanceMenu(t, anchorEl) {
   const r = anchorEl.getBoundingClientRect();
   appearanceTargetId = t.id;
-  stage.selectedTokenId = t.id;
-  stage.invalidate();
-  renderTokenList();
+  stage.selectOnly(t.id);
+  applySelectionUI();
 
   const menu = $('#token-appearance-menu');
   const grid = $('#tam-grid');
@@ -855,11 +938,14 @@ const broadcastGridThrottled = throttle(() => {
 
 function wireCanvas() {
   const cv = $('#gm-canvas');
-  let mode = null;            // 'pan' | 'token-drag' | 'fog' | 'calibrate' | 'grid-move'
+  let mode = null;            // 'pan' | 'token-drag' | 'fog' | 'calibrate' | 'grid-move' | 'grid-size' | 'marquee'
   let last = null;            // dernier point écran
   let dragToken = null;
+  let dragGroup = null;       // [{ id, x0, y0 }] pour un déplacement groupé
+  let dragOrigin = null;      // point monde au début du drag de token
   let fogLastWorld = null;
   let calStart = null;
+  let marqStart = null;       // point monde au début du rectangle de sélection
   let gridMoveStart = null;   // { world, offX, offY }
   let gridSizeStart = null;   // { y, cell }
 
@@ -911,17 +997,28 @@ function wireCanvas() {
     if (!stage.fog) { mode = 'pan'; return; }
 
     if (tool === 'move') {
+      const multi = e.shiftKey || e.ctrlKey || e.metaKey;
       const hit = stage.tokenAt(p);
       if (hit) {
-        mode = 'token-drag';
-        dragToken = stage.tokens.find((x) => x.id === hit.id);
-        stage.selectedTokenId = hit.id;
-        stage.invalidate();
-        renderTokenList();
+        if (multi) {
+          stage.toggleSelected(hit.id);
+          applySelectionUI();
+          mode = null;
+        } else {
+          if (!stage.selectedIds.has(hit.id)) { stage.selectOnly(hit.id); applySelectionUI(); }
+          mode = 'token-drag';
+          dragToken = stage.tokens.find((x) => x.id === hit.id);
+          dragOrigin = stage.screenToWorld(p);
+          dragGroup = stage.selectedIds.size > 1
+            ? stage.selectedTokens().map((t) => ({ id: t.id, x0: t.pos.x, y0: t.pos.y }))
+            : null;
+        }
+      } else if (multi) {
+        mode = 'marquee';
+        marqStart = stage.screenToWorld(p);
       } else {
-        stage.selectedTokenId = null;
-        stage.invalidate();
-        renderTokenList();
+        stage.clearSelection();
+        applySelectionUI();
         mode = 'pan';
       }
     } else if (tool === 'reveal' || tool === 'hide') {
@@ -951,9 +1048,22 @@ function wireCanvas() {
 
     if (mode === 'pan') { stage.panBy(dx, dy); }
     else if (mode === 'token-drag' && dragToken) {
-      dragToken.pos = stage.snapWorld(stage.screenToWorld(p));
+      const snapped = stage.snapWorld(stage.screenToWorld(p));
+      if (dragGroup) {
+        const dX = snapped.x - stage.snapWorld(dragOrigin).x;
+        const dY = snapped.y - stage.snapWorld(dragOrigin).y;
+        for (const g of dragGroup) {
+          const tk = stage.tokens.find((x) => x.id === g.id);
+          if (tk) tk.pos = { x: g.x0 + dX, y: g.y0 + dY };
+        }
+      } else {
+        dragToken.pos = snapped;
+      }
       stage.invalidate();
       broadcastTokensThrottled();
+    } else if (mode === 'marquee' && marqStart) {
+      const w = stage.screenToWorld(p);
+      stage.setMarquee({ x0: marqStart.x, y0: marqStart.y, x1: w.x, y1: w.y });
     } else if (mode === 'fog') {
       const w = stage.screenToWorld(p);
       const radius = (brushPx / 2) / stage.cam.zoom;
@@ -991,8 +1101,19 @@ function wireCanvas() {
     mode = null;
 
     if (finished === 'token-drag') {
+      dragGroup = null; dragOrigin = null;
       await persistCurrentScene();
       broadcastTokens();
+    } else if (finished === 'marquee') {
+      const m = stage.marquee;
+      stage.setMarquee(null);
+      marqStart = null;
+      if (m) {
+        const add = e.shiftKey || e.ctrlKey || e.metaKey;
+        const inRect = stage.tokenIdsInWorldRect(m.x0, m.y0, m.x1, m.y1);
+        stage.setSelection(add ? [...new Set([...stage.selectedIds, ...inRect])] : inRect);
+      }
+      applySelectionUI();
     } else if (finished === 'grid-move' || finished === 'grid-size') {
       gridMoveStart = null;
       gridSizeStart = null;
@@ -1044,7 +1165,8 @@ async function createTokenAt(worldPos) {
     hpShare: 'off',
   };
   stage.tokens.push(t);
-  stage.selectedTokenId = t.id;
+  stage.selectOnly(t.id);
+  applySelectionUI();
   setTool('move');
   hideHint();
   await afterTokenEdit();
@@ -1071,13 +1193,19 @@ function wireKeyboard() {
     if (k === 't') setTool('token');
     if (k === 'g') toggleConfig();
     if (k === 'a') quickAddToken();
-    if ((e.key === 'Delete' || e.key === 'Backspace') && stage.selectedTokenId) {
-      stage.tokens = stage.tokens.filter((x) => x.id !== stage.selectedTokenId);
-      stage.selectedTokenId = null;
+    if ((e.key === 'Delete' || e.key === 'Backspace') && stage.selectedIds.size) {
+      const ids = new Set(stage.selectedIds);
+      stage.tokens = stage.tokens.filter((x) => !ids.has(x.id));
+      stage.clearSelection();
       $('#token-props').classList.add('hidden');
+      applySelectionUI();
       afterTokenEdit();
     }
-    if (e.key === 'Escape') { closeFloaties(); closeAppearanceMenu(); calibrating = false; stage.setCalibrateRect(null); hideHint(); }
+    if (e.key === 'Escape') {
+      stage.clearSelection();
+      applySelectionUI();
+      closeFloaties(); closeAppearanceMenu(); calibrating = false; stage.setCalibrateRect(null); hideHint();
+    }
   });
   window.addEventListener('keyup', (e) => {
     if (e.code === 'Space') { spaceHeld = false; setTool(tool); }

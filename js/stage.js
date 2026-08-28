@@ -37,7 +37,9 @@ export class Stage {
     this.tokens = [];
     this.tokenImages = new Map();
     this.fog = null;
-    this.selectedTokenId = null;
+    this.selectedTokenId = null;   // token « primaire » (recentrage, panneau simple)
+    this.selectedIds = new Set();  // sélection (multi)
+    this.marquee = null;           // { x0, y0, x1, y1 } coords monde — rectangle de sélection
     this.brushCursor = null;   // { x, y, r, mode } en px écran — aperçu du pinceau (régie)
     this.calibrateRect = null; // { x0, y0, x1, y1 } en coords monde — aperçu du calibrage
     this.pings = [];           // { x, y, t0, color } — repères temporaires « regarde ici »
@@ -117,6 +119,8 @@ export class Stage {
     this.imgH = image ? image.height : 0;
     this.tokens = scene?.tokens ? structuredClone(scene.tokens) : [];
     this.selectedTokenId = null;
+    this.selectedIds = new Set();
+    this.marquee = null;
     this.calibrateRect = null;
     this.pings = [];
     if (scene && this.imgW) {
@@ -138,6 +142,38 @@ export class Stage {
     this.pings.push({ x: world.x, y: world.y, t0: performance.now(), color });
     this.invalidate();
   }
+
+  // ---- sélection ----
+  selectOnly(id) {
+    this.selectedIds = id ? new Set([id]) : new Set();
+    this.selectedTokenId = id || null;
+    this.invalidate();
+  }
+  setSelection(ids) {
+    this.selectedIds = new Set(ids);
+    this.selectedTokenId = ids.length ? ids[ids.length - 1] : null;
+    this.invalidate();
+  }
+  toggleSelected(id) {
+    if (this.selectedIds.has(id)) {
+      this.selectedIds.delete(id);
+      this.selectedTokenId = [...this.selectedIds].pop() ?? null;
+    } else {
+      this.selectedIds.add(id);
+      this.selectedTokenId = id;
+    }
+    this.invalidate();
+  }
+  clearSelection() { this.selectedIds = new Set(); this.selectedTokenId = null; this.invalidate(); }
+  selectedTokens() { return this.tokens.filter((t) => this.selectedIds.has(t.id)); }
+  tokenIdsInWorldRect(x0, y0, x1, y1) {
+    const ax = Math.min(x0, x1), bx = Math.max(x0, x1);
+    const ay = Math.min(y0, y1), by = Math.max(y0, y1);
+    return this.tokens
+      .filter((t) => t.pos.x >= ax && t.pos.x <= bx && t.pos.y >= ay && t.pos.y <= by)
+      .map((t) => t.id);
+  }
+  setMarquee(worldRect) { this.marquee = worldRect; this.invalidate(); }
 
   tokenRadiusWorld(t) {
     const cell = this.scene?.grid?.cellPx || DEFAULT_CELL;
@@ -179,7 +215,22 @@ export class Stage {
     if (this.fog) this._drawFog(ctx);
     if (this.mode === 'gm' && this.brushCursor) this._drawBrushCursor(ctx);
     if (this.mode === 'gm' && this.calibrateRect) this._drawCalibrateRect(ctx);
+    if (this.mode === 'gm' && this.marquee) this._drawMarquee(ctx);
     if (this.pings.length) this._drawPings(ctx);
+  }
+
+  _drawMarquee(ctx) {
+    const m = this.marquee;
+    const a = this.worldToScreen({ x: m.x0, y: m.y0 });
+    const b = this.worldToScreen({ x: m.x1, y: m.y1 });
+    ctx.save();
+    ctx.fillStyle = 'rgba(201,162,60,.12)';
+    ctx.strokeStyle = 'rgba(201,162,60,.9)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.fillRect(a.x, a.y, b.x - a.x, b.y - a.y);
+    ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+    ctx.restore();
   }
 
   _drawPings(ctx) {
@@ -435,7 +486,7 @@ export class Stage {
         ctx.stroke();
         ctx.setLineDash([]);
       }
-      if (this.mode === 'gm' && t.id === this.selectedTokenId) {
+      if (this.mode === 'gm' && this.selectedIds.has(t.id)) {
         ctx.lineWidth = 2.5;
         ctx.strokeStyle = '#c9a23c';
         ctx.beginPath();

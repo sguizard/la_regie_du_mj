@@ -154,6 +154,41 @@
           <button id="token-props-close" class="btn btn-small btn-block" data-i18n="props.close">Fermer</button>
         </div>
 
+        <!-- Édition groupée (plusieurs tokens sélectionnés) -->
+        <div id="multi-props" class="floaty hidden">
+          <h3 id="mp-title">Tokens</h3>
+          <div class="hp-quick">
+            <input id="mp-amount" type="number" min="1" step="1" value="5" data-i18n-title="props.amount" data-i18n-aria="props.amount">
+            <button id="mp-dmg" class="btn btn-small btn-danger" data-i18n="props.dmg" data-i18n-title="props.dmgTitle">− Dégâts</button>
+            <button id="mp-heal" class="btn btn-small" data-i18n="props.heal" data-i18n-title="props.healTitle">+ Soin</button>
+          </div>
+          <div class="hp-row">
+            <label class="ctl"><span data-i18n="props.type">Type</span>
+              <select id="mp-type">
+                <option value="" data-i18n="multi.keep">— (inchangé)</option>
+                <option value="pnj">PNJ</option>
+                <option value="pj">PJ</option>
+              </select>
+            </label>
+            <label class="ctl"><span data-i18n="props.size">Taille</span> <input id="mp-size" type="number" min="0.5" max="6" step="0.5" placeholder="—"></label>
+          </div>
+          <label class="ctl"><span data-i18n="props.color">Couleur</span> <input id="mp-color" type="color" value="#c0392b"></label>
+          <div class="tp-appearance">
+            <button id="mp-show" class="btn btn-small" data-i18n="multi.allVisible">👁 Tous visibles</button>
+            <button id="mp-hide" class="btn btn-small" data-i18n="multi.allHidden">🚫 Tous masqués</button>
+          </div>
+          <label class="ctl"><span data-i18n="props.hpShare">PV vus par les joueurs</span>
+            <select id="mp-hpshare">
+              <option value="" data-i18n="multi.keep">— (inchangé)</option>
+              <option value="off" data-i18n="props.hpShareOff">Masqués</option>
+              <option value="bar" data-i18n="props.hpShareBar">Barre seule</option>
+              <option value="full" data-i18n="props.hpShareFull">Barre + chiffres</option>
+            </select>
+          </label>
+          <button id="mp-delete" class="btn btn-small btn-danger btn-block" data-i18n="multi.delete">Supprimer les tokens</button>
+          <button id="multi-props-close" class="btn btn-small btn-block" data-i18n="props.close">Fermer</button>
+        </div>
+
         <!-- Menu rapide d'apparence (clic sur la pastille d'un token) -->
         <div id="token-appearance-menu" class="floaty hidden">
           <p class="floaty-sub" data-i18n="appearance.menuTitle">Apparence du token</p>

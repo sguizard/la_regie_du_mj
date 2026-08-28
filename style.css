@@ -221,7 +221,7 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .floaty h3 { margin: 0 0 2px; font-size: 14px; }
 .floaty-sub { margin: 7px 0 1px; font-size: 12px; color: var(--text-dim); font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
 #config-panel { top: 60px; right: 12px; width: 250px; }
-#token-props { top: 60px; right: 274px; width: 230px; }
+#token-props, #multi-props { top: 60px; right: 274px; width: 230px; }
 
 .token-lib-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; max-height: 160px; overflow-y: auto; }
 .token-lib-grid img {
