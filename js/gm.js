@@ -118,6 +118,7 @@ export async function initGM() {
   wireCanvas();
   wireKeyboard();
   wireWheelNumbers();
+  wireCombat();
   window.addEventListener('langchange', () => {
     applyI18n(document);
     updateBlackoutBtn();
@@ -129,6 +130,7 @@ export async function initGM() {
     }
     renderSidebar();
     renderTokenList();
+    renderInitiativeBar();
   });
   refreshStorage();
   setInterval(refreshStorage, 8000);
@@ -183,6 +185,7 @@ async function persistCurrentScene() {
   s.kind = 'battlemap';
   s.grid = stage.scene.grid;
   s.tokens = structuredClone(stage.tokens);
+  s.combat = stage.scene.combat ?? null;
   if (stage.fog) s.fogBlob = await stage.fog.toBlob();
   await db.put('scenes', s);
 }
@@ -234,6 +237,13 @@ async function broadcastScene(includeFog) {
   if (stage.scene?.id === presentingId) {
     push('grid', { sceneId: presentingId, grid: stage.scene.grid });
     push('tokens', { sceneId: presentingId, tokens: structuredClone(stage.tokens) });
+    const cs = stage.scene.combat;
+    push('initiative', {
+      sceneId: presentingId,
+      on: !!(cs && cs.on && cs.showPlayers),
+      turnId: cs?.turnId ?? null,
+      round: cs?.round ?? 1,
+    });
     if (includeFog && stage.fog) push('fog', { sceneId: presentingId, blob: await stage.fog.toBlob() });
   }
 }
@@ -265,6 +275,7 @@ async function wipeAll() {
   setConfigOpen(false);
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
+  resetCombatUI();
   refreshStorage();
 }
 
@@ -384,6 +395,7 @@ async function importCampaign(file) {
   setConfigOpen(false);
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
+  resetCombatUI();
 
   await reloadAll();
   refreshStorage();
@@ -545,6 +557,7 @@ async function deleteScene(id) {
     setConfigOpen(false);
     $('#token-props').classList.add('hidden');
     $('#multi-props').classList.add('hidden');
+    resetCombatUI();
   }
 
   await reloadAll();
@@ -571,6 +584,10 @@ async function selectScene(id) {
   setTool('move');
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
+  const cs = combatState();
+  $('#btn-combat').classList.toggle('active', !!cs.on);
+  stage.setTurn(cs.on ? cs.turnId : null);
+  renderInitiativeBar();
   renderTokenList();
   renderSidebar();
 }
@@ -704,6 +721,158 @@ function wireWheelNumbers() {
   }, { passive: false });
 }
 
+// ---------------------------------------------------------------- suivi d'initiative
+function combatState() {
+  if (!stage.scene) return null;
+  if (!stage.scene.combat) {
+    stage.scene.combat = { on: false, showPlayers: false, turnId: null, round: 1 };
+  }
+  return stage.scene.combat;
+}
+
+/** Tokens ayant une initiative, triés (init décroissante, puis nom). */
+function combatants() {
+  return stage.tokens
+    .filter((t) => t.initiative != null)
+    .sort((a, b) => (b.initiative - a.initiative)
+      || (a.label || '￿').localeCompare(b.label || '￿', 'fr', { numeric: true }));
+}
+
+function isDowned(t) { return t.hpMax > 0 && (t.hp ?? t.hpMax) <= 0; }
+
+function wireCombat() {
+  $('#btn-combat').addEventListener('click', () => setCombatOn(!(combatState()?.on)));
+  $('#init-close').addEventListener('click', () => setCombatOn(false));
+  $('#init-prev').addEventListener('click', () => advanceTurn(-1));
+  $('#init-next').addEventListener('click', () => advanceTurn(1));
+  $('#init-players').addEventListener('click', toggleCombatShowPlayers);
+}
+
+/** Diffuse l'état du suivi d'initiative à la vue joueurs (visible seulement si
+ *  le suivi est actif ET « afficher aux joueurs » est coché). */
+function broadcastInitiative() {
+  if (selectedId !== presentingId) return;
+  const cs = stage.scene?.combat;
+  push('initiative', {
+    sceneId: selectedId,
+    on: !!(cs && cs.on && cs.showPlayers),
+    turnId: cs?.turnId ?? null,
+    round: cs?.round ?? 1,
+  });
+}
+
+function renderInitiativeBar() {
+  const bar = $('#initiative-bar');
+  const cs = stage.scene?.combat;
+  if (!cs || !cs.on) { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+
+  const list = combatants();
+  if (list.length && !list.some((t) => t.id === cs.turnId)) cs.turnId = list[0].id;
+  if (!list.length) cs.turnId = null;
+
+  $('#init-round').textContent = tr('combat.round', { n: cs.round || 1 });
+  $('#init-players').classList.toggle('active', !!cs.showPlayers);
+  $('#init-prev').disabled = !list.length;
+  $('#init-next').disabled = !list.length;
+
+  const host = $('#init-list');
+  host.innerHTML = '';
+  if (!list.length) {
+    host.append(el('span', { class: 'init-empty', text: tr('combat.empty') }));
+    return;
+  }
+  for (const t of list) {
+    const chip = el('div', {
+      class: 'init-chip' + (t.id === cs.turnId ? ' current' : '') + (isDowned(t) ? ' downed' : ''),
+    });
+    const sw = el('span', { class: 'init-swatch' });
+    sw.style.background = t.color || '#c0392b';
+    chip.append(
+      el('span', { class: 'init-num', text: String(t.initiative) }),
+      sw,
+      el('span', { text: t.label || '—' }),
+    );
+    chip.addEventListener('click', () => setTurnTo(t.id));
+    host.append(chip);
+  }
+}
+
+async function setCombatOn(on) {
+  const cs = combatState();
+  if (!cs) return;
+  cs.on = on;
+  if (on && !cs.turnId) {
+    cs.turnId = combatants()[0]?.id ?? null;
+    cs.round = 1;
+  }
+  $('#btn-combat').classList.toggle('active', on);
+  stage.setTurn(on ? cs.turnId : null);
+  renderInitiativeBar();
+  await persistCurrentScene();
+  broadcastInitiative();
+}
+
+async function toggleCombatShowPlayers() {
+  const cs = combatState();
+  if (!cs) return;
+  cs.showPlayers = !cs.showPlayers;
+  $('#init-players').classList.toggle('active', cs.showPlayers);
+  await persistCurrentScene();
+  broadcastInitiative();
+}
+
+async function advanceTurn(dir) {
+  const cs = stage.scene?.combat;
+  if (!cs || !cs.on) return;
+  const list = combatants();
+  if (!list.length) return;
+  let idx = list.findIndex((t) => t.id === cs.turnId);
+  if (idx < 0) {
+    idx = 0;
+  } else {
+    idx += dir;
+    if (idx >= list.length) { idx = 0; cs.round = (cs.round || 1) + 1; }
+    else if (idx < 0) { idx = list.length - 1; cs.round = Math.max(1, (cs.round || 1) - 1); }
+  }
+  cs.turnId = list[idx].id;
+  await applyTurnChange();
+}
+
+async function setTurnTo(id) {
+  const cs = stage.scene?.combat;
+  if (!cs) return;
+  cs.turnId = id;
+  await applyTurnChange();
+}
+
+async function applyTurnChange() {
+  const cs = stage.scene?.combat;
+  stage.setTurn(cs?.on ? cs.turnId : null);
+  renderInitiativeBar();
+  await persistCurrentScene();
+  broadcastInitiative();
+}
+
+/** Après un changement de token (init, PV, suppression) : revalide le tour courant. */
+function refreshCombatAfterTokenChange() {
+  const cs = stage.scene?.combat;
+  if (!cs || !cs.on) { renderInitiativeBar(); return; }
+  const list = combatants();
+  const before = cs.turnId;
+  if (list.length && !list.some((t) => t.id === before)) cs.turnId = list[0].id;
+  if (!list.length) cs.turnId = null;
+  stage.setTurn(cs.turnId);
+  renderInitiativeBar();
+  if (cs.turnId !== before) broadcastInitiative();
+}
+
+function resetCombatUI() {
+  $('#initiative-bar').classList.add('hidden');
+  $('#btn-combat').classList.remove('active');
+  stage.setTurn(null);
+}
+
 function setTool(t) {
   tool = t;
   $$('.tool[data-tool]').forEach((b) => b.classList.toggle('active', b.dataset.tool === t));
@@ -819,6 +988,7 @@ function openTokenProps(t) {
 async function afterTokenEdit() {
   stage.invalidate();
   renderTokenList();
+  refreshCombatAfterTokenChange();
   await persistCurrentScene();
   broadcastTokens();
 }
@@ -1419,6 +1589,7 @@ function wireKeyboard() {
     if (k === 't') setTool('token');
     if (k === 'g') toggleConfig();
     if (k === 'a') quickAddToken();
+    if (k === 'n') advanceTurn(1);
     if ((e.key === 'Delete' || e.key === 'Backspace') && stage.selectedIds.size) {
       const ids = new Set(stage.selectedIds);
       stage.tokens = stage.tokens.filter((x) => !ids.has(x.id));

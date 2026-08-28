@@ -103,6 +103,22 @@ doivent tourner **dans le même navigateur sur la même machine**.
 La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 révéler ·
 🌫 cacher · ⛃ token · ▦ grille · ⚙ réglages de grille (survole pour l'infobulle).
 
+### Suivi d'initiative (ordre de jeu)
+
+Le bouton **⚔️** en haut de la liste des tokens ouvre un **bandeau d'ordre de jeu**
+en bas de la carte : les tokens ayant une initiative, triés du plus haut au plus bas,
+avec le **tour courant en surbrillance** et un **chevron doré** au-dessus du token
+concerné sur la carte.
+
+- **◀ / ▶** (ou la touche **N** pour « suivant ») changent de combattant ; le compteur
+  **Round** s'incrémente quand on repasse en haut de l'ordre.
+- **Clic sur un combattant** = passer directement à son tour.
+- **👁** dans le bandeau : affiche l'ordre de jeu **sur la vue joueurs** (les tokens
+  cachés y apparaissent comme « ? »). Sans ça, seul le MJ voit le suivi.
+
+Rien n'est automatique : à toi d'avancer les tours. L'état (tour, round, affichage
+joueurs) est enregistré avec la scène.
+
 **Molette de la souris** sur n'importe quel champ numérique ou curseur (PV, initiative,
 taille de case, pinceau…) : ajuste la valeur d'un cran.
 
@@ -124,6 +140,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `H` | Pinceau cacher |
 | `T` | Outil poser un token |
 | `A` | Ajouter un token au centre |
+| `N` | Combattant suivant (suivi d'initiative) |
 | `G` | Ouvrir/fermer le panneau ⚙ Grille |
 | `F` | Ajuster la vue |
 | `Espace` + glisser | Déplacer la vue |

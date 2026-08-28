@@ -43,6 +43,7 @@ export class Stage {
     this.brushCursor = null;   // { x, y, r, mode } en px écran — aperçu du pinceau (régie)
     this.calibrateRect = null; // { x0, y0, x1, y1 } en coords monde — aperçu du calibrage
     this.pings = [];           // { x, y, t0, color } — repères temporaires « regarde ici »
+    this.turnTokenId = null;   // token dont c'est le tour (suivi d'initiative)
 
     this._dirty = true;
     this._veil = document.createElement('canvas');
@@ -123,6 +124,7 @@ export class Stage {
     this.marquee = null;
     this.calibrateRect = null;
     this.pings = [];
+    this.turnTokenId = null;
     if (scene && this.imgW) {
       if (!this.scene.grid) this.scene.grid = defaultGrid();
       this.fog = new FogMask(this.imgW, this.imgH);
@@ -136,6 +138,7 @@ export class Stage {
   setTokenImages(map) { this.tokenImages = map || new Map(); this.invalidate(); }
   setGrid(grid) { if (this.scene) { this.scene.grid = grid; this.invalidate(); } }
   setTokens(tokens) { this.tokens = structuredClone(tokens || []); this.invalidate(); }
+  setTurn(id) { this.turnTokenId = id || null; this.invalidate(); }
 
   /** Ajoute un « ping » animé (repère temporaire) à la position monde donnée. */
   addPing(world, { color = '#ffcf3f' } = {}) {
@@ -493,8 +496,27 @@ export class Stage {
         ctx.arc(c.x, c.y, r + 7, 0, Math.PI * 2);
         ctx.stroke();
       }
+      if (t.id === this.turnTokenId) this._drawTurnMarker(ctx, c, r, t);
       ctx.restore();
     }
+  }
+
+  /** Chevron doré au-dessus du token dont c'est le tour. */
+  _drawTurnMarker(ctx, c, r, t) {
+    const s = Math.max(7, r * 0.32);
+    const hasHp = this._tokenHpVisibility(t) !== 'none';
+    const tipY = c.y - r - (hasHp ? 16 : 4);
+    ctx.beginPath();
+    ctx.moveTo(c.x - s, tipY - s * 1.1);
+    ctx.lineTo(c.x + s, tipY - s * 1.1);
+    ctx.lineTo(c.x, tipY);
+    ctx.closePath();
+    ctx.fillStyle = '#c9a23c';
+    ctx.strokeStyle = 'rgba(0,0,0,.55)';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.fill();
+    ctx.stroke();
   }
 
   /** 'none' | 'bar' | 'full' selon le mode et le réglage `hpShare` du token. */

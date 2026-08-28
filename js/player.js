@@ -1,10 +1,11 @@
 // La Régie du MJ — Copyright (C) 2026 Sébastien Guizard — GPL-3.0-or-later
 // ===== Écran vue joueurs =====
 
-import { $, blobToBitmap } from './util.js';
+import { $, blobToBitmap, el } from './util.js';
 import * as db from './db.js';
 import { Bus } from './sync.js';
 import { Stage } from './stage.js';
+import { t as tr } from './i18n.js';
 
 let stage, bus;
 let currentSceneId = null;
@@ -12,7 +13,8 @@ let loadSeq = 0;              // incrémenté à chaque chargement de scène
 let loading = false;
 let loadingTarget = null;
 let pendingMsgs = [];         // messages « live » reçus pendant un chargement
-let applied = { grid: 0, tokens: 0, fog: 0 }; // horodatage du dernier message appliqué par type
+let applied = { grid: 0, tokens: 0, fog: 0, initiative: 0 }; // horodatage du dernier message appliqué par type
+let initState = { on: false, turnId: null, round: 1 };       // suivi d'initiative
 const tokenImages = new Map();
 
 export async function initPlayer() {
@@ -22,7 +24,12 @@ export async function initPlayer() {
 
   bus.on('present', (m) => showScene(m.sceneId, m.ts));
   bus.on('grid', (m) => live(m, 'grid', () => stage.setGrid(m.grid)));
-  bus.on('tokens', (m) => live(m, 'tokens', () => stage.setTokens(m.tokens)));
+  bus.on('tokens', (m) => live(m, 'tokens', () => { stage.setTokens(m.tokens); renderPlayerInit(); }));
+  bus.on('initiative', (m) => live(m, 'initiative', () => {
+    initState = { on: !!m.on, turnId: m.turnId ?? null, round: m.round || 1 };
+    stage.setTurn(m.on ? m.turnId : null);
+    renderPlayerInit();
+  }));
   bus.on('fogStroke', (m) => live(m, 'fog', () => {
     if (stage.fog) { stage.fog.strokeSeg(m.seg.from, m.seg.to, m.radius, m.mode); stage.invalidate(); }
   }));
@@ -34,6 +41,8 @@ export async function initPlayer() {
     loadSeq++;
     currentSceneId = null;
     stage.setScene(null, null);
+    initState = { on: false, turnId: null, round: 1 };
+    renderPlayerInit();
     $('#player-idle').classList.remove('hidden');
     $('#player-blackout').classList.add('hidden');
   });
@@ -42,6 +51,7 @@ export async function initPlayer() {
   });
 
   wireIdleUI();
+  window.addEventListener('langchange', renderPlayerInit);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) { stage.invalidate(); bus.send({ t: 'hello' }); }
   });
@@ -76,7 +86,9 @@ async function showScene(sceneId, ts) {
   loading = true;
   loadingTarget = sceneId;
   pendingMsgs = [];
-  applied = { grid: baseTs, tokens: baseTs, fog: baseTs };
+  applied = { grid: baseTs, tokens: baseTs, fog: baseTs, initiative: baseTs };
+  initState = { on: false, turnId: null, round: 1 };
+  renderPlayerInit();
 
   try {
     const s = await db.get('scenes', sceneId);
@@ -117,6 +129,36 @@ async function showScene(sceneId, ts) {
   } finally {
     if (seq === loadSeq) { loading = false; loadingTarget = null; }
   }
+}
+
+/** Bandeau « ordre de jeu » : chips triés par initiative, tour courant en surbrillance.
+ *  Les tokens non visibles aux joueurs apparaissent comme « ? ». */
+function renderPlayerInit() {
+  const host = $('#player-initiative');
+  if (!host) return;
+  host.innerHTML = '';
+  const list = (stage?.tokens || [])
+    .filter((t) => t.initiative != null)
+    .sort((a, b) => (b.initiative - a.initiative)
+      || (a.label || '￿').localeCompare(b.label || '￿', 'fr', { numeric: true }));
+
+  if (!initState.on || !list.length) { host.classList.add('hidden'); return; }
+
+  host.append(el('span', { class: 'pi-round', text: tr('combat.round', { n: initState.round || 1 }) }));
+  for (const t of list) {
+    const cur = t.id === initState.turnId;
+    const chip = el('div', { class: 'pi-chip' + (cur ? ' current' : '') });
+    if (t.visibleToPlayers) {
+      chip.append(
+        el('span', { class: 'pi-num', text: String(t.initiative) }),
+        el('span', { text: t.label || '—' }),
+      );
+    } else {
+      chip.append(el('span', { text: '?' }));
+    }
+    host.append(chip);
+  }
+  host.classList.remove('hidden');
 }
 
 // curseur + bouton plein écran auto-masqués

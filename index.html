@@ -50,9 +50,12 @@
         <div class="side-section side-tokens hidden">
           <div class="side-tokens-head">
             <span id="tl-title">Tokens</span>
-            <label class="tl-amount-wrap" data-i18n-title="tokens.amountTitle">
-              ± <input id="tl-amount" type="number" min="1" step="1" value="5">
-            </label>
+            <div class="side-tokens-head-right">
+              <button id="btn-combat" class="btn btn-small" data-i18n-title="combat.toggleTitle">⚔️</button>
+              <label class="tl-amount-wrap" data-i18n-title="tokens.amountTitle">
+                ± <input id="tl-amount" type="number" min="1" step="1" value="5">
+              </label>
+            </div>
           </div>
           <select id="tl-sort" data-i18n-title="tokens.sortTitle">
             <option value="init" data-i18n="tokens.sortInit">Tri : initiative (décroissante)</option>
@@ -206,6 +209,16 @@
           <div id="tam-grid" class="token-lib-grid"></div>
         </div>
 
+        <!-- Suivi d'initiative (ordre de jeu) -->
+        <div id="initiative-bar" class="init-bar hidden">
+          <button id="init-prev" class="init-nav" data-i18n-title="combat.prev">◀</button>
+          <span id="init-round" class="init-round">Round 1</span>
+          <div id="init-list" class="init-list"></div>
+          <button id="init-next" class="init-nav" data-i18n-title="combat.next">▶</button>
+          <button id="init-players" class="init-toggle" data-i18n-title="combat.showPlayers">👁</button>
+          <button id="init-close" class="init-close" data-i18n-title="combat.close">✕</button>
+        </div>
+
         <div id="hint" class="hint"></div>
       </main>
     </div>
@@ -218,6 +231,7 @@
   <div id="player-app" class="player hidden">
     <canvas id="player-canvas" class="stage-canvas"></canvas>
     <div id="player-idle" class="player-idle" data-i18n="player.waiting">En attente du MJ…</div>
+    <div id="player-initiative" class="player-init hidden"></div>
     <div id="player-blackout" class="player-blackout hidden"></div>
     <button id="player-fs" class="player-fs" data-i18n-title="player.fullscreenTitle">⛶</button>
   </div>

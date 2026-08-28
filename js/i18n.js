@@ -149,6 +149,14 @@ const DICT = {
     'multi.delete': 'Supprimer les {n} tokens',
     'multi.hint': '{n} tokens sélectionnés',
 
+    'combat.toggleTitle': "Suivi d'initiative (ordre de jeu)",
+    'combat.round': 'Round {n}',
+    'combat.prev': 'Combattant précédent',
+    'combat.next': 'Combattant suivant (N)',
+    'combat.showPlayers': "Afficher l'ordre de jeu aux joueurs",
+    'combat.close': "Fermer le suivi d'initiative",
+    'combat.empty': 'Donne une initiative à des tokens (bouton + init).',
+
     'hint.calibrate': "Tracez la diagonale d'UNE case sur la carte.",
     'hint.cellSize': 'Case : {px} px',
 
@@ -308,6 +316,14 @@ const DICT = {
     'multi.delete': 'Delete the {n} tokens',
     'multi.hint': '{n} tokens selected',
 
+    'combat.toggleTitle': 'Initiative tracker (turn order)',
+    'combat.round': 'Round {n}',
+    'combat.prev': 'Previous combatant',
+    'combat.next': 'Next combatant (N)',
+    'combat.showPlayers': 'Show the turn order to players',
+    'combat.close': 'Close the initiative tracker',
+    'combat.empty': 'Give tokens an initiative (+ init button).',
+
     'hint.calibrate': 'Draw the diagonal of ONE cell on the map.',
     'hint.cellSize': 'Cell: {px} px',
 
@@ -466,6 +482,14 @@ const DICT = {
     'multi.allHidden': '🚫 Todos ocultos',
     'multi.delete': 'Eliminar los {n} tokens',
     'multi.hint': '{n} tokens seleccionados',
+
+    'combat.toggleTitle': 'Seguimiento de iniciativa (orden de turnos)',
+    'combat.round': 'Ronda {n}',
+    'combat.prev': 'Combatiente anterior',
+    'combat.next': 'Siguiente combatiente (N)',
+    'combat.showPlayers': 'Mostrar el orden de turnos a los jugadores',
+    'combat.close': 'Cerrar el seguimiento de iniciativa',
+    'combat.empty': 'Asigna una iniciativa a los tokens (botón + inic).',
 
     'hint.calibrate': 'Traza la diagonal de UNA casilla en el mapa.',
     'hint.cellSize': 'Casilla: {px} px',
