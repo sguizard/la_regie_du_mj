@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!-- La Régie du MJ — Copyright (C) 2026 Sébastien Guizard — GPL-3.0-or-later -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>La Régie du MJ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ============ RÉGIE (écran du MJ) ============ -->
+  <div id="gm-app" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <strong class="brand" data-i18n-html="app.name">La Régie du&nbsp;MJ</strong>
+        <span id="scene-name" class="scene-name" data-i18n="topbar.noScene">Aucune carte</span>
+      </div>
+      <div class="topbar-right">
+        <button id="btn-present" class="btn btn-primary" disabled data-i18n="topbar.present">Présenter aux joueurs</button>
+        <button id="btn-blackout" class="btn" data-i18n="topbar.hidePlayers" data-i18n-title="topbar.blackoutTitle">🚫 Masquer joueurs</button>
+        <button id="btn-open-player" class="btn" data-i18n="topbar.openPlayer">Ouvrir la vue joueurs</button>
+        <span id="player-status" class="pill pill-off" data-i18n="topbar.playerClosed">Vue joueurs : fermée</span>
+        <button id="btn-fit" class="btn" data-i18n="topbar.fit" data-i18n-title="topbar.fitTitle">Ajuster</button>
+        <button id="btn-fullscreen" class="btn" data-i18n-title="topbar.fullscreenTitle">⛶</button>
+        <span id="storage-usage" class="storage-usage" data-i18n-title="topbar.storageTitle"></span>
+        <button id="btn-wipe" class="btn btn-danger" data-i18n="topbar.wipe" data-i18n-title="topbar.wipeTitle">Vider tout</button>
+        <select id="lang-select" class="lang-select" data-i18n-title="lang.label"></select>
+      </div>
+    </header>
+
+    <div class="body">
+      <!-- Barre latérale : cartes + tokens de la scène -->
+      <aside class="sidebar">
+        <div class="side-section side-scenes">
+          <div class="sidebar-actions">
+            <button id="btn-add-map" class="btn btn-block" data-i18n="sidebar.addMap">+ Ajouter une carte</button>
+          </div>
+          <input id="search" class="search" type="search" data-i18n-placeholder="sidebar.search" autocomplete="off">
+          <div class="deck-add">
+            <button id="btn-add-deck" class="btn btn-small btn-block" data-i18n="sidebar.addDeck">+ Nouveau deck</button>
+          </div>
+          <div id="deck-list" class="deck-list"></div>
+          <div id="dropzone" class="dropzone" data-i18n="sidebar.dropzone">Déposez des images de cartes ici</div>
+        </div>
+
+        <div class="side-section side-tokens hidden">
+          <div class="side-tokens-head">
+            <span id="tl-title">Tokens</span>
+            <label class="tl-amount-wrap" data-i18n-title="tokens.amountTitle">
+              ± <input id="tl-amount" type="number" min="1" step="1" value="5">
+            </label>
+          </div>
+          <select id="tl-sort" data-i18n-title="tokens.sortTitle">
+            <option value="init" data-i18n="tokens.sortInit">Tri : initiative (décroissante)</option>
+            <option value="type" data-i18n="tokens.sortType">Tri : type puis nom</option>
+          </select>
+          <div id="tl-rows" class="tl-rows"></div>
+          <button id="btn-add-token" class="btn btn-small btn-block" data-i18n="tokens.add" data-i18n-title="tokens.addTitle">+ Ajouter un token</button>
+        </div>
+      </aside>
+
+      <!-- Scène centrale -->
+      <main class="stage-wrap">
+        <canvas id="gm-canvas" class="stage-canvas"></canvas>
+
+        <!-- Barre d'outils -->
+        <div id="map-toolbar" class="map-toolbar hidden">
+          <div class="tool-group" role="radiogroup" aria-label="Outil">
+            <button class="tool" data-tool="move" data-i18n-title="tool.move">✋</button>
+            <button class="tool" data-tool="reveal" data-i18n-title="tool.reveal">🔦</button>
+            <button class="tool" data-tool="hide" data-i18n-title="tool.hide">🌫</button>
+            <button class="tool" data-tool="token" data-i18n-title="tool.token">⛃</button>
+            <button class="tool" data-tool="grid" data-i18n-title="tool.grid">▦</button>
+            <button id="btn-config" class="tool" data-i18n-title="tool.config">⚙</button>
+          </div>
+
+          <div class="tool-group hidden" id="fog-group">
+            <input id="brush-size" type="range" min="10" max="400" value="90" data-i18n-title="tool.brushTitle">
+            <button id="btn-reveal-all" class="btn btn-small" data-i18n="tool.revealAll" data-i18n-title="tool.revealAllTitle">🔦&nbsp;tout</button>
+            <button id="btn-hide-all" class="btn btn-small" data-i18n="tool.hideAll" data-i18n-title="tool.hideAllTitle">🌫&nbsp;tout</button>
+          </div>
+        </div>
+
+        <!-- Panneau de configuration (grille) -->
+        <div id="config-panel" class="floaty hidden">
+          <h3 data-i18n="config.grid">Grille</h3>
+          <label class="ctl"><span data-i18n="config.cellSize">Taille de case (px)</span>
+            <input id="grid-size" type="number" min="10" max="600" step="1" value="70">
+          </label>
+          <label class="ctl"><span data-i18n="config.offsetX">Décalage X</span> <input id="grid-offx" type="number" step="1" value="0"></label>
+          <label class="ctl"><span data-i18n="config.offsetY">Décalage Y</span> <input id="grid-offy" type="number" step="1" value="0"></label>
+          <button id="btn-calibrate" class="btn btn-small btn-block" data-i18n="config.calibrate">Calibrer (tracer une case)</button>
+          <div class="hp-row">
+            <label class="ctl"><span data-i18n="config.color">Couleur</span> <input id="grid-color" type="color" value="#8fb3ff"></label>
+            <label class="ctl"><span data-i18n="config.opacity">Opacité</span> <input id="grid-opacity" type="range" min="0" max="100" value="55"></label>
+          </div>
+          <label class="ctl"><span data-i18n="config.width">Épaisseur</span> <input id="grid-width" type="range" min="1" max="5" step="0.5" value="1"></label>
+          <label class="ctl"><span data-i18n="config.subdiv">Sous-grille</span>
+            <select id="grid-subdiv">
+              <option value="1" data-i18n="config.subdivNone">Aucune</option>
+              <option value="2" data-i18n="config.subdivHalf">×2 (demi-cases)</option>
+              <option value="3">×3</option>
+              <option value="4">×4</option>
+              <option value="5">×5</option>
+            </select>
+          </label>
+          <label class="ctl ctl-check"><input id="grid-snap" type="checkbox" checked> <span data-i18n="config.snap">Aimantation des tokens</span></label>
+          <label class="ctl ctl-check"><input id="grid-show" type="checkbox"> <span data-i18n="config.showPlayers">Visible par les joueurs</span></label>
+          <button id="config-panel-close" class="btn btn-small btn-block" data-i18n="config.close">Fermer</button>
+        </div>
+
+        <!-- Propriétés d'un token sélectionné -->
+        <div id="token-props" class="floaty hidden">
+          <h3 data-i18n="props.token">Token</h3>
+          <label class="ctl"><span data-i18n="props.name">Nom</span> <input id="tp-label" type="text" maxlength="24"></label>
+          <label class="ctl"><span data-i18n="props.type">Type</span>
+            <select id="tp-type">
+              <option value="" data-i18n="props.typeNone">—</option>
+              <option value="pnj">PNJ</option>
+              <option value="pj">PJ</option>
+            </select>
+          </label>
+          <label class="ctl"><span data-i18n="props.initiative">Initiative</span> <input id="tp-init" type="number" step="1"></label>
+          <div class="hp-row">
+            <label class="ctl"><span data-i18n="props.color">Couleur</span> <input id="tp-color" type="color"></label>
+            <label class="ctl"><span data-i18n="props.size">Taille</span> <input id="tp-size" type="number" min="0.5" max="6" step="0.5"></label>
+          </div>
+          <label class="ctl ctl-check"><input id="tp-visible" type="checkbox"> <span data-i18n="props.visible">Visible par les joueurs</span></label>
+
+          <p class="floaty-sub" data-i18n="props.appearance">Apparence</p>
+          <div class="tp-appearance">
+            <button id="tp-appear-disc" class="btn btn-small" data-i18n="props.disc">Disque</button>
+            <button id="tp-import-token" class="btn btn-small" data-i18n="props.importImage">Importer une image…</button>
+          </div>
+          <div id="tp-lib-grid" class="token-lib-grid"></div>
+
+          <p class="floaty-sub" data-i18n="props.hpSection">Points de vie</p>
+          <label class="ctl"><span data-i18n="props.hp">PV</span> <input id="tp-hp" type="number" min="0" step="1"></label>
+          <label class="ctl"><span data-i18n="props.hpMax">PV max</span> <input id="tp-hpmax" type="number" min="0" step="1"></label>
+          <div class="hp-quick">
+            <input id="tp-hp-amt" type="number" min="1" step="1" value="1" data-i18n-title="props.amount" data-i18n-aria="props.amount">
+            <button id="tp-dmg" class="btn btn-small btn-danger" data-i18n="props.dmg" data-i18n-title="props.dmgTitle">− Dégâts</button>
+            <button id="tp-heal" class="btn btn-small" data-i18n="props.heal" data-i18n-title="props.healTitle">+ Soin</button>
+          </div>
+          <label class="ctl"><span data-i18n="props.hpShare">PV vus par les joueurs</span>
+            <select id="tp-hpshare">
+              <option value="off" data-i18n="props.hpShareOff">Masqués</option>
+              <option value="bar" data-i18n="props.hpShareBar">Barre seule</option>
+              <option value="full" data-i18n="props.hpShareFull">Barre + chiffres</option>
+            </select>
+          </label>
+
+          <button id="tp-delete" class="btn btn-small btn-danger btn-block" data-i18n="props.delete">Supprimer le token</button>
+          <button id="token-props-close" class="btn btn-small btn-block" data-i18n="props.close">Fermer</button>
+        </div>
+
+        <!-- Menu rapide d'apparence (clic sur la pastille d'un token) -->
+        <div id="token-appearance-menu" class="floaty hidden">
+          <p class="floaty-sub" data-i18n="appearance.menuTitle">Apparence du token</p>
+          <div class="tp-appearance">
+            <button id="tam-disc" class="btn btn-small" data-i18n="appearance.disc">Disque</button>
+            <button id="tam-import" class="btn btn-small" data-i18n="appearance.import">Importer…</button>
+          </div>
+          <div id="tam-grid" class="token-lib-grid"></div>
+        </div>
+
+        <div id="hint" class="hint"></div>
+      </main>
+    </div>
+
+    <input id="file-map" type="file" accept="image/*" multiple hidden>
+    <input id="file-token" type="file" accept="image/*" multiple hidden>
+  </div>
+
+  <!-- ============ ÉCRAN VUE JOUEURS ============ -->
+  <div id="player-app" class="player hidden">
+    <canvas id="player-canvas" class="stage-canvas"></canvas>
+    <div id="player-idle" class="player-idle" data-i18n="player.waiting">En attente du MJ…</div>
+    <div id="player-blackout" class="player-blackout hidden"></div>
+    <button id="player-fs" class="player-fs" data-i18n-title="player.fullscreenTitle">⛶</button>
+  </div>
+
+  <!-- ============ ÉCRAN D'ACCUEIL (choix du rôle) ============ -->
+  <div id="landing" class="landing">
+    <div class="landing-card">
+      <h1 data-i18n-html="app.name">La Régie du&nbsp;MJ</h1>
+      <p data-i18n="landing.tagline">Cartes tactiques, tokens et brouillard de guerre pour vos parties en présentiel.</p>
+      <button id="go-gm" class="btn btn-primary btn-lg" data-i18n="landing.openGm">Ouvrir la régie</button>
+      <button id="go-player" class="btn btn-lg" data-i18n="landing.openPlayer">Ouvrir la vue joueurs</button>
+      <p class="landing-hint" data-i18n="landing.hint">Ouvrez la régie sur votre écran, la vue joueurs sur la TV.</p>
+      <select id="lang-select-landing" class="lang-select" data-i18n-title="lang.label"></select>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
