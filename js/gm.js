@@ -1,7 +1,7 @@
 // La Régie du MJ — Copyright (C) 2026 Sébastien Guizard — GPL-3.0-or-later
 // ===== La régie (écran du MJ) =====
 
-import { $, $$, el, uid, clamp, debounce, throttle, formatBytes, blobToBitmap, confirmAction } from './util.js';
+import { $, $$, el, uid, clamp, debounce, throttle, formatBytes, blobToBitmap } from './util.js';
 import * as db from './db.js';
 import { Bus } from './sync.js';
 import { Stage, defaultGrid } from './stage.js';
@@ -23,6 +23,39 @@ let calibrating = false;
 let playerWin = null;
 let blackout = false;              // scène masquée aux joueurs (écran noir)
 let tlSort = 'init';               // 'init' | 'type' — tri de la liste des tokens
+
+/** Confirmation via une boîte de dialogue interne (pas window.confirm, que le
+ *  navigateur peut bloquer après plusieurs pop-ups). Renvoie une promesse booléenne. */
+function askConfirm(message) {
+  return new Promise((resolve) => {
+    const modal = $('#confirm-modal');
+    const ok = $('#confirm-modal-ok');
+    const cancel = $('#confirm-modal-cancel');
+    $('#confirm-modal-text').textContent = message;
+    modal.classList.remove('hidden');
+    ok.focus();
+
+    const done = (v) => {
+      modal.classList.add('hidden');
+      ok.removeEventListener('click', onOk);
+      cancel.removeEventListener('click', onCancel);
+      modal.removeEventListener('click', onBackdrop);
+      document.removeEventListener('keydown', onKey, true);
+      resolve(v);
+    };
+    const onOk = () => done(true);
+    const onCancel = () => done(false);
+    const onBackdrop = (e) => { if (e.target === modal) done(false); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); }
+      else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); done(true); }
+    };
+    ok.addEventListener('click', onOk);
+    cancel.addEventListener('click', onCancel);
+    modal.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKey, true);
+  });
+}
 
 // ---------------------------------------------------------------- init
 export async function initGM() {
@@ -173,7 +206,7 @@ async function toggleFullscreen() {
 }
 
 async function wipeAll() {
-  if (!confirmAction(tr('confirm.wipe'))) return;
+  if (!(await askConfirm(tr('confirm.wipe')))) return;
   await db.clearAll();
   for (const u of thumbUrls.values()) URL.revokeObjectURL(u);
   thumbUrls.clear(); tokenImages.clear();
@@ -376,7 +409,7 @@ async function moveScene(id, deckId, afterScene) {
 }
 
 async function removeDeck(deckId) {
-  if (!confirmAction(tr('confirm.deleteDeck'))) return;
+  if (!(await askConfirm(tr('confirm.deleteDeck')))) return;
   for (const s of scenes.filter((x) => x.deckId === deckId)) { s.deckId = null; await db.put('scenes', s); }
   await db.del('decks', deckId);
   await reloadAll();
@@ -385,7 +418,7 @@ async function removeDeck(deckId) {
 async function deleteScene(id) {
   const s = scenes.find((x) => x.id === id);
   if (!s) return;
-  if (!confirmAction(tr('confirm.deleteScene', { name: s.name }))) return;
+  if (!(await askConfirm(tr('confirm.deleteScene', { name: s.name })))) return;
 
   await db.del('scenes', id);
   if (thumbUrls.has(id)) { URL.revokeObjectURL(thumbUrls.get(id)); thumbUrls.delete(id); }
@@ -920,7 +953,7 @@ function renderAppearance() {
     const del = el('button', { class: 'tl-del', text: '✕', title: tr('appearance.removeLibTitle') });
     del.addEventListener('click', async (e) => {
       e.stopPropagation();
-      if (!confirmAction(tr('appearance.confirmRemoveLib', { name: t.name }))) return;
+      if (!(await askConfirm(tr('appearance.confirmRemoveLib', { name: t.name })))) return;
       await db.del('tokenLibrary', t.id);
       tokenImages.delete(t.id);
       for (const tk of stage.tokens) if (tk.imageRef === t.id) tk.imageRef = null;

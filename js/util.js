@@ -80,11 +80,6 @@ export async function imageSize(blob) {
   return size;
 }
 
-/** Confirmation simple (remplaçable plus tard par une modale maison). */
-export function confirmAction(message) {
-  return window.confirm(message);
-}
-
 /** Crée un élément avec attributs + enfants. */
 export function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);

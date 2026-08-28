@@ -343,3 +343,17 @@ button.tl-name.tl-add { text-align: left; }
 .landing-card p { color: var(--text-dim); }
 .landing-card .btn { margin: 8px 6px 0; }
 .landing-hint { font-size: 12px; margin-top: 18px; }
+
+/* ---------- Boîte de confirmation ---------- */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.55);
+}
+.modal {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px 20px; width: calc(100% - 48px); max-width: 380px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.6);
+}
+.modal p { margin: 0 0 16px; line-height: 1.45; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }

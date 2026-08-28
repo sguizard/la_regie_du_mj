@@ -38,6 +38,8 @@ const DICT = {
     'deck.newName': 'Nouveau deck',
     'deck.namePrompt': 'Nom du deck :',
     'scene.deleteTitle': 'Supprimer la carte',
+    'dialog.confirm': 'Confirmer',
+    'dialog.cancel': 'Annuler',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -183,6 +185,8 @@ const DICT = {
     'deck.newName': 'New deck',
     'deck.namePrompt': 'Deck name:',
     'scene.deleteTitle': 'Delete map',
+    'dialog.confirm': 'Confirm',
+    'dialog.cancel': 'Cancel',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
@@ -328,6 +332,8 @@ const DICT = {
     'deck.newName': 'Nuevo mazo',
     'deck.namePrompt': 'Nombre del mazo:',
     'scene.deleteTitle': 'Eliminar el mapa',
+    'dialog.confirm': 'Confirmar',
+    'dialog.cancel': 'Cancelar',
 
     'tokens.head': 'Tokens',
     'tokens.title': 'Tokens ({n})',
