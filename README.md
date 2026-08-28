@@ -78,8 +78,9 @@ doivent tourner **dans le même navigateur sur la même machine**.
      plage ; **Maj + glisser** sur une zone vide de la carte trace un rectangle de
      sélection (ajoute à la sélection si Maj est maintenu). Quand plusieurs tokens sont
      sélectionnés, un panneau **édition groupée** remplace les propriétés : dégâts /
-     soin, type, taille, couleur, visibilité joueurs, PV vus par les joueurs, et
-     suppression — appliqués à tous d'un coup. Glisser un token sélectionné déplace
+     soin, type, taille, initiative, PV max, couleur, visibilité joueurs, PV vus par
+     les joueurs, et suppression — appliqués à tous d'un coup (mettre PV max à 0
+     retire les PV). Glisser un token sélectionné déplace
      **tout le groupe** en gardant la formation. `Suppr` supprime toute la sélection,
      `Échap` la vide.
    - **Tri** (menu en haut de la liste, mémorisé) : *initiative décroissante* (les

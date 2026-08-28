@@ -587,6 +587,8 @@ function applySelectionUI() {
     $('#token-props').classList.add('hidden');
     $('#mp-title').textContent = tr('multi.title', { n });
     $('#mp-size').value = '';
+    $('#mp-init').value = '';
+    $('#mp-hpmax').value = '';
     $('#mp-type').value = '';
     $('#mp-hpshare').value = '';
     $('#multi-props').classList.remove('hidden');
@@ -653,6 +655,21 @@ function wireMultiProps() {
     if (e.target.value === '') return;
     const v = clamp(+e.target.value || 1, 0.25, 8);
     for (const t of sel()) t.sizeCells = v;
+    commit();
+  });
+  $('#mp-init').addEventListener('change', (e) => {
+    if (e.target.value === '') return;
+    const v = Math.round(+e.target.value || 0);
+    for (const t of sel()) t.initiative = v;
+    commit();
+  });
+  $('#mp-hpmax').addEventListener('change', (e) => {
+    if (e.target.value === '') return;
+    const v = Math.max(0, Math.round(+e.target.value || 0)) || null;
+    for (const t of sel()) {
+      t.hpMax = v;
+      t.hp = v == null ? null : Math.min(t.hp ?? v, v);
+    }
     commit();
   });
   $('#mp-color').addEventListener('input', (e) => {
