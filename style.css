@@ -268,7 +268,16 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
   width: 32px; flex: 0 0 auto; background: var(--bg); border: 1px solid var(--border);
   color: var(--text); border-radius: 4px; padding: 2px 2px; font: inherit; text-align: center;
 }
-.tl-init-slot { margin-left: auto; }
+.tl-def-slot { margin-left: auto; }
+.tl-init-slot { flex: 0 0 auto; }
+.tl-def {
+  display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto;
+}
+.tl-def-lbl { font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: .3px; }
+.tl-def input {
+  width: 30px; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  border-radius: 4px; padding: 2px 2px; font: inherit; text-align: center;
+}
 .tl-type {
   flex: 0 0 auto; padding: 2px 4px; border-radius: 4px; font-size: 10px; font-weight: 700;
   border: 1px solid; cursor: pointer; line-height: 1;

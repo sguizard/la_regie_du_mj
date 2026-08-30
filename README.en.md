@@ -96,9 +96,10 @@ the same machine**.
      type, size, image, conditions). To create a template: a token's ⚙ →
      **⭐ Save as a template**. The chip is removed on hover (**✕**). Templates are
      shared across every scene and included in the export.
-   A new token has no name, type, initiative or HP: on its row, **+ name**, **+ type**,
-   **+ init** and **+ HP** add them in one click. Once set: the name is edited via ⚙,
-   the initiative in a small field, the type via a **PC / NPC** badge (click = toggle;
+   A new token has no name, type, initiative, DEF or HP: on its row, **+ name**,
+   **+ type**, **+ init**, **+ DEF** (defence / AC) and **+ HP** add them in one click.
+   Once set: the name is edited via ⚙, the initiative and DEF in small fields, the type
+   via a **PC / NPC** badge (click = toggle;
    coloured left border). Clicking the **swatch / thumbnail** opens a menu to pick an
    image (library or import) or go back to the disc.
    Row 2: **⚙** (properties), **👁** player visibility, **✕** delete, HP bar + editable
@@ -110,7 +111,7 @@ the same machine**.
      **Shift + drag** on an empty area of the map draws a selection rectangle (adds to
      the selection if Shift is held). When several tokens are selected, a **batch
      editing** panel replaces the properties: damage / heal, type, size, initiative,
-     max HP, colour, player visibility, HP shown to players, **duplication** and
+     DEF, max HP, colour, player visibility, HP shown to players, **duplication** and
      deletion — applied to all at once (setting max HP to 0 removes HP). Dragging a
      selected token moves **the whole group** while keeping the formation.
      **Ctrl/⌘ + D** duplicates the selection (copies offset by one cell, everything is
@@ -121,7 +122,7 @@ the same machine**.
      alphabetically). Sorting only affects the list, not the stacking of tokens on the
      map.
    - **Properties** — opens **only via the ⚙ gear** on the row: name, type, initiative,
-     colour, size, HP / max HP, **Appearance** (solid disc or an imported image), "HP
+     DEF, colour, size, HP / max HP, **Appearance** (solid disc or an imported image), "HP
      shown to players" (*hidden* / *bar only* / *bar + numbers*; the GM always sees the
      numbers), **Conditions**, **Duplicate**.
    - **Conditions** (in the properties): a row of preset icons (poison, stunned,

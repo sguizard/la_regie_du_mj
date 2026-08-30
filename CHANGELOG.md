@@ -2,6 +2,14 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.3.0] - 2026-08-30
+
+### Ajouté
+- **Valeur de DEF** (défense / classe d'armure) sur les tokens : champ dans les
+  propriétés (⚙), bouton **+ DEF** et champ éditable dans la liste des tokens, réglage
+  groupé dans l'édition multiple, et repris par les modèles de créature et
+  l'export/import. Info MJ uniquement (jamais affichée aux joueurs).
+
 ## [1.2.0] - 2026-08-30
 
 Modèles de créature, confort de placement, et exécutables macOS / Linux.

@@ -103,10 +103,11 @@ doivent tourner **dans le même navigateur sur la même machine**.
      type, taille, image, états). Pour créer un modèle : ⚙ d'un token →
      **⭐ Enregistrer comme modèle**. La puce se supprime au survol (**✕**). Les
      modèles sont partagés entre toutes les scènes et inclus dans l'export.
-   Un nouveau token n'a ni nom, ni type, ni initiative, ni PV : sur sa ligne,
-   **+ nom**, **+ type**, **+ init** et **+ PV** les ajoutent en un clic. Une fois
-   définis : le nom s'édite via ⚙, l'initiative dans un petit champ, le type via un
-   badge **PJ / PNJ** (clic = bascule ; bordure colorée à gauche). Cliquer la
+   Un nouveau token n'a ni nom, ni type, ni initiative, ni DEF, ni PV : sur sa ligne,
+   **+ nom**, **+ type**, **+ init**, **+ DEF** (défense / CA) et **+ PV** les ajoutent
+   en un clic. Une fois définis : le nom s'édite via ⚙, l'initiative et la DEF dans de
+   petits champs, le type via un badge **PJ / PNJ** (clic = bascule ; bordure colorée
+   à gauche). Cliquer la
    **pastille / vignette** ouvre un menu pour choisir une image (bibliothèque ou
    import) ou revenir au disque.
    Ligne 2 : **⚙** (propriétés), **👁** visibilité joueurs, **✕** supprimer, barre de
@@ -118,8 +119,8 @@ doivent tourner **dans le même navigateur sur la même machine**.
      plage ; **Maj + glisser** sur une zone vide de la carte trace un rectangle de
      sélection (ajoute à la sélection si Maj est maintenu). Quand plusieurs tokens sont
      sélectionnés, un panneau **édition groupée** remplace les propriétés : dégâts /
-     soin, type, taille, initiative, PV max, couleur, visibilité joueurs, PV vus par
-     les joueurs, **duplication** et suppression — appliqués à tous d'un coup (mettre
+     soin, type, taille, initiative, DEF, PV max, couleur, visibilité joueurs, PV vus
+     par les joueurs, **duplication** et suppression — appliqués à tous d'un coup (mettre
      PV max à 0 retire les PV). Glisser un token sélectionné déplace
      **tout le groupe** en gardant la formation. **Ctrl/⌘ + D** duplique la sélection
      (copies décalées d'une case, tout est repris : PV, initiative, états…).
@@ -128,7 +129,7 @@ doivent tourner **dans le même navigateur sur la même machine**.
      tokens sans valeur en bas) ou *type puis nom* (PJ d'abord, puis PNJ, par ordre
      alphabétique). Le tri n'affecte que la liste, pas l'empilement des tokens sur la carte.
    - **Propriétés** — s'ouvre **uniquement via l'engrenage ⚙** de la ligne : nom,
-     type, initiative, couleur, taille, PV / PV max, **Apparence** (disque plein ou une
+     type, initiative, DEF, couleur, taille, PV / PV max, **Apparence** (disque plein ou une
      image importée), « PV vus par les joueurs » (*masqués* / *barre seule* /
      *barre + chiffres* ; le MJ voit toujours les chiffres), **États**, **Dupliquer**.
    - **États** (dans les propriétés) : une rangée d'icônes prédéfinies (poison,

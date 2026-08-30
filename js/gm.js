@@ -715,6 +715,7 @@ function wireToolbar() {
     t.label = $('#tp-label').value;
     t.type = ['pj', 'pnj'].includes($('#tp-type').value) ? $('#tp-type').value : null;
     t.initiative = $('#tp-init').value === '' ? null : Math.round(+$('#tp-init').value);
+    t.def = $('#tp-def').value === '' ? null : Math.round(+$('#tp-def').value);
     t.color = $('#tp-color').value;
     t.sizeCells = clamp(+$('#tp-size').value || 1, 0.25, 8);
     t.visibleToPlayers = $('#tp-visible').checked;
@@ -729,7 +730,7 @@ function wireToolbar() {
     }
     await commitToken();
   }, 150);
-  ['#tp-label', '#tp-color', '#tp-size', '#tp-hp', '#tp-hpmax', '#tp-init'].forEach((s) => $(s).addEventListener('input', tpApply));
+  ['#tp-label', '#tp-color', '#tp-size', '#tp-hp', '#tp-hpmax', '#tp-init', '#tp-def'].forEach((s) => $(s).addEventListener('input', tpApply));
   ['#tp-visible', '#tp-hpshare', '#tp-type'].forEach((s) => $(s).addEventListener('change', tpApply));
 
   const adjustHp = async (sign) => {
@@ -1042,6 +1043,7 @@ function applySelectionUI() {
     $('#mp-dup').textContent = tr('multi.duplicate', { n });
     $('#mp-size').value = '';
     $('#mp-init').value = '';
+    $('#mp-def').value = '';
     $('#mp-hpmax').value = '';
     $('#mp-type').value = '';
     $('#mp-hpshare').value = '';
@@ -1082,6 +1084,7 @@ function openTokenProps(t) {
   $('#tp-label').value = t.label || '';
   $('#tp-type').value = t.type === 'pj' || t.type === 'pnj' ? t.type : '';
   $('#tp-init').value = t.initiative ?? '';
+  $('#tp-def').value = t.def ?? '';
   $('#tp-color').value = t.color || '#c0392b';
   $('#tp-size').value = t.sizeCells || 1;
   $('#tp-visible').checked = !!t.visibleToPlayers;
@@ -1187,6 +1190,12 @@ function wireMultiProps() {
     for (const t of sel()) t.initiative = v;
     commit();
   });
+  $('#mp-def').addEventListener('change', (e) => {
+    if (e.target.value === '') return;
+    const v = Math.round(+e.target.value || 0);
+    for (const t of sel()) t.def = v;
+    commit();
+  });
   $('#mp-hpmax').addEventListener('change', (e) => {
     if (e.target.value === '') return;
     const v = Math.max(0, Math.round(+e.target.value || 0)) || null;
@@ -1272,6 +1281,31 @@ function tokenListRow(t) {
       if (stage.selectedTokenId === t.id) $('#tp-init').value = t.initiative ?? '';
       afterTokenEdit();
     });
+  }
+
+  // DEF : « + DEF » si non définie, sinon petit champ éditable
+  let def;
+  if (t.def == null) {
+    def = el('button', { class: 'tl-add tl-def-slot', text: tr('tokens.addDef'), title: tr('tokens.addDefTitle') });
+    def.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const v = await askPrompt(tr('tokens.defPrompt'), { type: 'number', step: '1' });
+      if (v !== null && v.trim() !== '') { t.def = Math.round(+v) || 0; afterTokenEdit(); }
+    });
+  } else {
+    def = el('span', { class: 'tl-def tl-def-slot', title: tr('tokens.defTitle') }, [
+      el('span', { class: 'tl-def-lbl', text: 'DEF' }),
+      (() => {
+        const inp = el('input', { type: 'number', step: '1', value: t.def });
+        inp.addEventListener('click', (e) => e.stopPropagation());
+        inp.addEventListener('change', () => {
+          t.def = inp.value === '' ? null : Math.round(+inp.value);
+          if (stage.selectedTokenId === t.id) $('#tp-def').value = t.def ?? '';
+          afterTokenEdit();
+        });
+        return inp;
+      })(),
+    ]);
   }
 
   // type : « + type » si non défini, sinon badge PJ/PNJ (clic = bascule)
@@ -1386,7 +1420,7 @@ function tokenListRow(t) {
   });
 
   line2.append(hpWrap);
-  row.append(badge, swatch, name, init, line2);
+  row.append(badge, swatch, name, def, init, line2);
   return row;
 }
 
@@ -1802,6 +1836,7 @@ function renderTemplates() {
         label: tpl.name,
         color: tpl.color,
         type: tpl.type ?? null,
+        def: tpl.def ?? null,
         sizeCells: tpl.sizeCells || 1,
         hpMax: tpl.hpMax || null,
         hp: tpl.hpMax || null,
@@ -1824,6 +1859,7 @@ async function saveTokenAsTemplate() {
     name,
     color: t.color || '#c0392b',
     type: t.type ?? null,
+    def: t.def ?? null,
     sizeCells: t.sizeCells || 1,
     hpMax: t.hpMax || null,
     hpShare: t.hpShare || 'off',

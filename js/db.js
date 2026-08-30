@@ -6,7 +6,7 @@
 //                   imageBlob, thumbBlob,
 //                   grid?, fogBlob?, tokens? }        (champs battlemap)
 //   tokenLibrary  { id, name, imageBlob, thumbBlob }
-//   templates     { id, name, color, type, sizeCells, hpMax, hpShare, conditions, imageRef }
+//   templates     { id, name, color, type, def, sizeCells, hpMax, hpShare, conditions, imageRef }
 //   meta          { key, value }
 
 const DB_NAME = 'mj-toolboox';

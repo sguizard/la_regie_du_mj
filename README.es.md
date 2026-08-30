@@ -103,9 +103,10 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
      → **⭐ Guardar como plantilla**. La pastilla se elimina al pasar el ratón (**✕**).
      Las plantillas se comparten entre todas las escenas y se incluyen en la
      exportación.
-   Un token nuevo no tiene nombre, tipo, iniciativa ni PV: en su fila, **+ nombre**,
-   **+ tipo**, **+ inic.** y **+ PV** los añaden con un clic. Una vez definidos: el
-   nombre se edita con ⚙, la iniciativa en un campo pequeño, el tipo con una insignia
+   Un token nuevo no tiene nombre, tipo, iniciativa, DEF ni PV: en su fila,
+   **+ nombre**, **+ tipo**, **+ inic.**, **+ DEF** (defensa / CA) y **+ PV** los añaden
+   con un clic. Una vez definidos: el nombre se edita con ⚙, la iniciativa y la DEF en
+   campos pequeños, el tipo con una insignia
    **PJ / PNJ** (clic = alternar; borde izquierdo de color). Al hacer clic en la
    **pastilla / miniatura** se abre un menú para elegir una imagen (biblioteca o
    importación) o volver al disco.
@@ -119,8 +120,9 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
      **Mayús + arrastrar** sobre una zona vacía del mapa dibuja un rectángulo de
      selección (se añade a la selección si se mantiene Mayús). Cuando hay varios tokens
      seleccionados, un panel de **edición en grupo** reemplaza las propiedades: daño /
-     curación, tipo, tamaño, iniciativa, PV máx., color, visibilidad para jugadores, PV
-     visibles para jugadores, **duplicación** y eliminación — aplicados a todos a la vez
+     curación, tipo, tamaño, iniciativa, DEF, PV máx., color, visibilidad para
+     jugadores, PV visibles para jugadores, **duplicación** y eliminación — aplicados a
+     todos a la vez
      (poner PV máx. a 0 quita los PV). Arrastrar un token seleccionado mueve **todo el
      grupo** manteniendo la formación. **Ctrl/⌘ + D** duplica la selección (copias
      desplazadas una casilla, se conserva todo: PV, iniciativa, estados…). `Supr`
@@ -130,7 +132,7 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
      luego PNJ, en orden alfabético). El orden solo afecta a la lista, no al
      apilamiento de los tokens en el mapa.
    - **Propiedades** — se abre **únicamente con el engranaje ⚙** de la fila: nombre,
-     tipo, iniciativa, color, tamaño, PV / PV máx., **Apariencia** (disco sólido o una
+     tipo, iniciativa, DEF, color, tamaño, PV / PV máx., **Apariencia** (disco sólido o una
      imagen importada), «PV visibles para jugadores» (*ocultos* / *solo barra* /
      *barra + números*; el DJ siempre ve los números), **Estados**, **Duplicar**.
    - **Estados** (en las propiedades): una fila de iconos predefinidos (veneno,
