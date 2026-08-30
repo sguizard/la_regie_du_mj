@@ -92,6 +92,7 @@ const DICT = {
     'tool.hide': 'Re-cacher le brouillard (H)',
     'tool.token': 'Poser un token (T)',
     'tool.grid': 'Déplacer / redimensionner la grille',
+    'tool.ruler': 'Règle de mesure (Ctrl+M)',
     'tool.frame': 'Cadrage de la vue joueurs',
     'tool.config': 'Réglages de la grille (G)',
     'tool.brushTitle': 'Taille du pinceau',
@@ -186,7 +187,7 @@ const DICT = {
 
     'hint.calibrate': "Tracez la diagonale d'UNE case sur la carte.",
     'hint.cellSize': 'Case : {px} px',
-    'ruler.hint': 'Glisse sur la carte pour mesurer (touche M maintenue).',
+    'ruler.hint': 'Glisse sur la carte pour mesurer. Ctrl+M ou Échap pour quitter.',
     'ruler.cells': 'cases',
     'undo.restored': 'Suppression annulée.',
 
@@ -289,6 +290,7 @@ const DICT = {
     'tool.hide': 'Re-hide fog (H)',
     'tool.token': 'Place a token (T)',
     'tool.grid': 'Move / resize the grid',
+    'tool.ruler': 'Measuring ruler (Ctrl+M)',
     'tool.frame': 'Player view framing',
     'tool.config': 'Grid settings (G)',
     'tool.brushTitle': 'Brush size',
@@ -383,7 +385,7 @@ const DICT = {
 
     'hint.calibrate': 'Draw the diagonal of ONE cell on the map.',
     'hint.cellSize': 'Cell: {px} px',
-    'ruler.hint': 'Drag on the map to measure (hold the M key).',
+    'ruler.hint': 'Drag on the map to measure. Ctrl+M or Esc to exit.',
     'ruler.cells': 'cells',
     'undo.restored': 'Deletion undone.',
 
@@ -486,6 +488,7 @@ const DICT = {
     'tool.hide': 'Volver a ocultar la niebla (H)',
     'tool.token': 'Colocar un token (T)',
     'tool.grid': 'Mover / redimensionar la rejilla',
+    'tool.ruler': 'Regla de medición (Ctrl+M)',
     'tool.frame': 'Encuadre de la vista de jugadores',
     'tool.config': 'Ajustes de la rejilla (G)',
     'tool.brushTitle': 'Tamaño del pincel',
@@ -580,7 +583,7 @@ const DICT = {
 
     'hint.calibrate': 'Traza la diagonal de UNA casilla en el mapa.',
     'hint.cellSize': 'Casilla: {px} px',
-    'ruler.hint': 'Arrastra sobre el mapa para medir (mantén la tecla M).',
+    'ruler.hint': 'Arrastra sobre el mapa para medir. Ctrl+M o Esc para salir.',
     'ruler.cells': 'casillas',
     'undo.restored': 'Eliminación deshecha.',
 

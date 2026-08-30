@@ -933,7 +933,9 @@ function setTool(t) {
   $('#frame-group').classList.toggle('hidden', t !== 'frame');
   if (t !== 'reveal' && t !== 'hide') stage?.setBrushCursor(null);
   stage?.setFrameEditing(t === 'frame');
+  if (t !== 'ruler') stage?.setRuler(null);
   if (t === 'frame') { updateFrameGroupUI(); showHint(tr('frame.hint')); }
+  if (t === 'ruler') showHint(tr('ruler.hint'));
   const cursor = t === 'move' ? 'default' : (t === 'token' ? 'copy' : (t === 'grid' ? 'move' : 'crosshair'));
   $('#gm-canvas').style.cursor = cursor;
 }
@@ -1625,14 +1627,6 @@ function wireCanvas() {
     last = p;
     const wantPan = e.button === 1 || e.button === 2 || spaceHeld;
 
-    // touche M maintenue : mesure de distance (prioritaire sur l'outil courant)
-    if (rulerHeld && e.button === 0) {
-      mode = 'ruler';
-      rulerStart = stage.snapWorld(stage.screenToWorld(p));
-      updateRuler(rulerStart, rulerStart);
-      return;
-    }
-
     if (calibrating && e.button === 0) {
       mode = 'calibrate';
       calStart = stage.screenToWorld(p);
@@ -1692,6 +1686,10 @@ function wireCanvas() {
       mode = 'frame';
       frameStart = stage.screenToWorld(p);
       framePrev = stage.scene?.playerFrame ? { ...stage.scene.playerFrame } : null;
+    } else if (tool === 'ruler') {
+      mode = 'ruler';
+      rulerStart = stage.snapWorld(stage.screenToWorld(p));
+      updateRuler(rulerStart, rulerStart);
     }
   });
 
@@ -1915,17 +1913,28 @@ async function saveTokenAsTemplate() {
 
 // ---------------------------------------------------------------- clavier
 let spaceHeld = false;
-let rulerHeld = false;
+let _toolBeforeRuler = 'move';
+
+/** Ctrl+M : active / désactive l'outil règle de mesure. */
+function toggleRuler() {
+  if (tool === 'ruler') {
+    setTool(_toolBeforeRuler || 'move');
+  } else {
+    _toolBeforeRuler = tool;
+    setTool('ruler');
+  }
+}
+
 function wireKeyboard() {
   window.addEventListener('keydown', (e) => {
     if (e.target?.matches?.('input, textarea, select, [contenteditable="true"]')) return;
     if (e.code === 'Space') { spaceHeld = true; $('#gm-canvas').style.cursor = 'grab'; return; }
     if (!stage.scene) return;
     const k = e.key.toLowerCase();
-    // M maintenu : règle de mesure (glisser sur la carte)
-    if (k === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      if (!rulerHeld) { rulerHeld = true; showHint(tr('ruler.hint')); }
-      $('#gm-canvas').style.cursor = 'crosshair';
+    // Ctrl/Cmd+M : bascule la règle de mesure
+    if ((e.ctrlKey || e.metaKey) && k === 'm') {
+      e.preventDefault();
+      toggleRuler();
       return;
     }
     // Ctrl/Cmd+Z : annuler le dernier coup de pinceau de brouillard
@@ -1966,18 +1975,12 @@ function wireKeyboard() {
       stage.clearSelection();
       applySelectionUI();
       stage.setRuler(null);
-      if (tool === 'frame') setTool('move');
+      if (tool === 'frame' || tool === 'ruler') setTool('move');
       closeFloaties(); closeAppearanceMenu(); calibrating = false; stage.setCalibrateRect(null); hideHint();
     }
   });
   window.addEventListener('keyup', (e) => {
     if (e.code === 'Space') { spaceHeld = false; setTool(tool); }
-    if (e.key.toLowerCase() === 'm' && rulerHeld) {
-      rulerHeld = false;
-      stage.setRuler(null);
-      hideHint();
-      setTool(tool);
-    }
   });
 }
 

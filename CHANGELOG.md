@@ -2,6 +2,14 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.3.2] - 2026-08-30
+
+### Modifié
+- **La règle de mesure devient un outil à bascule** : `Ctrl+M` (ou le nouveau bouton
+  📏 de la barre d'outils) l'active et la désactive, au lieu de « maintenir M ».
+  L'outil reste actif pour enchaîner plusieurs mesures ; `Ctrl+M` à nouveau ou `Échap`
+  pour revenir à l'outil précédent.
+
 ## [1.3.1] - 2026-08-30
 
 ### Ajouté

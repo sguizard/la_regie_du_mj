@@ -147,13 +147,14 @@ doivent tourner **dans le même navigateur sur la même machine**.
    sélectionné.
 
 La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 révéler ·
-🌫 cacher · ⛃ token · ▦ grille · 📺 cadrage joueurs · ⚙ réglages de grille (survole
-pour l'infobulle).
+🌫 cacher · ⛃ token · ▦ grille · 📏 règle de mesure · 📺 cadrage joueurs · ⚙ réglages
+de grille (survole pour l'infobulle).
 
-**Règle de mesure** : maintiens **M** et glisse sur la carte. La distance s'affiche
-en cases — en cases de grille (diagonale = 1) et, entre parenthèses, à vol d'oiseau.
-Relâche M ou appuie sur `Échap` pour effacer. Les extrémités s'aimantent si
-l'aimantation de la grille est active.
+**Règle de mesure** : active/désactive l'outil avec **Ctrl+M** (ou le bouton 📏),
+puis glisse sur la carte. La distance s'affiche en cases — en cases de grille
+(diagonale = 1) et, entre parenthèses, à vol d'oiseau. L'outil reste actif pour
+plusieurs mesures ; `Ctrl+M` à nouveau ou `Échap` pour quitter. Les extrémités
+s'aimantent si l'aimantation de la grille est active.
 
 ### 📺 Cadrage de la vue joueurs
 
@@ -210,7 +211,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `T` | Outil poser un token |
 | `A` | Ajouter un token au centre |
 | `↑` `↓` `←` `→` | Décaler d'une case le(s) token(s) sélectionné(s) |
-| `M` (maintenu) + glisser | Règle de mesure |
+| `Ctrl`/`⌘` + `M` | Règle de mesure (activer / désactiver) |
 | `N` | Combattant suivant (suivi d'initiative) |
 | `Ctrl`/`⌘` + `D` | Dupliquer le(s) token(s) sélectionné(s) |
 | `G` | Ouvrir/fermer le panneau ⚙ Grille |

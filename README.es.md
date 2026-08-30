@@ -150,13 +150,14 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
    seleccionada.
 
 La barra de herramientas es una tira de iconos: ✋ mover/seleccionar · 🔦 revelar ·
-🌫 ocultar · ⛃ token · ▦ rejilla · 📺 encuadre de jugadores · ⚙ ajustes de rejilla
-(pasa el ratón para ver la descripción).
+🌫 ocultar · ⛃ token · ▦ rejilla · 📏 regla de medición · 📺 encuadre de jugadores ·
+⚙ ajustes de rejilla (pasa el ratón para ver la descripción).
 
-**Regla de medición**: mantén **M** y arrastra sobre el mapa. La distancia se muestra
-en casillas — en casillas de rejilla (diagonal = 1) y, entre paréntesis, a vuelo de
-pájaro. Suelta M o pulsa `Esc` para borrar. Los extremos se imantan si la imantación
-de la rejilla está activa.
+**Regla de medición**: activa/desactiva la herramienta con **Ctrl+M** (o el botón 📏),
+luego arrastra sobre el mapa. La distancia se muestra en casillas — en casillas de
+rejilla (diagonal = 1) y, entre paréntesis, a vuelo de pájaro. La herramienta sigue
+activa para varias mediciones; pulsa `Ctrl+M` de nuevo o `Esc` para salir. Los
+extremos se imantan si la imantación de la rejilla está activa.
 
 ### 📺 Encuadre de la vista de jugadores
 
@@ -216,7 +217,7 @@ mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre.
 | `T` | Herramienta colocar un token |
 | `A` | Añadir un token en el centro |
 | `↑` `↓` `←` `→` | Desplazar una casilla el/los token(s) seleccionado(s) |
-| `M` (mantenida) + arrastrar | Regla de medición |
+| `Ctrl`/`⌘` + `M` | Regla de medición (activar / desactivar) |
 | `N` | Siguiente combatiente (seguimiento de iniciativa) |
 | `Ctrl`/`⌘` + `D` | Duplicar el/los token(s) seleccionado(s) |
 | `G` | Abrir/cerrar el panel ⚙ Rejilla |

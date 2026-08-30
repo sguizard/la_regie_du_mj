@@ -139,11 +139,12 @@ the same machine**.
    tools is selected.
 
 The toolbar is a strip of icons: ✋ move/select · 🔦 reveal · 🌫 hide · ⛃ token · ▦
-grid · 📺 player framing · ⚙ grid settings (hover for the tooltip).
+grid · 📏 measuring ruler · 📺 player framing · ⚙ grid settings (hover for the tooltip).
 
-**Measuring ruler**: hold **M** and drag on the map. The distance shows in cells — in
-grid squares (diagonal = 1) and, in parentheses, as the crow flies. Release M or press
-`Esc` to clear. The endpoints snap if grid snapping is active.
+**Measuring ruler**: toggle the tool with **Ctrl+M** (or the 📏 button), then drag on
+the map. The distance shows in cells — in grid squares (diagonal = 1) and, in
+parentheses, as the crow flies. The tool stays active for several measurements; press
+`Ctrl+M` again or `Esc` to exit. The endpoints snap if grid snapping is active.
 
 ### 📺 Player view framing
 
@@ -201,7 +202,7 @@ to rename it. The search bar filters by name.
 | `T` | Place-a-token tool |
 | `A` | Add a token at the centre |
 | `↑` `↓` `←` `→` | Nudge the selected token(s) by one cell |
-| `M` (held) + drag | Measuring ruler |
+| `Ctrl`/`⌘` + `M` | Measuring ruler (toggle on / off) |
 | `N` | Next combatant (initiative tracker) |
 | `Ctrl`/`⌘` + `D` | Duplicate the selected token(s) |
 | `G` | Toggle the ⚙ Grid panel |
