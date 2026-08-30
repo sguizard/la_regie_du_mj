@@ -2,6 +2,14 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.3.1] - 2026-08-30
+
+### Ajouté
+- **Ctrl+Z annule aussi la suppression de tokens** (et pas seulement le brouillard) :
+  timeline d'annulation partagée entre les deux ; le(s) token(s) restauré(s)
+  retrouve(nt) tous leurs champs et redeviennent la sélection. Le bouton ↶ de la
+  barre d'outils reste dédié au brouillard.
+
 ## [1.3.0] - 2026-08-30
 
 ### Ajouté

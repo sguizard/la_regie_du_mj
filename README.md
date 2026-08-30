@@ -124,7 +124,8 @@ doivent tourner **dans le même navigateur sur la même machine**.
      PV max à 0 retire les PV). Glisser un token sélectionné déplace
      **tout le groupe** en gardant la formation. **Ctrl/⌘ + D** duplique la sélection
      (copies décalées d'une case, tout est repris : PV, initiative, états…).
-     `Suppr` supprime toute la sélection, `Échap` la vide.
+     `Suppr` supprime toute la sélection, `Échap` la vide. **`Ctrl/⌘ + Z`** restaure
+     le(s) dernier(s) token(s) supprimé(s) (tout est repris).
    - **Tri** (menu en haut de la liste, mémorisé) : *initiative décroissante* (les
      tokens sans valeur en bas) ou *type puis nom* (PJ d'abord, puis PNJ, par ordre
      alphabétique). Le tri n'affecte que la liste, pas l'empilement des tokens sur la carte.
@@ -217,7 +218,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |
 | double-clic sur la carte | Ping (repère « regarde ici ») |
-| `Ctrl`/`⌘` + `Z` | Annuler le dernier coup de pinceau de brouillard |
+| `Ctrl`/`⌘` + `Z` | Annuler : dernier coup de pinceau de brouillard ou suppression de token |
 | `Ctrl`/`⌘` + clic · `Maj` + clic · `Maj` + glisser | Sélection multiple de tokens |
 | `Suppr` | Supprimer le(s) token(s) sélectionné(s) |
 | `Échap` | Vider la sélection / fermer les panneaux |

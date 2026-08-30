@@ -188,6 +188,7 @@ const DICT = {
     'hint.cellSize': 'Case : {px} px',
     'ruler.hint': 'Glisse sur la carte pour mesurer (touche M maintenue).',
     'ruler.cells': 'cases',
+    'undo.restored': 'Suppression annulée.',
 
     'confirm.wipe': 'Effacer TOUTES les cartes, decks et tokens ? Action irréversible.',
     'confirm.deleteDeck': 'Supprimer ce deck ? Les cartes seront déplacées vers « Sans deck ».',
@@ -384,6 +385,7 @@ const DICT = {
     'hint.cellSize': 'Cell: {px} px',
     'ruler.hint': 'Drag on the map to measure (hold the M key).',
     'ruler.cells': 'cells',
+    'undo.restored': 'Deletion undone.',
 
     'confirm.wipe': 'Erase ALL maps, decks and tokens? This cannot be undone.',
     'confirm.deleteDeck': 'Delete this deck? Its maps will move to "No deck".',
@@ -580,6 +582,7 @@ const DICT = {
     'hint.cellSize': 'Casilla: {px} px',
     'ruler.hint': 'Arrastra sobre el mapa para medir (mantén la tecla M).',
     'ruler.cells': 'casillas',
+    'undo.restored': 'Eliminación deshecha.',
 
     'confirm.wipe': '¿Borrar TODOS los mapas, mazos y tokens? Acción irreversible.',
     'confirm.deleteDeck': '¿Eliminar este mazo? Los mapas pasarán a «Sin mazo».',

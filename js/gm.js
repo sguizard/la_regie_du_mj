@@ -284,6 +284,7 @@ async function wipeAll() {
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
   resetCombatUI();
+  clearUndo();
   refreshStorage();
 }
 
@@ -418,6 +419,7 @@ async function importCampaign(file) {
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
   resetCombatUI();
+  clearUndo();
 
   await reloadAll();
   refreshStorage();
@@ -604,6 +606,7 @@ async function deleteScene(id) {
     $('#token-props').classList.add('hidden');
     $('#multi-props').classList.add('hidden');
     resetCombatUI();
+    clearUndo();
   }
 
   await reloadAll();
@@ -622,6 +625,7 @@ async function selectScene(id) {
   const image = await blobToBitmap(s.imageBlob);
   stage.setScene(s, image, { fit: true });
   if (stage.fog) await stage.fog.loadBlob(s.fogBlob || null);
+  clearUndo();
   updateFogUndoBtn();
   stage.invalidate();
   $('#map-toolbar').classList.remove('hidden');
@@ -746,12 +750,8 @@ function wireToolbar() {
 
   $('#tp-dup').addEventListener('click', duplicateSelectedTokens);
   $('#tp-save-template').addEventListener('click', saveTokenAsTemplate);
-  $('#tp-delete').addEventListener('click', async () => {
-    stage.tokens = stage.tokens.filter((x) => x.id !== stage.selectedTokenId);
-    stage.clearSelection();
-    $('#token-props').classList.add('hidden');
-    applySelectionUI();
-    await afterTokenEdit();
+  $('#tp-delete').addEventListener('click', () => {
+    if (stage.selectedTokenId) deleteTokens([stage.selectedTokenId]);
   });
 }
 
@@ -997,7 +997,7 @@ function syncGridPanel() {
 
 async function bulkFog(mode) {
   if (!stage.fog) return;
-  stage.fog.pushUndo();
+  pushFogUndo();
   if (mode === 'reveal') stage.fog.revealAll(); else stage.fog.hideAll();
   stage.invalidate();
   updateFogUndoBtn();
@@ -1017,12 +1017,71 @@ function updateFogUndoBtn() {
   if (b) b.disabled = !(stage.fog && stage.fog.canUndo);
 }
 
-/** Annule le dernier coup de pinceau / « tout révéler-cacher ». */
+// ---------------------------------------------------------------- annulation (Ctrl+Z)
+// Timeline partagée : coups de pinceau de brouillard + suppressions de tokens.
+const undoStack = [];        // { kind:'fog' } | { kind:'del', tokens:[...] }
+const UNDO_MAX = 12;
+
+function trimUndo() { while (undoStack.length > UNDO_MAX) undoStack.shift(); }
+function clearUndo() { undoStack.length = 0; }
+
+function pushFogUndo() {
+  stage.fog.pushUndo();
+  undoStack.push({ kind: 'fog' });
+  trimUndo();
+}
+function pushDeletedTokens(list) {
+  if (!list.length) return;
+  undoStack.push({ kind: 'del', tokens: list.map((t) => structuredClone(t)) });
+  trimUndo();
+}
+
+/** Annule la dernière action annulable (brouillard ou suppression de token). */
+async function undoLast() {
+  const e = undoStack.pop();
+  if (!e) return;
+  if (e.kind === 'fog') {
+    if (stage.fog && stage.fog.undo()) {
+      stage.invalidate();
+      updateFogUndoBtn();
+      await commitFog();
+    }
+  } else if (e.kind === 'del') {
+    const ids = [];
+    for (const t of e.tokens) {
+      if (!stage.tokens.some((x) => x.id === t.id)) { stage.tokens.push(structuredClone(t)); ids.push(t.id); }
+    }
+    if (!ids.length) return;
+    stage.setSelection(ids);
+    applySelectionUI();
+    await afterTokenEdit();
+    showHint(tr('undo.restored'));
+  }
+}
+
+/** Bouton ↶ de la barre d'outils : annule uniquement le brouillard. */
 async function fogUndo() {
   if (!stage.fog || !stage.fog.undo()) return;
+  for (let i = undoStack.length - 1; i >= 0; i--) {
+    if (undoStack[i].kind === 'fog') { undoStack.splice(i, 1); break; }
+  }
   stage.invalidate();
   updateFogUndoBtn();
   await commitFog();
+}
+
+/** Supprime des tokens (par ids) en enregistrant l'action pour Ctrl+Z. */
+async function deleteTokens(ids) {
+  const set = ids instanceof Set ? ids : new Set(ids);
+  const removed = stage.tokens.filter((t) => set.has(t.id));
+  if (!removed.length) return;
+  pushDeletedTokens(removed);
+  stage.tokens = stage.tokens.filter((t) => !set.has(t.id));
+  for (const id of set) stage.selectedIds.delete(id);
+  stage.selectedTokenId = [...stage.selectedIds].pop() ?? null;
+  $('#token-props').classList.add('hidden');
+  applySelectionUI();
+  await afterTokenEdit();
 }
 
 /** Ouvre les propriétés du token, ou les referme si elles sont déjà ouvertes pour lui. */
@@ -1217,13 +1276,7 @@ function wireMultiProps() {
   $('#mp-show').addEventListener('click', () => { for (const t of sel()) t.visibleToPlayers = true; commit(); });
   $('#mp-hide').addEventListener('click', () => { for (const t of sel()) t.visibleToPlayers = false; commit(); });
   $('#mp-dup').addEventListener('click', duplicateSelectedTokens);
-  $('#mp-delete').addEventListener('click', () => {
-    const ids = new Set(stage.selectedIds);
-    stage.tokens = stage.tokens.filter((t) => !ids.has(t.id));
-    stage.clearSelection();
-    applySelectionUI();
-    afterTokenEdit();
-  });
+  $('#mp-delete').addEventListener('click', () => deleteTokens(new Set(stage.selectedIds)));
   $('#multi-props-close').addEventListener('click', () => $('#multi-props').classList.add('hidden'));
 }
 
@@ -1359,17 +1412,7 @@ function tokenListRow(t) {
   });
 
   const del = el('button', { class: 'tl-x', text: '✕', title: tr('tokens.deleteTitle') });
-  del.addEventListener('click', (e) => {
-    e.stopPropagation();
-    stage.tokens = stage.tokens.filter((x) => x.id !== t.id);
-    if (stage.selectedIds.has(t.id)) {
-      stage.selectedIds.delete(t.id);
-      stage.selectedTokenId = [...stage.selectedIds].pop() ?? null;
-      $('#token-props').classList.add('hidden');
-      applySelectionUI();
-    }
-    afterTokenEdit();
-  });
+  del.addEventListener('click', (e) => { e.stopPropagation(); deleteTokens([t.id]); });
 
   const line2 = el('div', { class: 'tl-line2' });
   line2.append(gear, eye, del);
@@ -1631,7 +1674,7 @@ function wireCanvas() {
       }
     } else if (tool === 'reveal' || tool === 'hide') {
       mode = 'fog';
-      stage.fog.pushUndo(); // mémorise l'état d'avant le trait (Ctrl+Z)
+      pushFogUndo(); // mémorise l'état d'avant le trait (Ctrl+Z)
       const w = stage.screenToWorld(p);
       const radius = (brushPx / 2) / stage.cam.zoom;
       stage.fog.strokeSeg(w, w, radius, tool === 'hide' ? 'hide' : 'reveal');
@@ -1888,7 +1931,7 @@ function wireKeyboard() {
     // Ctrl/Cmd+Z : annuler le dernier coup de pinceau de brouillard
     if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) {
       e.preventDefault();
-      fogUndo();
+      undoLast();
       return;
     }
     // Ctrl/Cmd+D : dupliquer le(s) token(s) sélectionné(s)
@@ -1907,12 +1950,7 @@ function wireKeyboard() {
     if (k === 'a') quickAddToken();
     if (k === 'n') advanceTurn(1);
     if ((e.key === 'Delete' || e.key === 'Backspace') && stage.selectedIds.size) {
-      const ids = new Set(stage.selectedIds);
-      stage.tokens = stage.tokens.filter((x) => !ids.has(x.id));
-      stage.clearSelection();
-      $('#token-props').classList.add('hidden');
-      applySelectionUI();
-      afterTokenEdit();
+      deleteTokens(new Set(stage.selectedIds));
     }
     // flèches : décale le(s) token(s) sélectionné(s) d'une case
     if (e.key.startsWith('Arrow') && stage.selectedIds.size) {

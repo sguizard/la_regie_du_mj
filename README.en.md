@@ -116,7 +116,8 @@ the same machine**.
      selected token moves **the whole group** while keeping the formation.
      **Ctrl/⌘ + D** duplicates the selection (copies offset by one cell, everything is
      carried over: HP, initiative, conditions…). `Delete` removes the whole selection,
-     `Esc` clears it.
+     `Esc` clears it. **`Ctrl/⌘ + Z`** restores the last deleted token(s) (everything is
+     carried back).
    - **Sorting** (menu at the top of the list, remembered): *initiative descending*
      (tokens with no value at the bottom) or *type then name* (PCs first, then NPCs,
      alphabetically). Sorting only affects the list, not the stacking of tokens on the
@@ -208,7 +209,7 @@ to rename it. The search bar filters by name.
 | `Space` + drag | Pan the view |
 | wheel | Zoom |
 | double-click on the map | Ping ("look here" marker) |
-| `Ctrl`/`⌘` + `Z` | Undo the last fog brush stroke |
+| `Ctrl`/`⌘` + `Z` | Undo: last fog brush stroke or token deletion |
 | `Ctrl`/`⌘` + click · `Shift` + click · `Shift` + drag | Multiple token selection |
 | `Delete` | Delete the selected token(s) |
 | `Esc` | Clear the selection / close the panels |

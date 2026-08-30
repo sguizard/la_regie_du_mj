@@ -126,7 +126,8 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
      (poner PV máx. a 0 quita los PV). Arrastrar un token seleccionado mueve **todo el
      grupo** manteniendo la formación. **Ctrl/⌘ + D** duplica la selección (copias
      desplazadas una casilla, se conserva todo: PV, iniciativa, estados…). `Supr`
-     elimina toda la selección, `Esc` la vacía.
+     elimina toda la selección, `Esc` la vacía. **`Ctrl/⌘ + Z`** restaura el/los
+     último(s) token(s) eliminado(s) (se recupera todo).
    - **Orden** (menú en la parte superior de la lista, recordado): *iniciativa
      descendente* (los tokens sin valor al final) o *tipo y luego nombre* (PJ primero,
      luego PNJ, en orden alfabético). El orden solo afecta a la lista, no al
@@ -223,7 +224,7 @@ mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre.
 | `Espacio` + arrastrar | Desplazar la vista |
 | rueda | Zoom |
 | doble clic en el mapa | Ping (marca de «mira aquí») |
-| `Ctrl`/`⌘` + `Z` | Deshacer el último trazo de pincel de niebla |
+| `Ctrl`/`⌘` + `Z` | Deshacer: último trazo de pincel de niebla o eliminación de token |
 | `Ctrl`/`⌘` + clic · `Mayús` + clic · `Mayús` + arrastrar | Selección múltiple de tokens |
 | `Supr` | Eliminar el/los token(s) seleccionado(s) |
 | `Esc` | Vaciar la selección / cerrar los paneles |
