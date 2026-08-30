@@ -45,6 +45,13 @@ export class Stage {
     this.pings = [];           // { x, y, t0, color } — repères temporaires « regarde ici »
     this.turnTokenId = null;   // token dont c'est le tour (suivi d'initiative)
     this.ruler = null;         // { x0, y0, x1, y1, text } coords monde — règle de mesure (régie)
+    this.frameEditing = false; // outil « cadrage joueurs » actif (régie)
+
+    // vue joueurs : déplacement fluide des tokens (position rendue qui rejoint la cible)
+    this._tokenAnim = new Map(); // id -> { x, y }
+    this._lastFrame = 0;
+    this._animActive = false;
+    this._reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
     this._dirty = true;
     this._veil = document.createElement('canvas');
@@ -92,11 +99,17 @@ export class Stage {
   }
   fit() {
     if (!this.image) return;
+    // vue joueurs : si un cadre est défini pour la scène, on ajuste sur ce rectangle
+    const pf = this.mode === 'player' ? this.scene?.playerFrame : null;
+    const rx = pf ? pf.x : 0;
+    const ry = pf ? pf.y : 0;
+    const rw = pf ? pf.w : this.imgW;
+    const rh = pf ? pf.h : this.imgH;
     const margin = this.mode === 'player' ? 1 : 0.96;
-    const z = Math.min(this.cssW / this.imgW, this.cssH / this.imgH) * margin;
+    const z = Math.min(this.cssW / rw, this.cssH / rh) * margin;
     this.cam.zoom = z;
-    this.cam.x = (this.cssW - this.imgW * z) / 2;
-    this.cam.y = (this.cssH - this.imgH * z) / 2;
+    this.cam.x = this.cssW / 2 - (rx + rw / 2) * z;
+    this.cam.y = this.cssH / 2 - (ry + rh / 2) * z;
     this.invalidate();
   }
   panBy(dx, dy) { this.cam.x += dx; this.cam.y += dy; this.invalidate(); }
@@ -127,6 +140,7 @@ export class Stage {
     this.pings = [];
     this.turnTokenId = null;
     this.ruler = null;
+    this._tokenAnim.clear();
     if (scene && this.imgW) {
       if (!this.scene.grid) this.scene.grid = defaultGrid();
       this.fog = new FogMask(this.imgW, this.imgH);
@@ -139,9 +153,39 @@ export class Stage {
 
   setTokenImages(map) { this.tokenImages = map || new Map(); this.invalidate(); }
   setGrid(grid) { if (this.scene) { this.scene.grid = grid; this.invalidate(); } }
-  setTokens(tokens) { this.tokens = structuredClone(tokens || []); this.invalidate(); }
+  setTokens(tokens) {
+    this.tokens = structuredClone(tokens || []);
+    if (this.mode === 'player') {
+      const ids = new Set(this.tokens.map((t) => t.id));
+      for (const id of [...this._tokenAnim.keys()]) if (!ids.has(id)) this._tokenAnim.delete(id);
+    }
+    this.invalidate();
+  }
   setTurn(id) { this.turnTokenId = id || null; this.invalidate(); }
   setRuler(rect) { this.ruler = rect; this.invalidate(); }
+  setFrameEditing(on) { this.frameEditing = !!on; this.invalidate(); }
+  setPlayerFrame(rect) {
+    if (this.scene) {
+      this.scene.playerFrame = rect || null;
+      if (this.mode === 'player') this.fit();
+      this.invalidate();
+    }
+  }
+
+  /** Position à laquelle dessiner un token : sa position réelle en régie, une position
+   *  interpolée (qui rejoint la cible) sur la vue joueurs pour un mouvement fluide. */
+  _tokenRenderPos(t, dt) {
+    if (this.mode !== 'player' || this._reduceMotion) return t.pos;
+    let a = this._tokenAnim.get(t.id);
+    if (!a) { a = { x: t.pos.x, y: t.pos.y }; this._tokenAnim.set(t.id, a); return a; }
+    const dx = t.pos.x - a.x, dy = t.pos.y - a.y;
+    if (dx * dx + dy * dy < 0.25 || dt <= 0) { a.x = t.pos.x; a.y = t.pos.y; return a; }
+    const k = 1 - Math.exp(-dt / 90); // constante de temps ~90 ms
+    a.x += dx * k;
+    a.y += dy * k;
+    this._animActive = true;
+    return a;
+  }
 
   /** Ajoute un « ping » animé (repère temporaire) à la position monde donnée. */
   addPing(world, { color = '#ffcf3f' } = {}) {
@@ -206,6 +250,11 @@ export class Stage {
   // ---- rendu ----
   _render() {
     const ctx = this.ctx;
+    const now = performance.now();
+    const dt = this._lastFrame ? Math.min(64, now - this._lastFrame) : 16;
+    this._lastFrame = now;
+    this._animActive = false;
+
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, this.cssW, this.cssH);
     this._drawAmbiance(ctx);
@@ -217,13 +266,38 @@ export class Stage {
 
     ctx.drawImage(this.image, o.x, o.y, sw, sh);
     this._drawGrid(ctx);
-    this._drawTokens(ctx);
+    this._drawTokens(ctx, dt);
     if (this.fog) this._drawFog(ctx);
     if (this.mode === 'gm' && this.brushCursor) this._drawBrushCursor(ctx);
     if (this.mode === 'gm' && this.calibrateRect) this._drawCalibrateRect(ctx);
     if (this.mode === 'gm' && this.marquee) this._drawMarquee(ctx);
     if (this.mode === 'gm' && this.ruler) this._drawRuler(ctx);
+    if (this.mode === 'gm' && this.frameEditing) this._drawPlayerFrame(ctx);
     if (this.pings.length) this._drawPings(ctx);
+
+    if (this._animActive) this.invalidate(); // continue l'anim des tokens
+  }
+
+  /** Régie : superpose le cadre « vue joueurs » et assombrit ce qui déborde. */
+  _drawPlayerFrame(ctx) {
+    const f = this.scene?.playerFrame;
+    const rx = f ? f.x : 0;
+    const ry = f ? f.y : 0;
+    const rw = f ? f.w : this.imgW;
+    const rh = f ? f.h : this.imgH;
+    const a = this.worldToScreen({ x: rx, y: ry });
+    const b = this.worldToScreen({ x: rx + rw, y: ry + rh });
+    ctx.save();
+    ctx.fillStyle = 'rgba(8,9,13,.5)';
+    ctx.beginPath();
+    ctx.rect(0, 0, this.cssW, this.cssH);
+    ctx.rect(a.x, a.y, b.x - a.x, b.y - a.y);
+    ctx.fill('evenodd');
+    ctx.strokeStyle = '#f2d574';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([9, 5]);
+    ctx.strokeRect(a.x, a.y, b.x - a.x, b.y - a.y);
+    ctx.restore();
   }
 
   _drawRuler(ctx) {
@@ -453,10 +527,10 @@ export class Stage {
     }
   }
 
-  _drawTokens(ctx) {
+  _drawTokens(ctx, dt = 16) {
     for (const t of this.tokens) {
       if (this.mode === 'player' && !t.visibleToPlayers) continue;
-      const c = this.worldToScreen(t.pos);
+      const c = this.worldToScreen(this._tokenRenderPos(t, dt));
       const r = this.tokenRadiusWorld(t) * this.cam.zoom;
       if (r < 1) continue;
       const img = t.imageRef && this.tokenImages.get(t.imageRef);

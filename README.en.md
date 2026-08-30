@@ -126,11 +126,28 @@ the same machine**.
    tools is selected.
 
 The toolbar is a strip of icons: ✋ move/select · 🔦 reveal · 🌫 hide · ⛃ token · ▦
-grid · ⚙ grid settings (hover for the tooltip).
+grid · 📺 player framing · ⚙ grid settings (hover for the tooltip).
 
 **Measuring ruler**: hold **M** and drag on the map. The distance shows in cells — in
 grid squares (diagonal = 1) and, in parentheses, as the crow flies. Release M or press
 `Esc` to clear. The endpoints snap if grid snapping is active.
+
+### 📺 Player view framing
+
+By default the player view fits the **whole map** on screen — which leaves black bars
+when the battlemap doesn't match the TV's aspect. The **📺** tool lets you choose the
+portion shown to the players:
+
+- **draw a rectangle** on the map: that's what the players will see (the rest of the
+  map is dimmed on your console so you can tell) ;
+- or **🎯 My view**: reuses the portion of the map currently visible on your console ;
+- **🗺 Whole map** returns to the default.
+
+The frame is saved with the scene and broadcast live. `Esc` leaves the tool.
+
+**Smooth movement**: on the player view, tokens **glide** to their new position instead
+of snapping — more legible on a large screen. (Respects the system "reduce motion"
+setting.)
 
 ### Initiative tracker (turn order)
 

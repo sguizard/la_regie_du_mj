@@ -13,7 +13,7 @@ let loadSeq = 0;              // incrémenté à chaque chargement de scène
 let loading = false;
 let loadingTarget = null;
 let pendingMsgs = [];         // messages « live » reçus pendant un chargement
-let applied = { grid: 0, tokens: 0, fog: 0, initiative: 0 }; // horodatage du dernier message appliqué par type
+let applied = { grid: 0, tokens: 0, fog: 0, initiative: 0, frame: 0 }; // horodatage du dernier message appliqué par type
 let initState = { on: false, turnId: null, round: 1 };       // suivi d'initiative
 const tokenImages = new Map();
 
@@ -24,6 +24,7 @@ export async function initPlayer() {
 
   bus.on('present', (m) => showScene(m.sceneId, m.ts));
   bus.on('grid', (m) => live(m, 'grid', () => stage.setGrid(m.grid)));
+  bus.on('frame', (m) => live(m, 'frame', () => stage.setPlayerFrame(m.frame)));
   bus.on('tokens', (m) => live(m, 'tokens', () => { stage.setTokens(m.tokens); renderPlayerInit(); }));
   bus.on('initiative', (m) => live(m, 'initiative', () => {
     initState = { on: !!m.on, turnId: m.turnId ?? null, round: m.round || 1 };
@@ -86,7 +87,7 @@ async function showScene(sceneId, ts) {
   loading = true;
   loadingTarget = sceneId;
   pendingMsgs = [];
-  applied = { grid: baseTs, tokens: baseTs, fog: baseTs, initiative: baseTs };
+  applied = { grid: baseTs, tokens: baseTs, fog: baseTs, initiative: baseTs, frame: baseTs };
   initState = { on: false, turnId: null, round: 1 };
   renderPlayerInit();
 

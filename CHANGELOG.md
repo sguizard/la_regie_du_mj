@@ -2,6 +2,20 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.1.0] - 2026-08-30
+
+Amélioration de la vue joueurs.
+
+### Ajouté
+- **Cadrage de la vue joueurs** (outil 📺) : trace le rectangle de la carte montré aux
+  joueurs, ou « 🎯 Ma vue » pour reprendre la portion visible dans la régie, ou
+  « 🗺 Toute la carte » pour le comportement par défaut. Le cadre est enregistré avec
+  la scène (et dans l'export), diffusé en direct ; le hors-cadre est grisé sur la régie.
+  Résout les bandes noires quand la battlemap n'est pas au format de la TV.
+- **Déplacement fluide des tokens sur la vue joueurs** : les tokens glissent vers leur
+  nouvelle position au lieu de sauter. Respecte « réduire les animations » du système.
+  La régie reste directe.
+
 ## [1.0.0] - 2026-08-28
 
 Première version publiée. Outil de cartes tactiques pour parties de JDR en présentiel :

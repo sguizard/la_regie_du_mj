@@ -136,13 +136,31 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
    seleccionada.
 
 La barra de herramientas es una tira de iconos: ✋ mover/seleccionar · 🔦 revelar ·
-🌫 ocultar · ⛃ token · ▦ rejilla · ⚙ ajustes de rejilla (pasa el ratón para ver la
-descripción).
+🌫 ocultar · ⛃ token · ▦ rejilla · 📺 encuadre de jugadores · ⚙ ajustes de rejilla
+(pasa el ratón para ver la descripción).
 
 **Regla de medición**: mantén **M** y arrastra sobre el mapa. La distancia se muestra
 en casillas — en casillas de rejilla (diagonal = 1) y, entre paréntesis, a vuelo de
 pájaro. Suelta M o pulsa `Esc` para borrar. Los extremos se imantan si la imantación
 de la rejilla está activa.
+
+### 📺 Encuadre de la vista de jugadores
+
+Por defecto, la vista de jugadores ajusta **todo el mapa** a la pantalla — lo que deja
+franjas negras cuando el mapa de batalla no tiene el formato de la TV. La herramienta
+**📺** permite elegir la parte que se muestra a los jugadores:
+
+- **traza un rectángulo** sobre el mapa: es lo que verán los jugadores (el resto del
+  mapa se atenúa en tu consola para orientarte) ;
+- o **🎯 Mi vista**: reutiliza la parte del mapa actualmente visible en tu consola ;
+- **🗺 Todo el mapa** vuelve al comportamiento por defecto.
+
+El encuadre se guarda con la escena y se difunde en directo. `Esc` sale de la
+herramienta.
+
+**Movimiento fluido**: en la vista de jugadores, los tokens **se deslizan** hacia su
+nueva posición en lugar de saltar — más legible en una pantalla grande. (Respeta el
+ajuste del sistema «reducir movimiento».)
 
 ### Seguimiento de iniciativa (orden de turnos)
 

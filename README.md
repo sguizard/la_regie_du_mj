@@ -134,12 +134,30 @@ doivent tourner **dans le même navigateur sur la même machine**.
    sélectionné.
 
 La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 révéler ·
-🌫 cacher · ⛃ token · ▦ grille · ⚙ réglages de grille (survole pour l'infobulle).
+🌫 cacher · ⛃ token · ▦ grille · 📺 cadrage joueurs · ⚙ réglages de grille (survole
+pour l'infobulle).
 
 **Règle de mesure** : maintiens **M** et glisse sur la carte. La distance s'affiche
 en cases — en cases de grille (diagonale = 1) et, entre parenthèses, à vol d'oiseau.
 Relâche M ou appuie sur `Échap` pour effacer. Les extrémités s'aimantent si
 l'aimantation de la grille est active.
+
+### 📺 Cadrage de la vue joueurs
+
+Par défaut, la vue joueurs ajuste **toute la carte** à l'écran — ce qui laisse des
+bandes noires quand la battlemap n'est pas au format de la TV. L'outil **📺** permet
+de choisir la portion montrée aux joueurs :
+
+- **trace un rectangle** sur la carte : c'est ce que verront les joueurs (le reste de
+  la carte est grisé sur ta régie pour te repérer) ;
+- ou **🎯 Ma vue** : reprend la portion de carte actuellement visible dans ta régie ;
+- **🗺 Toute la carte** revient au comportement par défaut.
+
+Le cadre est enregistré avec la scène et diffusé en direct. `Échap` quitte l'outil.
+
+**Déplacement fluide** : sur la vue joueurs, les tokens **glissent** vers leur nouvelle
+position au lieu de sauter — plus lisible sur un grand écran. (Respecte le réglage
+système « réduire les animations ».)
 
 ### Suivi d'initiative (ordre de jeu)
 

@@ -202,6 +202,11 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .tool:hover { background: #2d3242; }
 .tool.active { background: var(--accent); border-color: var(--accent); color: #201a06; }
 .map-toolbar .btn-small { padding: 4px 7px; }
+.frame-state {
+  font-size: 12px; color: var(--text-dim); font-weight: 600;
+  white-space: nowrap; padding: 0 2px;
+}
+.frame-state.on { color: var(--accent); }
 .ctl { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--text-dim); }
 .ctl input[type="range"] { width: 120px; }
 #brush-size { width: 84px; }

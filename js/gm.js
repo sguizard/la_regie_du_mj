@@ -188,6 +188,7 @@ async function persistCurrentScene() {
   s.grid = stage.scene.grid;
   s.tokens = structuredClone(stage.tokens);
   s.combat = stage.scene.combat ?? null;
+  s.playerFrame = stage.scene.playerFrame ?? null;
   if (stage.fog) s.fogBlob = await stage.fog.toBlob();
   await db.put('scenes', s);
 }
@@ -238,6 +239,7 @@ async function broadcastScene(includeFog) {
   push('present', { sceneId: presentingId });
   if (stage.scene?.id === presentingId) {
     push('grid', { sceneId: presentingId, grid: stage.scene.grid });
+    push('frame', { sceneId: presentingId, frame: stage.scene.playerFrame ?? null });
     push('tokens', { sceneId: presentingId, tokens: structuredClone(stage.tokens) });
     const cs = stage.scene.combat;
     push('initiative', {
@@ -614,6 +616,7 @@ async function selectScene(id) {
   $('#btn-combat').classList.toggle('active', !!cs.on);
   stage.setTurn(cs.on ? cs.turnId : null);
   renderInitiativeBar();
+  updateFrameGroupUI();
   renderTokenList();
   renderSidebar();
 }
@@ -628,6 +631,9 @@ function wireToolbar() {
   $('#btn-reveal-all').addEventListener('click', () => bulkFog('reveal'));
   $('#btn-hide-all').addEventListener('click', () => bulkFog('hide'));
   $('#btn-fog-undo').addEventListener('click', fogUndo);
+
+  $('#btn-frame-view').addEventListener('click', frameToCurrentView);
+  $('#btn-frame-full').addEventListener('click', () => commitPlayerFrame(null));
 
   $('#btn-config').addEventListener('click', toggleConfig);
   $('#config-panel-close').addEventListener('click', () => setConfigOpen(false));
@@ -904,9 +910,42 @@ function setTool(t) {
   tool = t;
   $$('.tool[data-tool]').forEach((b) => b.classList.toggle('active', b.dataset.tool === t));
   $('#fog-group').classList.toggle('hidden', t !== 'reveal' && t !== 'hide');
+  $('#frame-group').classList.toggle('hidden', t !== 'frame');
   if (t !== 'reveal' && t !== 'hide') stage?.setBrushCursor(null);
+  stage?.setFrameEditing(t === 'frame');
+  if (t === 'frame') { updateFrameGroupUI(); showHint(tr('frame.hint')); }
   const cursor = t === 'move' ? 'default' : (t === 'token' ? 'copy' : (t === 'grid' ? 'move' : 'crosshair'));
   $('#gm-canvas').style.cursor = cursor;
+}
+
+function updateFrameGroupUI() {
+  const custom = !!stage.scene?.playerFrame;
+  const el = $('#frame-state');
+  el.textContent = tr(custom ? 'frame.stateCustom' : 'frame.stateFull');
+  el.classList.toggle('on', custom);
+  $('#btn-frame-full').disabled = !custom;
+}
+
+/** Enregistre le cadre « vue joueurs » de la scène, le persiste et le diffuse. */
+async function commitPlayerFrame(rect) {
+  if (!stage.scene) return;
+  stage.setPlayerFrame(rect);
+  updateFrameGroupUI();
+  await persistCurrentScene();
+  if (selectedId === presentingId) push('frame', { sceneId: selectedId, frame: rect || null });
+}
+
+/** « Cadrer sur ma vue » : la portion de carte visible dans la régie devient le cadre joueurs. */
+function frameToCurrentView() {
+  if (!stage.scene || !stage.image) return;
+  const tl = stage.screenToWorld({ x: 0, y: 0 });
+  const br = stage.screenToWorld({ x: stage.cssW, y: stage.cssH });
+  const x = clamp(Math.min(tl.x, br.x), 0, stage.imgW);
+  const y = clamp(Math.min(tl.y, br.y), 0, stage.imgH);
+  const w = clamp(Math.max(tl.x, br.x), 0, stage.imgW) - x;
+  const h = clamp(Math.max(tl.y, br.y), 0, stage.imgH) - y;
+  if (w < 40 || h < 40) return;
+  commitPlayerFrame({ x, y, w, h });
 }
 
 function setConfigOpen(open) {
@@ -1422,6 +1461,15 @@ const broadcastGridThrottled = throttle(() => {
   if (stage.scene && selectedId === presentingId) push('grid', { sceneId: selectedId, grid: stage.scene.grid });
 }, 80);
 
+/** Rectangle monde normalisé et borné à l'image, à partir de deux coins. */
+function rectFromWorld(a, b) {
+  const x0 = clamp(Math.min(a.x, b.x), 0, stage.imgW);
+  const y0 = clamp(Math.min(a.y, b.y), 0, stage.imgH);
+  const x1 = clamp(Math.max(a.x, b.x), 0, stage.imgW);
+  const y1 = clamp(Math.max(a.y, b.y), 0, stage.imgH);
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+
 /** Met à jour la règle de mesure entre deux points monde (a = origine, b = fin). */
 function updateRuler(a, b) {
   const cell = stage.scene?.grid?.cellPx || 70;
@@ -1445,6 +1493,8 @@ function wireCanvas() {
   let gridMoveStart = null;   // { world, offX, offY }
   let gridSizeStart = null;   // { y, cell }
   let rulerStart = null;      // point monde au début d'une mesure
+  let frameStart = null;      // coin monde au début du tracé du cadre joueurs
+  let framePrev = null;       // cadre joueurs avant le tracé (pour annuler un micro-clic)
 
   const isBrushTool = () => tool === 'reveal' || tool === 'hide';
   const updateBrush = (p) => {
@@ -1542,6 +1592,10 @@ function wireCanvas() {
       mode = 'grid-move';
       const g = stage.scene.grid;
       gridMoveStart = { world: stage.screenToWorld(p), offX: g.offsetX, offY: g.offsetY };
+    } else if (tool === 'frame') {
+      mode = 'frame';
+      frameStart = stage.screenToWorld(p);
+      framePrev = stage.scene?.playerFrame ? { ...stage.scene.playerFrame } : null;
     }
   });
 
@@ -1572,6 +1626,8 @@ function wireCanvas() {
       stage.setMarquee({ x0: marqStart.x, y0: marqStart.y, x1: w.x, y1: w.y });
     } else if (mode === 'ruler' && rulerStart) {
       updateRuler(rulerStart, stage.snapWorld(stage.screenToWorld(p)));
+    } else if (mode === 'frame' && frameStart) {
+      stage.setPlayerFrame(rectFromWorld(frameStart, stage.screenToWorld(p)));
     } else if (mode === 'fog') {
       const w = stage.screenToWorld(p);
       const radius = (brushPx / 2) / stage.cam.zoom;
@@ -1618,6 +1674,11 @@ function wireCanvas() {
         stage.setRuler(null);
       }
       rulerStart = null;
+    } else if (finished === 'frame') {
+      frameStart = null;
+      const f = stage.scene?.playerFrame;
+      const ok = f && f.w >= 60 && f.h >= 60;
+      await commitPlayerFrame(ok ? f : framePrev);
     } else if (finished === 'marquee') {
       const m = stage.marquee;
       stage.setMarquee(null);
@@ -1740,6 +1801,7 @@ function wireKeyboard() {
       stage.clearSelection();
       applySelectionUI();
       stage.setRuler(null);
+      if (tool === 'frame') setTool('move');
       closeFloaties(); closeAppearanceMenu(); calibrating = false; stage.setCalibrateRect(null); hideHint();
     }
   });
