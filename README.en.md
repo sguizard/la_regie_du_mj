@@ -23,15 +23,21 @@ one entry in `DICT` in [`js/i18n.js`](js/i18n.js) with the same keys.
 A local static server is required (ES modules + reliable sync between windows) — it
 **disables the browser cache** so a plain reload is enough after a code change.
 
-### Windows — the easy way
+### The easy way: the release executable
 
 On the **[Releases](https://github.com/sguizard/la_regie_du_mj/releases)** page,
-download the `…-windows` `.zip`, extract it, then **double-click `serve.exe`**.
-Nothing to install, the browser opens on its own.
+download the `.zip` for your platform, extract it, then run **`serve`** — nothing to
+install, the browser opens on its own.
 
-On the first run, Windows SmartScreen may flag an unknown publisher (the executable is
-unsigned): **More info → Run anyway**. A firewall prompt may also appear — you can deny
-public-network access, `localhost` still works.
+- **Windows** (`…-windows.zip`): double-click `serve.exe`.
+- **macOS Apple Silicon** (`…-macos-apple-silicon.zip`): in the folder,
+  `xattr -dr com.apple.quarantine .` then `./serve` (Intel Macs: see "from source"
+  below).
+- **Linux** (`…-linux.zip`): `./serve`.
+
+The executables are unsigned: Windows SmartScreen / macOS Gatekeeper will warn on the
+first run → **open anyway**. A firewall prompt may also appear — deny public-network
+access, `localhost` still works.
 
 ### From source (Python 3 or Node.js)
 
@@ -84,7 +90,12 @@ the same machine**.
 4. **Tokens** — the left sidebar shows, below the maps, the **list of the scene's
    tokens**. To add a token:
    - **+ Add a token** (below the list): drops a disc at the centre of the view;
-   - or the **⛃ Token** tool, then click on the map where you want it.
+   - or the **⛃ Token** tool, then click on the map where you want it;
+   - or a **template**: below "+ Add a token", one chip per saved template
+     (colour / thumbnail + name). Click = drops a pre-filled token (name, HP, colour,
+     type, size, image, conditions). To create a template: a token's ⚙ →
+     **⭐ Save as a template**. The chip is removed on hover (**✕**). Templates are
+     shared across every scene and included in the export.
    A new token has no name, type, initiative or HP: on its row, **+ name**, **+ type**,
    **+ init** and **+ HP** add them in one click. Once set: the name is edited via ⚙,
    the initiative in a small field, the type via a **PC / NPC** badge (click = toggle;
@@ -187,6 +198,7 @@ to rename it. The search bar filters by name.
 | `H` | Hide brush |
 | `T` | Place-a-token tool |
 | `A` | Add a token at the centre |
+| `↑` `↓` `←` `→` | Nudge the selected token(s) by one cell |
 | `M` (held) + drag | Measuring ruler |
 | `N` | Next combatant (initiative tracker) |
 | `Ctrl`/`⌘` + `D` | Duplicate the selected token(s) |
@@ -204,8 +216,9 @@ to rename it. The search bar filters by name.
 
 Everything is stored in the browser (IndexedDB, origin `http://localhost:8000`).
 - Keep the **same port** from one session to the next, otherwise the data isn't found.
-- Usage is shown in the top bar; **"Wipe everything"** erases it all (with
-  confirmation).
+- Usage is shown in the top bar; it **turns gold** with a tooltip when storage fills up
+  (past ~1.5 GB or 80% of the browser quota) — time to **export a backup**.
+- **"Wipe everything"** erases it all (with confirmation).
 - Clearing the site's browsing data also deletes the scenes.
 
 ### Export / Import

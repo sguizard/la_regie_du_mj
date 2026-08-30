@@ -25,16 +25,22 @@ Un serveur statique local est nécessaire (modules ES + synchro fiable entre fen
 il **désactive le cache navigateur** pour qu'un simple rechargement suffise après une
 mise à jour du code.
 
-### Windows — le plus simple
+### Le plus simple : l'exécutable de la release
 
 Sur la page **[Releases](https://github.com/sguizard/la_regie_du_mj/releases)**,
-télécharge le `.zip` `…-windows`, décompresse-le, puis **double-clique `serve.exe`**.
-Rien à installer, le navigateur s'ouvre tout seul.
+télécharge le `.zip` de ta plateforme, décompresse-le, puis lance **`serve`** — rien à
+installer, le navigateur s'ouvre tout seul.
 
-Au premier lancement, Windows SmartScreen peut signaler un éditeur inconnu
-(l'exécutable n'est pas signé) : **Informations complémentaires → Exécuter quand
-même**. Une autorisation pare-feu peut aussi être demandée — tu peux refuser l'accès
-aux réseaux publics, `localhost` fonctionne quand même.
+- **Windows** (`…-windows.zip`) : double-clique `serve.exe`.
+- **macOS Apple Silicon** (`…-macos-apple-silicon.zip`) : dans le dossier,
+  `xattr -dr com.apple.quarantine .` puis `./serve` (Mac Intel : voir « depuis les
+  sources » ci-dessous).
+- **Linux** (`…-linux.zip`) : `./serve`.
+
+Les exécutables ne sont pas signés : Windows SmartScreen / macOS Gatekeeper
+préviennent au premier lancement → **ouvrir quand même**. Une autorisation pare-feu
+peut aussi être demandée — refuser l'accès aux réseaux publics, `localhost` marche
+quand même.
 
 ### Depuis les sources (Python 3 ou Node.js)
 
@@ -91,7 +97,12 @@ doivent tourner **dans le même navigateur sur la même machine**.
 4. **Tokens** — la barre latérale gauche affiche, sous les cartes, la **liste des
    tokens de la scène**. Pour ajouter un token :
    - **+ Ajouter un token** (sous la liste) : pose un disque au centre de la vue ;
-   - ou outil **⛃ Token** puis clic sur la carte à l'endroit voulu.
+   - ou outil **⛃ Token** puis clic sur la carte à l'endroit voulu ;
+   - ou un **modèle** : sous « + Ajouter un token », une puce par modèle enregistré
+     (couleur / vignette + nom). Clic = pose un token pré-rempli (nom, PV, couleur,
+     type, taille, image, états). Pour créer un modèle : ⚙ d'un token →
+     **⭐ Enregistrer comme modèle**. La puce se supprime au survol (**✕**). Les
+     modèles sont partagés entre toutes les scènes et inclus dans l'export.
    Un nouveau token n'a ni nom, ni type, ni initiative, ni PV : sur sa ligne,
    **+ nom**, **+ type**, **+ init** et **+ PV** les ajoutent en un clic. Une fois
    définis : le nom s'édite via ⚙, l'initiative dans un petit champ, le type via un
@@ -196,6 +207,7 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 | `H` | Pinceau cacher |
 | `T` | Outil poser un token |
 | `A` | Ajouter un token au centre |
+| `↑` `↓` `←` `→` | Décaler d'une case le(s) token(s) sélectionné(s) |
 | `M` (maintenu) + glisser | Règle de mesure |
 | `N` | Combattant suivant (suivi d'initiative) |
 | `Ctrl`/`⌘` + `D` | Dupliquer le(s) token(s) sélectionné(s) |
@@ -214,8 +226,10 @@ deck ou de scène pour le renommer. La barre de recherche filtre par nom.
 Tout est stocké dans le navigateur (IndexedDB, origine `http://localhost:8000`).
 - Garde le **même port** d'une session à l'autre, sinon les données ne sont pas
   retrouvées.
-- L'espace utilisé s'affiche dans la barre du haut ; **« Vider tout »** efface tout
-  (avec confirmation).
+- L'espace utilisé s'affiche dans la barre du haut ; il **passe en doré** avec une
+  infobulle quand le stockage se remplit (au-delà de ~1,5 Go ou 80 % du quota du
+  navigateur) — pense alors à **exporter une sauvegarde**.
+- **« Vider tout »** efface tout (avec confirmation).
 - Vider les données de navigation du site supprime aussi les scènes.
 
 ### Exporter / Importer

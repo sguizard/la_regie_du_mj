@@ -26,16 +26,21 @@ Se necesita un servidor estático local (módulos ES + sincronización fiable en
 ventanas) — **desactiva la caché del navegador** para que baste con recargar tras un
 cambio de código.
 
-### Windows — lo más sencillo
+### Lo más sencillo: el ejecutable de la release
 
 En la página **[Releases](https://github.com/sguizard/la_regie_du_mj/releases)**,
-descarga el `.zip` `…-windows`, descomprímelo y **haz doble clic en `serve.exe`**. No
-hay que instalar nada, el navegador se abre solo.
+descarga el `.zip` de tu plataforma, descomprímelo y ejecuta **`serve`** — nada que
+instalar, el navegador se abre solo.
 
-En el primer arranque, Windows SmartScreen puede avisar de un editor desconocido (el
-ejecutable no está firmado): **Más información → Ejecutar de todas formas**. También
-puede aparecer un aviso del cortafuegos — puedes denegar el acceso a redes públicas,
-`localhost` funciona igualmente.
+- **Windows** (`…-windows.zip`): doble clic en `serve.exe`.
+- **macOS Apple Silicon** (`…-macos-apple-silicon.zip`): en la carpeta,
+  `xattr -dr com.apple.quarantine .` y luego `./serve` (Mac Intel: ver «desde el
+  código fuente» más abajo).
+- **Linux** (`…-linux.zip`): `./serve`.
+
+Los ejecutables no están firmados: Windows SmartScreen / macOS Gatekeeper avisan en el
+primer arranque → **abrir de todas formas**. También puede aparecer un aviso del
+cortafuegos — deniega el acceso a redes públicas, `localhost` funciona igualmente.
 
 ### Desde el código fuente (Python 3 o Node.js)
 
@@ -91,7 +96,13 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
 4. **Tokens** — la barra lateral izquierda muestra, bajo los mapas, la **lista de
    tokens de la escena**. Para añadir un token:
    - **+ Añadir un token** (bajo la lista): coloca un disco en el centro de la vista;
-   - o la herramienta **⛃ Token** y luego clic en el mapa en el punto deseado.
+   - o la herramienta **⛃ Token** y luego clic en el mapa en el punto deseado;
+   - o una **plantilla**: bajo «+ Añadir un token», una pastilla por plantilla guardada
+     (color / miniatura + nombre). Clic = coloca un token predefinido (nombre, PV,
+     color, tipo, tamaño, imagen, estados). Para crear una plantilla: el ⚙ de un token
+     → **⭐ Guardar como plantilla**. La pastilla se elimina al pasar el ratón (**✕**).
+     Las plantillas se comparten entre todas las escenas y se incluyen en la
+     exportación.
    Un token nuevo no tiene nombre, tipo, iniciativa ni PV: en su fila, **+ nombre**,
    **+ tipo**, **+ inic.** y **+ PV** los añaden con un clic. Una vez definidos: el
    nombre se edita con ⚙, la iniciativa en un campo pequeño, el tipo con una insignia
@@ -201,6 +212,7 @@ mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre.
 | `H` | Pincel ocultar |
 | `T` | Herramienta colocar un token |
 | `A` | Añadir un token en el centro |
+| `↑` `↓` `←` `→` | Desplazar una casilla el/los token(s) seleccionado(s) |
 | `M` (mantenida) + arrastrar | Regla de medición |
 | `N` | Siguiente combatiente (seguimiento de iniciativa) |
 | `Ctrl`/`⌘` + `D` | Duplicar el/los token(s) seleccionado(s) |
@@ -218,8 +230,10 @@ mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre.
 
 Todo se almacena en el navegador (IndexedDB, origen `http://localhost:8000`).
 - Mantén el **mismo puerto** de una sesión a otra, si no los datos no se encuentran.
-- El espacio usado se muestra en la barra superior; **«Borrar todo»** lo elimina todo
-  (con confirmación).
+- El espacio usado se muestra en la barra superior; se **pone dorado** con una
+  descripción cuando el almacenamiento se llena (más de ~1,5 GB o el 80 % de la cuota
+  del navegador) — es hora de **exportar una copia de seguridad**.
+- **«Borrar todo»** lo elimina todo (con confirmación).
 - Borrar los datos de navegación del sitio también elimina las escenas.
 
 ### Exportar / Importar

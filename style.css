@@ -311,6 +311,25 @@ button.tl-name.tl-add { text-align: left; }
 }
 .tl-x:hover { background: #3a201d; color: #fff; }
 
+/* ---------- Modèles de créature ---------- */
+.tpl-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+.tpl-chip {
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
+  padding: 2px 4px 2px 4px; border-radius: 6px; cursor: pointer;
+  background: var(--bg-elev-2); border: 1px solid var(--border); font-size: 12px;
+}
+.tpl-chip:hover { background: #2d3242; border-color: var(--accent-2); }
+.tpl-sw { width: 14px; height: 14px; border-radius: 4px; flex: 0 0 auto; object-fit: cover; }
+.tpl-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tpl-x {
+  border: none; background: none; color: var(--text-dim); cursor: pointer;
+  font-size: 10px; padding: 0 2px; opacity: 0; flex: 0 0 auto;
+}
+.tpl-chip:hover .tpl-x { opacity: 1; }
+.tpl-x:hover { color: var(--danger); }
+
+.storage-usage.warn { color: var(--accent); font-weight: 600; }
+
 .hint {
   position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
   background: rgba(24,27,35,.92); border: 1px solid var(--border); border-radius: 8px;

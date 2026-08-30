@@ -24,8 +24,8 @@ async function dataURLToBlob(dataURL) {
 
 /** Construit l'objet de sauvegarde complet. */
 export async function buildBackup() {
-  const [decks, scenes, tokenLibrary] = await Promise.all([
-    getAll('decks'), getAll('scenes'), getAll('tokenLibrary'),
+  const [decks, scenes, tokenLibrary, templates] = await Promise.all([
+    getAll('decks'), getAll('scenes'), getAll('tokenLibrary'), getAll('templates'),
   ]);
 
   const outScenes = [];
@@ -63,6 +63,7 @@ export async function buildBackup() {
     decks: decks.map((d) => ({ id: d.id, name: d.name, order: d.order ?? 0 })),
     scenes: outScenes,
     tokenLibrary: outTokens,
+    templates: (templates || []).map((t) => ({ ...t })),
   };
 }
 
@@ -113,9 +114,24 @@ export async function restoreBackup(data) {
     });
   }
 
+  const templates = (data.templates || [])
+    .filter((t) => t && t.id)
+    .map((t) => ({
+      id: t.id,
+      name: t.name || '',
+      color: t.color || '#c0392b',
+      type: t.type ?? null,
+      sizeCells: t.sizeCells || 1,
+      hpMax: t.hpMax || null,
+      hpShare: t.hpShare || 'off',
+      conditions: Array.isArray(t.conditions) ? t.conditions : [],
+      imageRef: t.imageRef || null,
+    }));
+
   // tout est prêt : on remplace
   await clearAll();
   for (const d of decks) await put('decks', d);
   for (const s of scenes) await put('scenes', s);
   for (const t of tokens) await put('tokenLibrary', t);
+  for (const t of templates) await put('templates', t);
 }

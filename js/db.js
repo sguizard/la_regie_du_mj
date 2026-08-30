@@ -6,10 +6,11 @@
 //                   imageBlob, thumbBlob,
 //                   grid?, fogBlob?, tokens? }        (champs battlemap)
 //   tokenLibrary  { id, name, imageBlob, thumbBlob }
+//   templates     { id, name, color, type, sizeCells, hpMax, hpShare, conditions, imageRef }
 //   meta          { key, value }
 
 const DB_NAME = 'mj-toolboox';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let _db = null;
 
@@ -22,6 +23,7 @@ export function openDB() {
       if (!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('scenes')) db.createObjectStore('scenes', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('tokenLibrary')) db.createObjectStore('tokenLibrary', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('templates')) db.createObjectStore('templates', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
     };
     req.onsuccess = () => { _db = req.result; resolve(_db); };
@@ -65,7 +67,7 @@ export async function clearStore(store) {
 }
 
 export async function clearAll() {
-  await Promise.all(['decks', 'scenes', 'tokenLibrary', 'meta'].map(clearStore));
+  await Promise.all(['decks', 'scenes', 'tokenLibrary', 'templates', 'meta'].map(clearStore));
 }
 
 // ---- meta ----

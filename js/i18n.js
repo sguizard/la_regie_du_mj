@@ -25,6 +25,7 @@ const DICT = {
     'topbar.fitTitle': 'Ajuster la vue (touche F)',
     'topbar.fullscreenTitle': 'Plein écran',
     'topbar.storageTitle': 'Espace de stockage utilisé',
+    'topbar.storageWarn': 'Stockage bien rempli — pense à exporter une sauvegarde (⬇).',
     'topbar.wipe': 'Vider tout',
     'topbar.wipeTitle': 'Effacer toutes les données',
 
@@ -144,8 +145,15 @@ const DICT = {
     'props.conditions': 'États',
     'props.condPrompt': 'État (emoji ou texte court) :',
     'props.duplicate': 'Dupliquer le token',
+    'props.saveTemplate': '⭐ Enregistrer comme modèle',
     'props.delete': 'Supprimer le token',
     'props.close': 'Fermer',
+
+    'templates.namePrompt': 'Nom du modèle :',
+    'templates.saved': 'Modèle « {name} » enregistré.',
+    'templates.placeTitle': 'Poser un token « {name} »',
+    'templates.deleteTitle': 'Supprimer ce modèle',
+    'templates.confirmDelete': 'Supprimer le modèle « {name} » ?',
 
     'appearance.menuTitle': 'Apparence du token',
     'appearance.disc': 'Disque',
@@ -208,6 +216,7 @@ const DICT = {
     'topbar.fitTitle': 'Fit view to map (F key)',
     'topbar.fullscreenTitle': 'Fullscreen',
     'topbar.storageTitle': 'Storage used',
+    'topbar.storageWarn': 'Storage is filling up — consider exporting a backup (⬇).',
     'topbar.wipe': 'Wipe all',
     'topbar.wipeTitle': 'Erase all data',
 
@@ -327,8 +336,15 @@ const DICT = {
     'props.conditions': 'Conditions',
     'props.condPrompt': 'Condition (emoji or short text):',
     'props.duplicate': 'Duplicate the token',
+    'props.saveTemplate': '⭐ Save as a template',
     'props.delete': 'Delete the token',
     'props.close': 'Close',
+
+    'templates.namePrompt': 'Template name:',
+    'templates.saved': 'Template "{name}" saved.',
+    'templates.placeTitle': 'Place a "{name}" token',
+    'templates.deleteTitle': 'Delete this template',
+    'templates.confirmDelete': 'Delete the template "{name}"?',
 
     'appearance.menuTitle': 'Token appearance',
     'appearance.disc': 'Disc',
@@ -391,6 +407,7 @@ const DICT = {
     'topbar.fitTitle': 'Ajustar la vista al mapa (tecla F)',
     'topbar.fullscreenTitle': 'Pantalla completa',
     'topbar.storageTitle': 'Espacio de almacenamiento usado',
+    'topbar.storageWarn': 'El almacenamiento se está llenando — exporta una copia de seguridad (⬇).',
     'topbar.wipe': 'Borrar todo',
     'topbar.wipeTitle': 'Borrar todos los datos',
 
@@ -510,8 +527,15 @@ const DICT = {
     'props.conditions': 'Estados',
     'props.condPrompt': 'Estado (emoji o texto corto):',
     'props.duplicate': 'Duplicar el token',
+    'props.saveTemplate': '⭐ Guardar como plantilla',
     'props.delete': 'Eliminar el token',
     'props.close': 'Cerrar',
+
+    'templates.namePrompt': 'Nombre de la plantilla:',
+    'templates.saved': 'Plantilla «{name}» guardada.',
+    'templates.placeTitle': 'Colocar un token «{name}»',
+    'templates.deleteTitle': 'Eliminar esta plantilla',
+    'templates.confirmDelete': '¿Eliminar la plantilla «{name}»?',
 
     'appearance.menuTitle': 'Apariencia del token',
     'appearance.disc': 'Disco',

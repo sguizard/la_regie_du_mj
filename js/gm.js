@@ -13,6 +13,7 @@ let stage, bus;
 let decks = [];
 let scenes = [];
 let tokenLib = [];
+let templates = [];
 const tokenImages = new Map();      // id -> ImageBitmap
 const thumbUrls = new Map();        // id -> objectURL (scènes + tokens)
 
@@ -161,11 +162,12 @@ export async function initGM() {
 
 // ---------------------------------------------------------------- données
 async function reloadAll() {
-  [decks, scenes, tokenLib] = await Promise.all([
-    db.getAll('decks'), db.getAll('scenes'), db.getAll('tokenLibrary'),
+  [decks, scenes, tokenLib, templates] = await Promise.all([
+    db.getAll('decks'), db.getAll('scenes'), db.getAll('tokenLibrary'), db.getAll('templates'),
   ]);
   decks.sort((a, b) => a.order - b.order);
   scenes.sort((a, b) => a.order - b.order);
+  templates.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'fr', { numeric: true }));
 
   // vignettes + images de tokens
   for (const s of [...scenes, ...tokenLib]) {
@@ -179,6 +181,8 @@ async function reloadAll() {
   stage.setTokenImages(tokenImages);
   renderSidebar();
   renderAppearance();
+  renderTemplates();
+  refreshStorage();
 }
 
 async function persistCurrentScene() {
@@ -266,12 +270,12 @@ async function wipeAll() {
   await db.clearAll();
   for (const u of thumbUrls.values()) URL.revokeObjectURL(u);
   thumbUrls.clear(); tokenImages.clear();
-  decks = []; scenes = []; tokenLib = [];
+  decks = []; scenes = []; tokenLib = []; templates = [];
   selectedId = presentingId = null;
   if (blackout) await setBlackout(false);
   stage.setScene(null, null);
   bus.send({ t: 'clear' });
-  renderSidebar(); renderAppearance();
+  renderSidebar(); renderAppearance(); renderTemplates();
   $('#scene-name').textContent = tr('topbar.noScene');
   $('#btn-present').disabled = true;
   $('#map-toolbar').classList.add('hidden');
@@ -283,9 +287,23 @@ async function wipeAll() {
   refreshStorage();
 }
 
+let _storageWarned = false;
 async function refreshStorage() {
   const est = await db.storageEstimate();
-  $('#storage-usage').textContent = est?.usage ? formatBytes(est.usage) : '';
+  const el = $('#storage-usage');
+  el.textContent = est?.usage ? formatBytes(est.usage) : '';
+  // alerte quand on approche du plafond du navigateur, ou après ~1,5 Go
+  const usage = est?.usage || 0;
+  const quota = est?.quota || 0;
+  const high = (quota && usage / quota > 0.8) || usage > 1.5e9;
+  el.classList.toggle('warn', high);
+  el.title = high ? tr('topbar.storageWarn') : tr('topbar.storageTitle');
+  if (high && !_storageWarned) {
+    _storageWarned = true;
+    showHint(tr('topbar.storageWarn'));
+  } else if (!high) {
+    _storageWarned = false;
+  }
 }
 
 let _pillOn = false;
@@ -726,6 +744,7 @@ function wireToolbar() {
   $('#tp-heal').addEventListener('click', () => adjustHp(+1));
 
   $('#tp-dup').addEventListener('click', duplicateSelectedTokens);
+  $('#tp-save-template').addEventListener('click', saveTokenAsTemplate);
   $('#tp-delete').addEventListener('click', async () => {
     stage.tokens = stage.tokens.filter((x) => x.id !== stage.selectedTokenId);
     stage.clearSelection();
@@ -1721,9 +1740,9 @@ function wireCanvas() {
   });
 }
 
-/** Crée un token (disque par défaut) à la position monde donnée et le sélectionne.
- *  Le nom / les PV se règlent depuis la liste (+ nom, + PV) ou l'engrenage ⚙. */
-async function createTokenAt(worldPos) {
+/** Crée un token à la position monde donnée et le sélectionne. `overrides` : champs
+ *  pré-remplis (depuis un modèle). Le nom / les PV se règlent depuis la liste ou ⚙. */
+async function createTokenAt(worldPos, overrides = {}) {
   if (!stage.scene) return;
   const t = {
     id: uid('t'),
@@ -1732,13 +1751,17 @@ async function createTokenAt(worldPos) {
     initiative: null,
     color: '#c0392b',
     imageRef: null,
-    pos: worldPos,
     sizeCells: 1,
     visibleToPlayers: true,
     hpMax: null,
     hp: null,
     hpShare: 'off',
+    ...overrides,
+    id: uid('t'),
+    pos: worldPos,
   };
+  if (t.hpMax > 0) { if (t.hp == null) t.hp = t.hpMax; } else { t.hpMax = null; t.hp = null; }
+  if (Array.isArray(t.conditions) && !t.conditions.length) delete t.conditions;
   stage.tokens.push(t);
   stage.selectOnly(t.id);
   applySelectionUI();
@@ -1751,6 +1774,64 @@ async function createTokenAt(worldPos) {
 function quickAddToken() {
   if (!stage.scene) return;
   createTokenAt(stage.snapWorld(stage.screenToWorld({ x: stage.cssW / 2, y: stage.cssH / 2 })));
+}
+
+// ---------------------------------------------------------------- modèles de créature
+function renderTemplates() {
+  const host = $('#template-list');
+  if (!host) return;
+  host.innerHTML = '';
+  for (const tpl of templates) {
+    const chip = el('div', { class: 'tpl-chip', title: tr('templates.placeTitle', { name: tpl.name }) });
+    const sw = (tpl.imageRef && thumbUrls.get(tpl.imageRef))
+      ? el('img', { class: 'tpl-sw', src: thumbUrls.get(tpl.imageRef), alt: '' })
+      : el('span', { class: 'tpl-sw' });
+    if (!tpl.imageRef) sw.style.background = tpl.color || '#c0392b';
+    const x = el('button', { class: 'tpl-x', text: '✕', title: tr('templates.deleteTitle') });
+    x.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (await askConfirm(tr('templates.confirmDelete', { name: tpl.name }))) {
+        await db.del('templates', tpl.id);
+        await reloadAll();
+      }
+    });
+    chip.append(sw, el('span', { class: 'tpl-name', text: tpl.name }), x);
+    chip.addEventListener('click', () => {
+      if (!stage.scene) return;
+      createTokenAt(stage.snapWorld(stage.screenToWorld({ x: stage.cssW / 2, y: stage.cssH / 2 })), {
+        label: tpl.name,
+        color: tpl.color,
+        type: tpl.type ?? null,
+        sizeCells: tpl.sizeCells || 1,
+        hpMax: tpl.hpMax || null,
+        hp: tpl.hpMax || null,
+        hpShare: tpl.hpShare || 'off',
+        conditions: [...(tpl.conditions || [])],
+        imageRef: tpl.imageRef || null,
+      });
+    });
+    host.append(chip);
+  }
+}
+
+async function saveTokenAsTemplate() {
+  const t = stage.tokens.find((x) => x.id === stage.selectedTokenId);
+  if (!t) return;
+  const name = ((await askPrompt(tr('templates.namePrompt'), { value: t.label || '' })) || '').trim();
+  if (!name) return;
+  await db.put('templates', {
+    id: uid('tpl'),
+    name,
+    color: t.color || '#c0392b',
+    type: t.type ?? null,
+    sizeCells: t.sizeCells || 1,
+    hpMax: t.hpMax || null,
+    hpShare: t.hpShare || 'off',
+    conditions: Array.isArray(t.conditions) ? [...t.conditions] : [],
+    imageRef: t.imageRef || null,
+  });
+  await reloadAll();
+  showHint(tr('templates.saved', { name }));
 }
 
 // ---------------------------------------------------------------- clavier
@@ -1795,6 +1876,16 @@ function wireKeyboard() {
       stage.clearSelection();
       $('#token-props').classList.add('hidden');
       applySelectionUI();
+      afterTokenEdit();
+    }
+    // flèches : décale le(s) token(s) sélectionné(s) d'une case
+    if (e.key.startsWith('Arrow') && stage.selectedIds.size) {
+      e.preventDefault();
+      const cell = stage.scene?.grid?.cellPx || 70;
+      const dx = (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0) * cell;
+      const dy = (e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0) * cell;
+      for (const t of stage.selectedTokens()) t.pos = { x: t.pos.x + dx, y: t.pos.y + dy };
+      stage.invalidate();
       afterTokenEdit();
     }
     if (e.key === 'Escape') {

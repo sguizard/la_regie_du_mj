@@ -2,6 +2,22 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.2.0] - 2026-08-30
+
+Modèles de créature, confort de placement, et exécutables macOS / Linux.
+
+### Ajouté
+- **Modèles de créature** : enregistre un token complet réutilisable (nom, PV,
+  couleur, type, taille, image, états) via ⚙ → « ⭐ Enregistrer comme modèle ». Une
+  puce par modèle sous « + Ajouter un token » ; clic = pose un token pré-rempli. Les
+  modèles sont partagés entre toutes les scènes et inclus dans l'export/import.
+  (IndexedDB passe en version 2 — nouveau magasin `templates`.)
+- **Flèches du clavier** : décalent d'une case le(s) token(s) sélectionné(s).
+- **Alerte de stockage** : l'indicateur d'espace passe en doré (infobulle + message)
+  au-delà de ~1,5 Go ou 80 % du quota du navigateur, pour penser à exporter.
+- **Exécutables autonomes macOS (Apple Silicon) et Linux** dans les releases, en plus
+  de Windows (même approche PyInstaller, build multi-plateforme).
+
 ## [1.1.0] - 2026-08-30
 
 Amélioration de la vue joueurs.
