@@ -2,6 +2,20 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.4.0] - 2026-09-02
+
+### Ajouté
+- **Sélection multiple de cartes** dans la barre latérale, avec les mêmes gestes que la
+  liste des tokens : `Ctrl`/`Cmd`+clic pour ajouter ou retirer, `Maj`+clic pour une
+  plage (y compris d'un deck à l'autre), `Échap` pour revenir à la carte ouverte. Le
+  groupe se glisse d'un deck à l'autre en conservant son ordre relatif ; les boutons ⧉
+  et ✕ d'une carte sélectionnée agissent sur tout le groupe, la suppression ne
+  demandant qu'une seule confirmation qui annonce le nombre de cartes.
+- **Réordonner les decks** en glissant leur en-tête au-dessus ou au-dessous d'un autre
+  deck, avec un trait indiquant le point d'insertion. « Sans deck » reste épinglé en
+  tête. L'ordre est enregistré (le champ `order` des decks était déjà persisté mais
+  n'avait aucune interface).
+
 ## [1.3.3] - 2026-09-02
 
 ### Corrigé

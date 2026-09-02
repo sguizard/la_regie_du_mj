@@ -131,6 +131,10 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
   flex: 0 0 auto;
 }
 .deck.drag-over { outline: 2px solid var(--accent-2); }
+/* Réordonnancement : trait d'insertion au-dessus ou au-dessous du deck visé. */
+.deck.dragging { opacity: .5; }
+.deck-drop-before { box-shadow: inset 0 3px 0 var(--accent); }
+.deck-drop-after { box-shadow: inset 0 -3px 0 var(--accent); }
 .deck-head {
   display: flex; align-items: center; gap: 6px;
   padding: 6px 8px; cursor: pointer; user-select: none;
@@ -169,6 +173,9 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .scene-row:hover { background: #2d3242; }
 .scene-row.selected { background: #34405c; }
 .scene-row.presenting { box-shadow: inset 3px 0 0 var(--accent); }
+/* Multi-sélection : même repère que les lignes de tokens (.tl-row.sel). */
+.scene-row.sel { box-shadow: inset 0 0 0 1px var(--accent); }
+.scene-row.sel.presenting { box-shadow: inset 0 0 0 1px var(--accent), inset 3px 0 0 var(--accent); }
 .scene-thumb {
   width: 44px; height: 32px; object-fit: cover; border-radius: 4px;
   background: #0c0d11; flex: 0 0 auto;

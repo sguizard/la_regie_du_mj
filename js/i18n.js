@@ -194,6 +194,7 @@ const DICT = {
     'confirm.wipe': 'Effacer TOUTES les cartes, decks et tokens ? Action irréversible.',
     'confirm.deleteDeck': 'Supprimer ce deck ? Les cartes seront déplacées vers « Sans deck ».',
     'confirm.deleteScene': 'Supprimer la carte « {name} » ? Sa grille, ses tokens et son brouillard seront perdus. Action irréversible.',
+    'confirm.deleteScenes': 'Supprimer les {count} cartes sélectionnées ? Leurs grilles, tokens et brouillards seront perdus. Action irréversible.',
 
     'player.waiting': 'En attente du MJ…',
     'player.fullscreenTitle': 'Plein écran',
@@ -392,6 +393,7 @@ const DICT = {
     'confirm.wipe': 'Erase ALL maps, decks and tokens? This cannot be undone.',
     'confirm.deleteDeck': 'Delete this deck? Its maps will move to "No deck".',
     'confirm.deleteScene': 'Delete the map "{name}"? Its grid, tokens and fog will be lost. This cannot be undone.',
+    'confirm.deleteScenes': 'Delete the {count} selected maps? Their grids, tokens and fog will be lost. This cannot be undone.',
 
     'player.waiting': 'Waiting for the GM…',
     'player.fullscreenTitle': 'Fullscreen',
@@ -590,6 +592,7 @@ const DICT = {
     'confirm.wipe': '¿Borrar TODOS los mapas, mazos y tokens? Acción irreversible.',
     'confirm.deleteDeck': '¿Eliminar este mazo? Los mapas pasarán a «Sin mazo».',
     'confirm.deleteScene': '¿Eliminar el mapa «{name}»? Se perderán su cuadrícula, sus tokens y su niebla. Acción irreversible.',
+    'confirm.deleteScenes': '¿Eliminar los {count} mapas seleccionados? Se perderán sus cuadrículas, tokens y nieblas. Acción irreversible.',
 
     'player.waiting': 'Esperando al Máster…',
     'player.fullscreenTitle': 'Pantalla completa',

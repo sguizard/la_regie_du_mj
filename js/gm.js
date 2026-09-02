@@ -17,7 +17,8 @@ let templates = [];
 const tokenImages = new Map();      // id -> ImageBitmap
 const thumbUrls = new Map();        // id -> objectURL (scènes + tokens)
 
-let selectedId = null;              // scène ouverte dans l'éditeur
+let selectedId = null;              // scène ouverte dans l'éditeur (= ancre de la plage Maj)
+let sceneSel = new Set();           // sélection multiple dans la barre latérale
 let presentingId = null;            // scène poussée aux joueurs
 let tool = 'move';
 let brushPx = 90;                   // diamètre en px écran
@@ -179,6 +180,7 @@ async function reloadAll() {
     }
   }
   stage.setTokenImages(tokenImages);
+  pruneSceneSel();
   renderSidebar();
   renderAppearance();
   renderTemplates();
@@ -272,6 +274,7 @@ async function wipeAll() {
   thumbUrls.clear(); tokenImages.clear();
   decks = []; scenes = []; tokenLib = []; templates = [];
   selectedId = presentingId = null;
+  sceneSel.clear();
   if (blackout) await setBlackout(false);
   stage.setScene(null, null);
   bus.send({ t: 'clear' });
@@ -428,14 +431,37 @@ async function importCampaign(file) {
 
 function renderSidebar() { renderDeckList(); }
 
+// ---------------------------------------------------------------- sélection de cartes
+/** Cartes d'un deck, filtrées par la recherche et triées comme à l'affichage. */
+function scenesOfDeck(deckId) {
+  const q = $('#search').value.trim().toLowerCase();
+  const list = scenes.filter((s) => (s.deckId ?? null) === deckId);
+  return q ? list.filter((s) => s.name.toLowerCase().includes(q)) : list;
+}
+
+/** Ordre à plat des cartes telles qu'affichées — sert de repère à la plage Maj. */
+function visibleSceneOrder() {
+  return [null, ...decks.map((d) => d.id)].flatMap((id) => scenesOfDeck(id));
+}
+
+/** Retire de la sélection les cartes qui n'existent plus. */
+function pruneSceneSel() {
+  for (const id of [...sceneSel]) if (!scenes.some((s) => s.id === id)) sceneSel.delete(id);
+}
+
+/** Cartes sélectionnées, dans l'ordre d'affichage (l'ordre du Set ne veut rien dire). */
+function selectedScenes() {
+  return visibleSceneOrder().filter((s) => sceneSel.has(s.id));
+}
+
 function deckSection(deckId, title, removable) {
   const q = $('#search').value.trim().toLowerCase();
-  let list = scenes.filter((s) => (s.deckId ?? null) === deckId);
-  if (q) list = list.filter((s) => s.name.toLowerCase().includes(q));
+  const list = scenesOfDeck(deckId);
   if (q && !list.length) return null;
 
   const wrap = el('div', { class: 'deck', 'data-deck': deckId ?? '' });
-  const head = el('div', { class: 'deck-head' }, [
+  // Seuls les vrais decks se réordonnent : « Sans deck » reste épinglé en tête.
+  const head = el('div', { class: 'deck-head', draggable: removable ? 'true' : null }, [
     el('span', { class: 'deck-caret', text: '▾' }),
     el('span', { class: 'deck-title', text: title, title: tr('deck.renameTitle') }),
     el('span', { class: 'deck-count', text: String(list.length) }),
@@ -447,15 +473,28 @@ function deckSection(deckId, title, removable) {
   }
   head.addEventListener('click', () => wrap.classList.toggle('collapsed'));
   if (removable) {
+    head.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/deck-id', deckId);
+      e.dataTransfer.effectAllowed = 'move';
+      wrap.classList.add('dragging');
+    });
+    head.addEventListener('dragend', () => {
+      wrap.classList.remove('dragging');
+      $$('.deck').forEach((d) => d.classList.remove('deck-drop-before', 'deck-drop-after'));
+    });
+
     const titleEl = head.querySelector('.deck-title');
     titleEl.addEventListener('dblclick', (e) => {
       e.stopPropagation();
+      // Sans ceci, le glisser du deck capte la souris et empêche de sélectionner le texte.
+      head.setAttribute('draggable', 'false');
       titleEl.setAttribute('contenteditable', 'true');
       titleEl.focus();
       document.execCommand?.('selectAll', false, null);
     });
     titleEl.addEventListener('blur', async () => {
       titleEl.removeAttribute('contenteditable');
+      head.setAttribute('draggable', 'true');
       const d = decks.find((x) => x.id === deckId);
       if (d && titleEl.textContent.trim()) { d.name = titleEl.textContent.trim(); await db.put('decks', d); }
       else renderSidebar();
@@ -466,17 +505,41 @@ function deckSection(deckId, title, removable) {
   const body = el('div', { class: 'deck-scenes' });
   for (const s of list) body.append(sceneRow(s));
 
-  // drop d'une scène vers ce deck
+  // drop de carte(s) vers ce deck, ou d'un autre deck pour le réordonner
   ;['dragenter', 'dragover'].forEach((ev) => wrap.addEventListener(ev, (e) => {
-    if (e.dataTransfer.types.includes('text/scene-id')) { e.preventDefault(); wrap.classList.add('drag-over'); }
+    const types = e.dataTransfer.types;
+    if (types.includes('text/scene-id')) {
+      e.preventDefault();
+      wrap.classList.add('drag-over');
+    } else if (removable && types.includes('text/deck-id') && !wrap.classList.contains('dragging')) {
+      e.preventDefault();
+      // Moitié haute = insérer avant, moitié basse = insérer après.
+      const r = wrap.getBoundingClientRect();
+      const before = e.clientY < r.top + r.height / 2;
+      wrap.classList.toggle('deck-drop-before', before);
+      wrap.classList.toggle('deck-drop-after', !before);
+    }
   }));
-  wrap.addEventListener('dragleave', () => wrap.classList.remove('drag-over'));
+  wrap.addEventListener('dragleave', (e) => {
+    if (e.relatedTarget && wrap.contains(e.relatedTarget)) return; // toujours à l'intérieur
+    wrap.classList.remove('drag-over', 'deck-drop-before', 'deck-drop-after');
+  });
   wrap.addEventListener('drop', async (e) => {
-    wrap.classList.remove('drag-over');
-    const id = e.dataTransfer.getData('text/scene-id');
-    if (!id || e.target.closest('.scene-row')) return; // le drop sur une ligne est géré ailleurs
+    const before = wrap.classList.contains('deck-drop-before');
+    wrap.classList.remove('drag-over', 'deck-drop-before', 'deck-drop-after');
+
+    const draggedDeck = e.dataTransfer.getData('text/deck-id');
+    if (draggedDeck) {
+      if (!removable || draggedDeck === deckId) return;
+      e.preventDefault();
+      await moveDeck(draggedDeck, deckId, before);
+      return;
+    }
+
+    const ids = draggedSceneIds(e);
+    if (!ids.length || e.target.closest('.scene-row')) return; // le drop sur une ligne est géré ailleurs
     e.preventDefault();
-    await moveScene(id, deckId, null);
+    await moveScenes(ids, deckId, null);
   });
 
   wrap.append(head, body);
@@ -496,19 +559,46 @@ function renderDeckList() {
 
 function sceneRow(s) {
   const row = el('div', {
-    class: 'scene-row' + (s.id === selectedId ? ' selected' : '') + (s.id === presentingId ? ' presenting' : ''),
+    class: 'scene-row' + (s.id === selectedId ? ' selected' : '') + (s.id === presentingId ? ' presenting' : '')
+      + (sceneSel.has(s.id) ? ' sel' : ''),
     draggable: 'true',
   });
   const thumb = el('img', { class: 'scene-thumb', alt: '' });
   if (thumbUrls.has(s.id)) thumb.src = thumbUrls.get(s.id);
   const label = el('span', { class: 'scene-label', text: s.name, title: s.name });
+
+  // ⧉ et ✕ agissent sur toute la sélection quand cette ligne en fait partie.
+  const inSel = () => sceneSel.has(s.id) && sceneSel.size > 1;
   const dup = el('button', { class: 'scene-dup', title: tr('scene.duplicateTitle'), text: '⧉' });
-  dup.addEventListener('click', (e) => { e.stopPropagation(); duplicateScene(s.id); });
+  dup.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (inSel()) duplicateScenes(selectedScenes().map((x) => x.id)); else duplicateScene(s.id);
+  });
   const del = el('button', { class: 'scene-del', title: tr('scene.deleteTitle'), text: '✕' });
-  del.addEventListener('click', (e) => { e.stopPropagation(); deleteScene(s.id); });
+  del.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (inSel()) deleteScenes(selectedScenes().map((x) => x.id)); else deleteScene(s.id);
+  });
   row.append(thumb, label, dup, del);
 
-  row.addEventListener('click', () => selectScene(s.id));
+  row.addEventListener('click', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      if (sceneSel.has(s.id)) sceneSel.delete(s.id); else sceneSel.add(s.id);
+      renderSidebar();
+    } else if (e.shiftKey && selectedId) {
+      const order = visibleSceneOrder();
+      const a = order.findIndex((x) => x.id === selectedId);
+      const b = order.findIndex((x) => x.id === s.id);
+      if (a >= 0 && b >= 0) {
+        const [lo, hi] = a < b ? [a, b] : [b, a];
+        for (const x of order.slice(lo, hi + 1)) sceneSel.add(x.id);
+        renderSidebar();
+      }
+    } else {
+      sceneSel = new Set([s.id]);
+      selectScene(s.id);
+    }
+  });
   label.addEventListener('dblclick', (e) => {
     e.stopPropagation();
     label.setAttribute('contenteditable', 'true');
@@ -523,32 +613,76 @@ function sceneRow(s) {
   label.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); label.blur(); } });
 
   row.addEventListener('dragstart', (e) => {
-    e.dataTransfer.setData('text/scene-id', s.id);
+    // Glisser une ligne hors sélection ramène la sélection à cette seule ligne
+    // (même règle que les tokens sur le plateau).
+    if (!sceneSel.has(s.id)) { sceneSel = new Set([s.id]); renderSidebar(); }
+    const ids = selectedScenes().map((x) => x.id);
+    e.dataTransfer.setData('text/scene-id', s.id);          // les anciens gestionnaires testent ce type
+    e.dataTransfer.setData('text/scene-ids', JSON.stringify(ids));
     e.dataTransfer.effectAllowed = 'move';
   });
   ;['dragenter', 'dragover'].forEach((ev) => row.addEventListener(ev, (e) => {
     if (e.dataTransfer.types.includes('text/scene-id')) { e.preventDefault(); e.stopPropagation(); }
   }));
   row.addEventListener('drop', async (e) => {
-    const id = e.dataTransfer.getData('text/scene-id');
-    if (!id || id === s.id) return;
+    const ids = draggedSceneIds(e);
+    if (!ids.length || ids.includes(s.id)) return;   // pas de dépôt sur soi-même
     e.preventDefault(); e.stopPropagation();
-    await moveScene(id, s.deckId ?? null, s);
+    await moveScenes(ids, s.deckId ?? null, s);
   });
   return row;
 }
 
-async function moveScene(id, deckId, afterScene) {
-  const s = scenes.find((x) => x.id === id);
-  if (!s) return;
-  s.deckId = deckId;
-  // réordonner : placer juste après afterScene, sinon à la fin du deck
-  const siblings = scenes.filter((x) => (x.deckId ?? null) === deckId && x.id !== id)
+/** Ids des cartes portées par un événement de glisser (une seule ou tout un groupe). */
+function draggedSceneIds(e) {
+  const many = e.dataTransfer.getData('text/scene-ids');
+  if (many) { try { return JSON.parse(many); } catch { /* format inattendu */ } }
+  const one = e.dataTransfer.getData('text/scene-id');
+  return one ? [one] : [];
+}
+
+/**
+ * Déplace une ou plusieurs cartes vers `deckId`, insérées en bloc juste après
+ * `afterScene` (ou à la fin). Les cartes peuvent venir de decks différents ; leur
+ * ordre relatif d'affichage est conservé.
+ */
+async function moveScenes(ids, deckId, afterScene) {
+  const moving = visibleSceneOrder().filter((s) => ids.includes(s.id));
+  if (!moving.length) return;
+
+  const touched = new Set(moving);
+  // Les decks d'origine se retrouvent avec des trous : il faut aussi les renuméroter.
+  const sourceDecks = new Set(moving.map((s) => s.deckId ?? null));
+  for (const s of moving) s.deckId = deckId;
+
+  const siblings = scenes.filter((x) => (x.deckId ?? null) === deckId && !ids.includes(x.id))
     .sort((a, b) => a.order - b.order);
   const idx = afterScene ? siblings.findIndex((x) => x.id === afterScene.id) + 1 : siblings.length;
-  siblings.splice(idx, 0, s);
-  siblings.forEach((x, i) => { x.order = i + 1; });
-  await Promise.all(siblings.map((x) => db.put('scenes', x)));
+  siblings.splice(idx, 0, ...moving);
+  siblings.forEach((x, i) => { x.order = i + 1; touched.add(x); });
+
+  for (const src of sourceDecks) {
+    if (src === deckId) continue;
+    scenes.filter((x) => (x.deckId ?? null) === src).sort((a, b) => a.order - b.order)
+      .forEach((x, i) => { x.order = i + 1; touched.add(x); });
+  }
+
+  await Promise.all([...touched].map((x) => db.put('scenes', x)));
+  await reloadAll();
+}
+
+/** Réordonne un deck : l'insère avant ou après `targetId`. */
+async function moveDeck(dragId, targetId, before) {
+  const dragged = decks.find((d) => d.id === dragId);
+  if (!dragged || dragId === targetId) return;
+
+  const rest = decks.filter((d) => d.id !== dragId);
+  const at = rest.findIndex((d) => d.id === targetId);
+  if (at < 0) return;
+  rest.splice(before ? at : at + 1, 0, dragged);
+  rest.forEach((d, i) => { d.order = i + 1; });
+
+  await Promise.all(rest.map((d) => db.put('decks', d)));
   await reloadAll();
 }
 
@@ -559,16 +693,15 @@ async function removeDeck(deckId) {
   await reloadAll();
 }
 
-async function duplicateScene(id) {
-  const s = scenes.find((x) => x.id === id);
-  if (!s) return;
-  const sib = scenes.filter((x) => (x.deckId ?? null) === (s.deckId ?? null));
-  const copy = {
+/** Copie d'une carte, placée en fin de son deck. `nextOrder` évite les collisions
+ *  d'ordre quand on duplique plusieurs cartes du même deck d'un seul coup. */
+function sceneCopy(s, nextOrder) {
+  return {
     id: uid('scene'),
     kind: s.kind || 'battlemap',
     name: `${s.name} ${tr('scene.copySuffix')}`,
     deckId: s.deckId ?? null,
-    order: sib.reduce((m, x) => Math.max(m, x.order ?? 0), 0) + 1,
+    order: nextOrder,
     grid: structuredClone(s.grid ?? null),
     tokens: structuredClone(s.tokens ?? []),
     combat: structuredClone(s.combat ?? null),
@@ -576,25 +709,72 @@ async function duplicateScene(id) {
     thumbBlob: s.thumbBlob,
     fogBlob: s.fogBlob ?? null,
   };
+}
+
+/** Prochain `order` libre dans un deck. */
+function nextSceneOrder(deckId) {
+  return scenes.filter((x) => (x.deckId ?? null) === deckId)
+    .reduce((m, x) => Math.max(m, x.order ?? 0), 0) + 1;
+}
+
+async function duplicateScene(id) {
+  const s = scenes.find((x) => x.id === id);
+  if (!s) return;
+  const copy = sceneCopy(s, nextSceneOrder(s.deckId ?? null));
   await db.put('scenes', copy);
   await reloadAll();
   await selectScene(copy.id);
+}
+
+/** Duplique plusieurs cartes d'un coup ; les copies deviennent la nouvelle sélection. */
+async function duplicateScenes(ids) {
+  const list = visibleSceneOrder().filter((s) => ids.includes(s.id));
+  if (!list.length) return;
+
+  const nextByDeck = new Map();
+  const copies = list.map((s) => {
+    const deckId = s.deckId ?? null;
+    const order = nextByDeck.get(deckId) ?? nextSceneOrder(deckId);
+    nextByDeck.set(deckId, order + 1);
+    return sceneCopy(s, order);
+  });
+
+  await Promise.all(copies.map((c) => db.put('scenes', c)));
+  sceneSel = new Set(copies.map((c) => c.id));
+  await reloadAll();
+  refreshStorage();
 }
 
 async function deleteScene(id) {
   const s = scenes.find((x) => x.id === id);
   if (!s) return;
   if (!(await askConfirm(tr('confirm.deleteScene', { name: s.name })))) return;
+  await removeScenes([id]);
+}
 
-  await db.del('scenes', id);
-  if (thumbUrls.has(id)) { URL.revokeObjectURL(thumbUrls.get(id)); thumbUrls.delete(id); }
+/** Suppression groupée : une seule confirmation, qui annonce le nombre de cartes. */
+async function deleteScenes(ids) {
+  const list = ids.filter((id) => scenes.some((s) => s.id === id));
+  if (!list.length) return;
+  if (list.length === 1) return deleteScene(list[0]);
+  if (!(await askConfirm(tr('confirm.deleteScenes', { count: list.length })))) return;
+  await removeScenes(list);
+}
 
-  if (id === presentingId) {
+/** Retire les cartes de la base et remet l'interface d'aplomb. Ne demande rien. */
+async function removeScenes(ids) {
+  for (const id of ids) {
+    await db.del('scenes', id);
+    if (thumbUrls.has(id)) { URL.revokeObjectURL(thumbUrls.get(id)); thumbUrls.delete(id); }
+    sceneSel.delete(id);
+  }
+
+  if (ids.includes(presentingId)) {
     presentingId = null;
     await db.setMeta('presentingSceneId', null);
     bus.send({ t: 'clear' });
   }
-  if (id === selectedId) {
+  if (ids.includes(selectedId)) {
     selectedId = null;
     await db.setMeta('gmSceneId', null);
     stage.setScene(null, null);
@@ -618,6 +798,8 @@ async function selectScene(id) {
   const s = scenes.find((x) => x.id === id);
   if (!s) return;
   selectedId = id;
+  // La carte ouverte fait toujours partie de la sélection : elle sert d'ancre à Maj.
+  if (!sceneSel.has(id)) sceneSel = new Set([id]);
   await db.setMeta('gmSceneId', id);
   $('#scene-name').textContent = s.name;
   $('#btn-present').disabled = false;
@@ -1974,6 +2156,8 @@ function wireKeyboard() {
     if (e.key === 'Escape') {
       stage.clearSelection();
       applySelectionUI();
+      // Replie la multi-sélection de cartes sur la seule carte ouverte.
+      if (sceneSel.size > 1) { sceneSel = selectedId ? new Set([selectedId]) : new Set(); renderSidebar(); }
       stage.setRuler(null);
       if (tool === 'frame' || tool === 'ruler') setTool('move');
       closeFloaties(); closeAppearanceMenu(); calibrating = false; stage.setCalibrateRect(null); hideHint();

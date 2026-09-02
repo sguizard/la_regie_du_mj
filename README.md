@@ -203,6 +203,22 @@ est répercuté en direct sur la vue joueurs.
 deck ou de scène pour le renommer. La barre de recherche filtre par nom. Un deck qui
 contient beaucoup de cartes défile sur lui-même : les autres decks restent visibles.
 
+**Réordonner les decks** : glisse l'en-tête d'un deck au-dessus ou au-dessous d'un
+autre. « Sans deck » reste toujours en tête.
+
+**Sélectionner plusieurs cartes** (mêmes gestes que la liste des tokens) :
+
+| Geste | Effet |
+|---|---|
+| Clic | Sélectionne cette carte seule et l'ouvre |
+| `Ctrl`/`Cmd` + clic | Ajoute ou retire une carte de la sélection |
+| `Maj` + clic | Sélectionne toute la plage depuis la carte ouverte, y compris d'un deck à l'autre |
+| `Échap` | Revient à la seule carte ouverte |
+
+Glisse ensuite le groupe vers un autre deck : les cartes gardent leur ordre relatif.
+Les boutons **⧉** et **✕** d'une carte sélectionnée agissent sur tout le groupe — la
+suppression demande une seule confirmation, qui annonce le nombre de cartes.
+
 ### Raccourcis clavier (régie)
 | Touche | Action |
 |---|---|

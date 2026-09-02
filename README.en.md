@@ -193,6 +193,22 @@ the player view.
 to rename it. The search bar filters by name. A deck holding many cards scrolls on its
 own, so the other decks stay visible.
 
+**Reorder decks**: drag a deck header above or below another one. "No deck" always
+stays on top.
+
+**Select several maps** (same gestures as the token list):
+
+| Gesture | Effect |
+|---|---|
+| Click | Selects that map alone and opens it |
+| `Ctrl`/`Cmd` + click | Adds or removes a map from the selection |
+| `Shift` + click | Selects the whole range from the open map, across decks too |
+| `Esc` | Falls back to the open map alone |
+
+Then drag the group onto another deck: the maps keep their relative order. The **⧉**
+and **✕** buttons of a selected map act on the whole group — deletion asks for a
+single confirmation stating how many maps are involved.
+
 ### Keyboard shortcuts (console)
 
 | Key | Action |

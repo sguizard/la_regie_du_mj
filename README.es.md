@@ -208,6 +208,22 @@ refleja en directo en la vista de jugadores.
 mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre. Un mazo con
 muchas cartas se desplaza por sí solo: los demás mazos siguen visibles.
 
+**Reordenar los mazos**: arrastra la cabecera de un mazo por encima o por debajo de
+otro. «Sin mazo» permanece siempre arriba.
+
+**Seleccionar varios mapas** (los mismos gestos que la lista de tokens):
+
+| Gesto | Efecto |
+|---|---|
+| Clic | Selecciona ese mapa solo y lo abre |
+| `Ctrl`/`Cmd` + clic | Añade o quita un mapa de la selección |
+| `Mayús` + clic | Selecciona todo el rango desde el mapa abierto, incluso entre mazos |
+| `Esc` | Vuelve al mapa abierto únicamente |
+
+Después arrastra el grupo a otro mazo: los mapas conservan su orden relativo. Los
+botones **⧉** y **✕** de un mapa seleccionado actúan sobre todo el grupo — la
+eliminación pide una sola confirmación, que indica cuántos mapas hay.
+
 ### Atajos de teclado (consola)
 
 | Tecla | Acción |
