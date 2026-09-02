@@ -205,7 +205,8 @@ refleja en directo en la vista de jugadores.
 ### Mazos
 
 **+ Nuevo mazo**, luego arrastra las miniaturas al mazo. Doble clic en el nombre de un
-mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre.
+mazo o escena para renombrarlo. La barra de búsqueda filtra por nombre. Un mazo con
+muchas cartas se desplaza por sí solo: los demás mazos siguen visibles.
 
 ### Atajos de teclado (consola)
 
