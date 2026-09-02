@@ -19,6 +19,9 @@ const thumbUrls = new Map();        // id -> objectURL (scènes + tokens)
 
 let selectedId = null;              // scène ouverte dans l'éditeur (= ancre de la plage Maj)
 let sceneSel = new Set();           // sélection multiple dans la barre latérale
+// Decks pliés, par id (chaîne vide pour « Sans deck »). Doit vivre hors du DOM :
+// renderDeckList() reconstruit la liste entière, ce qui effacerait la classe CSS.
+const collapsedDecks = new Set();
 let presentingId = null;            // scène poussée aux joueurs
 let tool = 'move';
 let brushPx = 90;                   // diamètre en px écran
@@ -275,6 +278,7 @@ async function wipeAll() {
   decks = []; scenes = []; tokenLib = []; templates = [];
   selectedId = presentingId = null;
   sceneSel.clear();
+  collapsedDecks.clear();
   if (blackout) await setBlackout(false);
   stage.setScene(null, null);
   bus.send({ t: 'clear' });
@@ -459,7 +463,10 @@ function deckSection(deckId, title, removable) {
   const list = scenesOfDeck(deckId);
   if (q && !list.length) return null;
 
-  const wrap = el('div', { class: 'deck', 'data-deck': deckId ?? '' });
+  // Une recherche en cours déplie tout : sinon ses résultats resteraient cachés.
+  const key = deckId ?? '';
+  const collapsed = !q && collapsedDecks.has(key);
+  const wrap = el('div', { class: 'deck' + (collapsed ? ' collapsed' : ''), 'data-deck': key });
   // Seuls les vrais decks se réordonnent : « Sans deck » reste épinglé en tête.
   const head = el('div', { class: 'deck-head', draggable: removable ? 'true' : null }, [
     el('span', { class: 'deck-caret', text: '▾' }),
@@ -471,7 +478,10 @@ function deckSection(deckId, title, removable) {
     del.addEventListener('click', (e) => { e.stopPropagation(); removeDeck(deckId); });
     head.append(del);
   }
-  head.addEventListener('click', () => wrap.classList.toggle('collapsed'));
+  head.addEventListener('click', () => {
+    const now = wrap.classList.toggle('collapsed');
+    if (now) collapsedDecks.add(key); else collapsedDecks.delete(key);
+  });
   if (removable) {
     head.addEventListener('dragstart', (e) => {
       e.dataTransfer.setData('text/deck-id', deckId);
@@ -690,6 +700,7 @@ async function removeDeck(deckId) {
   if (!(await askConfirm(tr('confirm.deleteDeck')))) return;
   for (const s of scenes.filter((x) => x.deckId === deckId)) { s.deckId = null; await db.put('scenes', s); }
   await db.del('decks', deckId);
+  collapsedDecks.delete(deckId);
   await reloadAll();
 }
 

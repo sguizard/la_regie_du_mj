@@ -4,6 +4,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ## [1.4.0] - 2026-09-02
 
+### Corrigé
+- **Les decks pliés se dépliaient tout seuls** dès qu'on cliquait sur une carte, ou à
+  n'importe quel autre rafraîchissement de la barre latérale : l'état plié n'existait
+  que comme classe CSS, effacée à chaque reconstruction de la liste. Il est désormais
+  conservé en mémoire. Une recherche en cours déplie temporairement les decks, pour ne
+  pas masquer ses résultats.
+
 ### Ajouté
 - **Sélection multiple de cartes** dans la barre latérale, avec les mêmes gestes que la
   liste des tokens : `Ctrl`/`Cmd`+clic pour ajouter ou retirer, `Maj`+clic pour une
