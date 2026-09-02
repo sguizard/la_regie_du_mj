@@ -200,7 +200,8 @@ est répercuté en direct sur la vue joueurs.
 
 ### Decks
 **+ Nouveau deck**, puis glisse les vignettes vers le deck. Double-clic sur un nom de
-deck ou de scène pour le renommer. La barre de recherche filtre par nom.
+deck ou de scène pour le renommer. La barre de recherche filtre par nom. Un deck qui
+contient beaucoup de cartes défile sur lui-même : les autres decks restent visibles.
 
 ### Raccourcis clavier (régie)
 | Touche | Action |

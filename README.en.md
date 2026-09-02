@@ -190,7 +190,8 @@ the player view.
 ### Decks
 
 **+ New deck**, then drag thumbnails onto the deck. Double-click a deck or scene name
-to rename it. The search bar filters by name.
+to rename it. The search bar filters by name. A deck holding many cards scrolls on its
+own, so the other decks stay visible.
 
 ### Keyboard shortcuts (console)
 
