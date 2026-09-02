@@ -5,10 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 ## [1.3.3] - 2026-09-02
 
 ### Corrigé
-- **Défilement propre à chaque deck** : un deck qui contient beaucoup de cartes est
-  désormais plafonné en hauteur (40 % de la fenêtre) et défile sur lui-même, au lieu
-  de s'étirer et de repousser les autres decks hors de vue. Les en-têtes des autres
-  decks restent visibles.
+- **Les cartes du bas d'un deck bien rempli étaient inatteignables** : le deck était
+  écrasé pour tenir dans la barre latérale au lieu de la faire déborder, si bien
+  qu'aucun défilement ne s'enclenchait et que les dernières cartes restaient coupées.
+  Chaque deck défile désormais sur lui-même (plafonné à 320 px), et la liste des decks
+  défile normalement quand ils sont nombreux.
 
 ## [1.3.2] - 2026-08-30
 

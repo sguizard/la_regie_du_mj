@@ -125,6 +125,10 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .deck {
   border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--bg-elev-2); overflow: hidden;
+  /* Sans ceci, le deck est un flex item qui rétrécit : il serait écrasé pour
+     tenir dans #deck-list au lieu de le faire déborder, et la liste ne
+     défilerait jamais — les cartes du bas deviennent alors inatteignables. */
+  flex: 0 0 auto;
 }
 .deck.drag-over { outline: 2px solid var(--accent-2); }
 .deck-head {
@@ -152,7 +156,10 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 
 .deck-scenes {
   display: flex; flex-direction: column; padding: 4px; gap: 3px;
-  min-height: 8px; max-height: 40vh; overflow-y: auto;
+  /* Le plafond doit rester sous la hauteur de #deck-list, sinon le défilement
+     interne ne s'enclenche jamais sur les grandes fenêtres (40vh y dépasse la
+     hauteur disponible). */
+  min-height: 8px; max-height: min(40vh, 320px); overflow-y: auto;
 }
 
 .scene-row {
