@@ -23,6 +23,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   tête. L'ordre est enregistré (le champ `order` des decks était déjà persisté mais
   n'avait aucune interface).
 
+### Modifié
+- **Initiative et DEF sont désormais l'une au-dessus de l'autre** dans les propriétés
+  d'un token comme dans l'édition multiple, au lieu d'être côte à côte : leurs champs
+  occupent toute la largeur du panneau.
+
 ## [1.3.3] - 2026-09-02
 
 ### Corrigé
