@@ -112,6 +112,11 @@ doivent tourner **dans le même navigateur sur la même machine**.
    import) ou revenir au disque.
    Ligne 2 : **⚙** (propriétés), **👁** visibilité joueurs, **✕** supprimer, barre de
    PV + PV modifiables, boutons **−/+** appliquant le **montant ±** en haut de la liste.
+   Ligne 3 (seulement si l'un des deux est renseigné) : **ATK** (bonus d'attaque,
+   affiché signé) et **DM** (dégâts en notation de dés — `2d6`, `1d8 + 3`), tous deux
+   modifiables sur place. On les renseigne via **⚙** ou un modèle de créature ; une
+   saisie de DM hors notation de dés est signalée en doré, mais jamais refusée.
+   Comme la DEF, ce sont des infos MJ, jamais transmises aux joueurs.
    Cliquer la ligne (ou le token sur la carte) le **sélectionne** et **centre la carte
    dessus** — sans ouvrir de fenêtre.
    - **Sélection multiple** : **Ctrl/⌘ + clic** (sur la carte ou dans la liste) ajoute

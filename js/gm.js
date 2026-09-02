@@ -913,6 +913,9 @@ function wireToolbar() {
     t.type = ['pj', 'pnj'].includes($('#tp-type').value) ? $('#tp-type').value : null;
     t.initiative = $('#tp-init').value === '' ? null : Math.round(+$('#tp-init').value);
     t.def = $('#tp-def').value === '' ? null : Math.round(+$('#tp-def').value);
+    t.atk = $('#tp-atk').value === '' ? null : Math.round(+$('#tp-atk').value);
+    t.dm = $('#tp-dm').value.trim() || null;
+    markDmValidity($('#tp-dm'));
     t.color = $('#tp-color').value;
     t.sizeCells = clamp(+$('#tp-size').value || 1, 0.25, 8);
     t.visibleToPlayers = $('#tp-visible').checked;
@@ -927,7 +930,8 @@ function wireToolbar() {
     }
     await commitToken();
   }, 150);
-  ['#tp-label', '#tp-color', '#tp-size', '#tp-hp', '#tp-hpmax', '#tp-init', '#tp-def'].forEach((s) => $(s).addEventListener('input', tpApply));
+  ['#tp-label', '#tp-color', '#tp-size', '#tp-hp', '#tp-hpmax', '#tp-init', '#tp-def', '#tp-atk', '#tp-dm']
+    .forEach((s) => $(s).addEventListener('input', tpApply));
   ['#tp-visible', '#tp-hpshare', '#tp-type'].forEach((s) => $(s).addEventListener('change', tpApply));
 
   const adjustHp = async (sign) => {
@@ -1298,6 +1302,9 @@ function applySelectionUI() {
     $('#mp-size').value = '';
     $('#mp-init').value = '';
     $('#mp-def').value = '';
+    $('#mp-atk').value = '';
+    $('#mp-dm').value = '';
+    markDmValidity($('#mp-dm'));
     $('#mp-hpmax').value = '';
     $('#mp-type').value = '';
     $('#mp-hpshare').value = '';
@@ -1339,6 +1346,9 @@ function openTokenProps(t) {
   $('#tp-type').value = t.type === 'pj' || t.type === 'pnj' ? t.type : '';
   $('#tp-init').value = t.initiative ?? '';
   $('#tp-def').value = t.def ?? '';
+  $('#tp-atk').value = t.atk ?? '';
+  $('#tp-dm').value = t.dm ?? '';
+  markDmValidity($('#tp-dm'));
   $('#tp-color').value = t.color || '#c0392b';
   $('#tp-size').value = t.sizeCells || 1;
   $('#tp-visible').checked = !!t.visibleToPlayers;
@@ -1450,6 +1460,19 @@ function wireMultiProps() {
     for (const t of sel()) t.def = v;
     commit();
   });
+  $('#mp-atk').addEventListener('change', (e) => {
+    if (e.target.value === '') return;
+    const v = Math.round(+e.target.value || 0);
+    for (const t of sel()) t.atk = v;
+    commit();
+  });
+  $('#mp-dm').addEventListener('input', (e) => markDmValidity(e.target));
+  $('#mp-dm').addEventListener('change', (e) => {
+    const v = e.target.value.trim();
+    if (v === '') return;
+    for (const t of sel()) t.dm = v;
+    commit();
+  });
   $('#mp-hpmax').addEventListener('change', (e) => {
     if (e.target.value === '') return;
     const v = Math.max(0, Math.round(+e.target.value || 0)) || null;
@@ -1485,6 +1508,29 @@ function renderTokenList() {
     return;
   }
   for (const t of sortedTokens()) host.append(tokenListRow(t));
+}
+
+// ---------------------------------------------------------------- ATK / DM
+/** Notation de dés attendue pour les dégâts : « 2d6 », « 1d8 + 3 », « 1d10-1 ». */
+const DM_RE = /^\s*\d*\s*d\s*\d+\s*(?:[+-]\s*\d+\s*)?$/i;
+
+/** Signale une saisie hors format sans jamais la refuser : en pleine partie,
+ *  mieux vaut une bordure orange qu'un champ qui se vide. */
+function markDmValidity(input) {
+  const v = input.value.trim();
+  input.classList.toggle('dm-odd', v !== '' && !DM_RE.test(v));
+}
+
+/** Bonus d'attaque affiché avec son signe, comme sur une fiche de personnage.
+ *  Le moins reste un tiret ASCII pour que la valeur se retape telle quelle. */
+function fmtAtk(v) {
+  return v == null ? '' : (v >= 0 ? '+' : '-') + Math.abs(v);
+}
+
+/** Lit un bonus d'attaque saisi à la main : « +5 », « 5 » et « -1 » sont acceptés. */
+function parseAtk(s) {
+  const v = parseInt(String(s).replace(/[−–—]/g, '-').replace(/\s|\+/g, ''), 10);
+  return Number.isFinite(v) ? v : null;
 }
 
 /** Copie triée de stage.tokens pour l'affichage (n'altère pas l'ordre de rendu). */
@@ -1659,6 +1705,43 @@ function tokenListRow(t) {
 
   line2.append(hpWrap);
   row.append(badge, swatch, name, def, init, line2);
+
+  // ATK / DM : troisième ligne, affichée seulement si l'un des deux est renseigné.
+  // Pas de bouton « + » ici : la ligne d'un token neuf en compte déjà trois.
+  if (t.atk != null || t.dm) {
+    const line3 = el('div', { class: 'tl-line3' });
+
+    if (t.atk != null) {
+      // Texte plutôt que number : seul un champ texte peut montrer le « + » du bonus.
+      const inp = el('input', { class: 'tl-atk-inp', type: 'text', inputmode: 'numeric', maxlength: '4', value: fmtAtk(t.atk) });
+      inp.addEventListener('click', (e) => e.stopPropagation());
+      inp.addEventListener('change', () => {
+        t.atk = inp.value.trim() === '' ? null : parseAtk(inp.value);
+        if (stage.selectedTokenId === t.id) $('#tp-atk').value = t.atk ?? '';
+        afterTokenEdit();
+      });
+      line3.append(el('span', { class: 'tl-stat', title: tr('tokens.atkTitle') }, [
+        el('span', { class: 'tl-stat-lbl', text: 'ATK' }), inp,
+      ]));
+    }
+
+    if (t.dm) {
+      const inp = el('input', { class: 'tl-dm-inp', type: 'text', maxlength: '16', value: t.dm });
+      markDmValidity(inp);
+      inp.addEventListener('click', (e) => e.stopPropagation());
+      inp.addEventListener('input', () => markDmValidity(inp));
+      inp.addEventListener('change', () => {
+        t.dm = inp.value.trim() || null;
+        if (stage.selectedTokenId === t.id) $('#tp-dm').value = t.dm ?? '';
+        afterTokenEdit();
+      });
+      line3.append(el('span', { class: 'tl-stat tl-stat-dm', title: tr('tokens.dmTitle') }, [
+        el('span', { class: 'tl-stat-lbl', text: 'DM' }), inp,
+      ]));
+    }
+
+    row.append(line3);
+  }
   return row;
 }
 
@@ -2071,6 +2154,8 @@ function renderTemplates() {
         color: tpl.color,
         type: tpl.type ?? null,
         def: tpl.def ?? null,
+        atk: tpl.atk ?? null,
+        dm: tpl.dm ?? null,
         sizeCells: tpl.sizeCells || 1,
         hpMax: tpl.hpMax || null,
         hp: tpl.hpMax || null,
@@ -2094,6 +2179,8 @@ async function saveTokenAsTemplate() {
     color: t.color || '#c0392b',
     type: t.type ?? null,
     def: t.def ?? null,
+    atk: t.atk ?? null,
+    dm: t.dm ?? null,
     sizeCells: t.sizeCells || 1,
     hpMax: t.hpMax || null,
     hpShare: t.hpShare || 'off',

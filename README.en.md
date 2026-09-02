@@ -104,6 +104,11 @@ the same machine**.
    image (library or import) or go back to the disc.
    Row 2: **⚙** (properties), **👁** player visibility, **✕** delete, HP bar + editable
    HP, **−/+** buttons applying the **± amount** at the top of the list.
+   Row 3 (only when at least one of the two is set): **ATK** (attack bonus, shown with
+   its sign) and **DM** (damage in dice notation — `2d6`, `1d8 + 3`), both editable in
+   place. You set them via **⚙** or a creature template; a DM entry that isn't dice
+   notation is flagged in gold but never rejected. Like DEF, these are GM-only and are
+   never sent to players.
    Clicking the row (or the token on the map) **selects** it and **centres the map on
    it** — without opening any window.
    - **Multiple selection**: **Ctrl/⌘ + click** (on the map or in the list) adds or

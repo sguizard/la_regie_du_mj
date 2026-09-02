@@ -122,6 +122,8 @@ export async function restoreBackup(data) {
       color: t.color || '#c0392b',
       type: t.type ?? null,
       def: t.def ?? null,
+      atk: t.atk ?? null,
+      dm: t.dm ?? null,
       sizeCells: t.sizeCells || 1,
       hpMax: t.hpMax || null,
       hpShare: t.hpShare || 'off',

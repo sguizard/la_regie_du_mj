@@ -23,6 +23,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   tête. L'ordre est enregistré (le champ `order` des decks était déjà persisté mais
   n'avait aucune interface).
 
+- **ATK et DM sur les tokens** : bonus d'attaque (affiché signé) et dégâts en notation
+  de dés (`2d6`, `1d8 + 3`). Champs dans les propriétés (⚙) et dans l'édition multiple,
+  et troisième ligne dans la liste des tokens — affichée seulement si l'un des deux est
+  renseigné, pour ne pas alourdir les tokens qui n'en ont pas — où ils se modifient sur
+  place. Repris par les modèles de créature et l'export/import. Une saisie de DM hors
+  notation de dés est signalée en doré sans jamais être refusée : rien ne doit bloquer
+  en pleine partie. Infos MJ uniquement, comme la DEF.
+
 ### Modifié
 - **Initiative et DEF sont désormais l'une au-dessus de l'autre** dans les propriétés
   d'un token comme dans l'édition multiple, au lieu d'être côte à côte : leurs champs

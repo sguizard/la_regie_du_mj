@@ -312,6 +312,21 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 .tl-name { flex: 1 1 90px; min-width: 50px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 button.tl-name.tl-add { text-align: left; }
 .tl-line2 { display: flex; align-items: center; gap: 4px; flex: 1 1 100%; order: 3; }
+/* ATK / DM : troisième ligne, rendue seulement si l'un des deux est renseigné. */
+.tl-line3 { display: flex; align-items: center; gap: 8px; flex: 1 1 100%; order: 4; }
+.tl-stat { display: inline-flex; align-items: center; gap: 3px; min-width: 0; }
+.tl-stat-lbl { font-size: 9px; font-weight: 700; color: var(--text-dim); letter-spacing: .3px; }
+.tl-stat input {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  border-radius: 4px; padding: 2px 3px; font: inherit; text-align: center;
+}
+.tl-atk-inp { width: 34px; }
+.tl-dm-inp { width: 72px; text-align: left; }
+/* Saisie hors notation de dés : signalée, jamais refusée. (Même doré que la
+   barre de PV à mi-course — il n'y a pas de variable d'avertissement.)
+   Les deux sélecteurs sont nécessaires pour battre `.ctl input[type="text"]`
+   et `.tl-stat input`, qui posent déjà une border-color. */
+.ctl input.dm-odd, .tl-stat input.dm-odd { border-color: #c8922e; }
 .tl-hp { display: flex; align-items: center; gap: 3px; flex: 1 1 auto; min-width: 0; }
 .tl-hpbar { flex: 1 1 auto; min-width: 20px; height: 7px; background: rgba(0,0,0,.55); border-radius: 4px; overflow: hidden; }
 .tl-hpbar i { display: block; height: 100%; }
