@@ -2195,7 +2195,7 @@ async function saveTokenAsTemplate() {
 let spaceHeld = false;
 let _toolBeforeRuler = 'move';
 
-/** Ctrl+Meta+M : active / désactive l'outil règle de mesure. */
+/** Ctrl+Alt+M : active / désactive l'outil règle de mesure. */
 function toggleRuler() {
   if (tool === 'ruler') {
     setTool(_toolBeforeRuler || 'move');
@@ -2205,9 +2205,10 @@ function toggleRuler() {
   }
 }
 
-/** Raccourcis à lettre, tous préfixés par Ctrl+Meta : une frappe isolée ne doit
- *  plus lancer la recherche de texte du navigateur. */
-const CTRL_META_KEYS = {
+/** Raccourcis à lettre, tous préfixés par Ctrl+Alt : une frappe isolée ne doit
+ *  plus lancer la recherche de texte du navigateur. Indexés sur la touche
+ *  physique (e.code), pas sur le caractère produit. */
+const CTRL_ALT_KEYS = {
   v: () => setTool('move'),
   r: () => setTool('reveal'),
   h: () => setTool('hide'),
@@ -2226,10 +2227,13 @@ function wireKeyboard() {
     if (!stage.scene) return;
     const k = e.key.toLowerCase();
 
-    // Testé AVANT les branches (e.ctrlKey || e.metaKey) qui suivent : sur Mac, ⌘
-    // est metaKey, donc Ctrl+⌘+Z y retomberait au lieu d'être ignoré.
-    if (e.ctrlKey && e.metaKey) {
-      const action = CTRL_META_KEYS[k];
+    // Testé AVANT les branches (e.ctrlKey || e.metaKey || e.altKey) qui suivent,
+    // sinon Ctrl+Alt+Z y retomberait au lieu d'être ignoré.
+    // On lit e.code et non e.key : sur plusieurs dispositions, Ctrl+Alt se comporte
+    // comme AltGr et compose un autre caractère (« é », « € »…), ce qui donnerait
+    // un e.key inutilisable. La touche physique, elle, ne bouge pas.
+    if (e.ctrlKey && e.altKey) {
+      const action = e.code.startsWith('Key') ? CTRL_ALT_KEYS[e.code.slice(3).toLowerCase()] : null;
       if (action) { e.preventDefault(); action(); }
       return;
     }

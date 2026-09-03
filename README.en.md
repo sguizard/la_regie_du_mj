@@ -146,10 +146,10 @@ the same machine**.
 The toolbar is a strip of icons: ✋ move/select · 🔦 reveal · 🌫 hide · ⛃ token · ▦
 grid · 📏 measuring ruler · 📺 player framing · ⚙ grid settings (hover for the tooltip).
 
-**Measuring ruler**: toggle the tool with **Ctrl+Meta+M** (or the 📏 button), then drag on
+**Measuring ruler**: toggle the tool with **Ctrl+Alt+M** (or the 📏 button), then drag on
 the map. The distance shows in cells — in grid squares (diagonal = 1) and, in
 parentheses, as the crow flies. The tool stays active for several measurements; press
-`Ctrl+Meta+M` again or `Esc` to exit. The endpoints snap if grid snapping is active.
+`Ctrl+Alt+M` again or `Esc` to exit. The endpoints snap if grid snapping is active.
 
 ### 📺 Player view framing
 
@@ -218,17 +218,17 @@ single confirmation stating how many maps are involved.
 
 | Key | Action |
 |---|---|
-| `Ctrl` + `Meta` + `V` | Move / select tool |
-| `Ctrl` + `Meta` + `R` | Reveal brush |
-| `Ctrl` + `Meta` + `H` | Hide brush |
-| `Ctrl` + `Meta` + `T` | Place-a-token tool |
-| `Ctrl` + `Meta` + `A` | Add a token at the centre |
+| `Ctrl` + `Alt` + `V` | Move / select tool |
+| `Ctrl` + `Alt` + `R` | Reveal brush |
+| `Ctrl` + `Alt` + `H` | Hide brush |
+| `Ctrl` + `Alt` + `T` | Place-a-token tool |
+| `Ctrl` + `Alt` + `A` | Add a token at the centre |
 | `↑` `↓` `←` `→` | Nudge the selected token(s) by one cell |
-| `Ctrl` + `Meta` + `M` | Measuring ruler (toggle on / off) |
-| `Ctrl` + `Meta` + `N` | Next combatant (initiative tracker) |
+| `Ctrl` + `Alt` + `M` | Measuring ruler (toggle on / off) |
+| `Ctrl` + `Alt` + `N` | Next combatant (initiative tracker) |
 | `Ctrl`/`⌘` + `D` | Duplicate the selected token(s) |
-| `Ctrl` + `Meta` + `G` | Toggle the ⚙ Grid panel |
-| `Ctrl` + `Meta` + `F` | Fit the view |
+| `Ctrl` + `Alt` + `G` | Toggle the ⚙ Grid panel |
+| `Ctrl` + `Alt` + `F` | Fit the view |
 | `Space` + drag | Pan the view |
 | wheel | Zoom |
 | double-click on the map | Ping ("look here" marker) |

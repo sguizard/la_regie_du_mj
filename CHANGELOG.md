@@ -31,11 +31,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   en pleine partie. Infos MJ uniquement, comme la DEF.
 
 ### Modifié
-- **Tous les raccourcis à lettre passent sous `Ctrl+Meta`** : `Ctrl+Meta+V`, `+R`, `+H`,
-  `+T`, `+A`, `+N`, `+G`, `+F`, et `Ctrl+M` devient `Ctrl+Meta+M` pour la règle de
+- **Tous les raccourcis à lettre passent sous `Ctrl+Alt`** : `Ctrl+Alt+V`, `+R`, `+H`,
+  `+T`, `+A`, `+N`, `+G`, `+F`, et `Ctrl+M` devient `Ctrl+Alt+M` pour la règle de
   mesure. Les lettres nues ne sont plus reconnues : une frappe isolée ne déclenche donc
   plus la recherche de texte du navigateur. `Ctrl+Z` (annuler) et `Ctrl+D` (dupliquer)
   restent inchangés, tout comme `Suppr`, `Échap`, les flèches et `Espace`.
+  Les raccourcis sont reconnus par touche physique : sur les dispositions où `Ctrl+Alt`
+  se comporte comme AltGr et compose un autre caractère, ils fonctionnent quand même.
+  À savoir : sous GNOME / Ubuntu, `Ctrl+Alt+T` ouvre un terminal et n'atteindra pas le
+  navigateur tant que ce raccourci système reste en place.
 - **Initiative et DEF sont désormais l'une au-dessus de l'autre** dans les propriétés
   d'un token comme dans l'édition multiple, au lieu d'être côte à côte : leurs champs
   occupent toute la largeur du panneau.
