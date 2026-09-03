@@ -158,10 +158,10 @@ La barra de herramientas es una tira de iconos: ✋ mover/seleccionar · 🔦 re
 🌫 ocultar · ⛃ token · ▦ rejilla · 📏 regla de medición · 📺 encuadre de jugadores ·
 ⚙ ajustes de rejilla (pasa el ratón para ver la descripción).
 
-**Regla de medición**: activa/desactiva la herramienta con **Ctrl+M** (o el botón 📏),
+**Regla de medición**: activa/desactiva la herramienta con **Ctrl+Meta+M** (o el botón 📏),
 luego arrastra sobre el mapa. La distancia se muestra en casillas — en casillas de
 rejilla (diagonal = 1) y, entre paréntesis, a vuelo de pájaro. La herramienta sigue
-activa para varias mediciones; pulsa `Ctrl+M` de nuevo o `Esc` para salir. Los
+activa para varias mediciones; pulsa `Ctrl+Meta+M` de nuevo o `Esc` para salir. Los
 extremos se imantan si la imantación de la rejilla está activa.
 
 ### 📺 Encuadre de la vista de jugadores
@@ -233,17 +233,17 @@ eliminación pide una sola confirmación, que indica cuántos mapas hay.
 
 | Tecla | Acción |
 |---|---|
-| `V` | Herramienta mover / seleccionar |
-| `R` | Pincel revelar |
-| `H` | Pincel ocultar |
-| `T` | Herramienta colocar un token |
-| `A` | Añadir un token en el centro |
+| `Ctrl` + `Meta` + `V` | Herramienta mover / seleccionar |
+| `Ctrl` + `Meta` + `R` | Pincel revelar |
+| `Ctrl` + `Meta` + `H` | Pincel ocultar |
+| `Ctrl` + `Meta` + `T` | Herramienta colocar un token |
+| `Ctrl` + `Meta` + `A` | Añadir un token en el centro |
 | `↑` `↓` `←` `→` | Desplazar una casilla el/los token(s) seleccionado(s) |
-| `Ctrl`/`⌘` + `M` | Regla de medición (activar / desactivar) |
-| `N` | Siguiente combatiente (seguimiento de iniciativa) |
+| `Ctrl` + `Meta` + `M` | Regla de medición (activar / desactivar) |
+| `Ctrl` + `Meta` + `N` | Siguiente combatiente (seguimiento de iniciativa) |
 | `Ctrl`/`⌘` + `D` | Duplicar el/los token(s) seleccionado(s) |
-| `G` | Abrir/cerrar el panel ⚙ Rejilla |
-| `F` | Ajustar la vista |
+| `Ctrl` + `Meta` + `G` | Abrir/cerrar el panel ⚙ Rejilla |
+| `Ctrl` + `Meta` + `F` | Ajustar la vista |
 | `Espacio` + arrastrar | Desplazar la vista |
 | rueda | Zoom |
 | doble clic en el mapa | Ping (marca de «mira aquí») |

@@ -155,10 +155,10 @@ La barre d'outils est une bande d'icônes : ✋ déplacer/sélectionner · 🔦 
 🌫 cacher · ⛃ token · ▦ grille · 📏 règle de mesure · 📺 cadrage joueurs · ⚙ réglages
 de grille (survole pour l'infobulle).
 
-**Règle de mesure** : active/désactive l'outil avec **Ctrl+M** (ou le bouton 📏),
+**Règle de mesure** : active/désactive l'outil avec **Ctrl+Meta+M** (ou le bouton 📏),
 puis glisse sur la carte. La distance s'affiche en cases — en cases de grille
 (diagonale = 1) et, entre parenthèses, à vol d'oiseau. L'outil reste actif pour
-plusieurs mesures ; `Ctrl+M` à nouveau ou `Échap` pour quitter. Les extrémités
+plusieurs mesures ; `Ctrl+Meta+M` à nouveau ou `Échap` pour quitter. Les extrémités
 s'aimantent si l'aimantation de la grille est active.
 
 ### 📺 Cadrage de la vue joueurs
@@ -227,17 +227,17 @@ suppression demande une seule confirmation, qui annonce le nombre de cartes.
 ### Raccourcis clavier (régie)
 | Touche | Action |
 |---|---|
-| `V` | Outil déplacer / sélectionner |
-| `R` | Pinceau révéler |
-| `H` | Pinceau cacher |
-| `T` | Outil poser un token |
-| `A` | Ajouter un token au centre |
+| `Ctrl` + `Meta` + `V` | Outil déplacer / sélectionner |
+| `Ctrl` + `Meta` + `R` | Pinceau révéler |
+| `Ctrl` + `Meta` + `H` | Pinceau cacher |
+| `Ctrl` + `Meta` + `T` | Outil poser un token |
+| `Ctrl` + `Meta` + `A` | Ajouter un token au centre |
 | `↑` `↓` `←` `→` | Décaler d'une case le(s) token(s) sélectionné(s) |
-| `Ctrl`/`⌘` + `M` | Règle de mesure (activer / désactiver) |
-| `N` | Combattant suivant (suivi d'initiative) |
+| `Ctrl` + `Meta` + `M` | Règle de mesure (activer / désactiver) |
+| `Ctrl` + `Meta` + `N` | Combattant suivant (suivi d'initiative) |
 | `Ctrl`/`⌘` + `D` | Dupliquer le(s) token(s) sélectionné(s) |
-| `G` | Ouvrir/fermer le panneau ⚙ Grille |
-| `F` | Ajuster la vue |
+| `Ctrl` + `Meta` + `G` | Ouvrir/fermer le panneau ⚙ Grille |
+| `Ctrl` + `Meta` + `F` | Ajuster la vue |
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |
 | double-clic sur la carte | Ping (repère « regarde ici ») |

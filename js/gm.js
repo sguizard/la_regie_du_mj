@@ -2195,7 +2195,7 @@ async function saveTokenAsTemplate() {
 let spaceHeld = false;
 let _toolBeforeRuler = 'move';
 
-/** Ctrl+M : active / désactive l'outil règle de mesure. */
+/** Ctrl+Meta+M : active / désactive l'outil règle de mesure. */
 function toggleRuler() {
   if (tool === 'ruler') {
     setTool(_toolBeforeRuler || 'move');
@@ -2205,18 +2205,35 @@ function toggleRuler() {
   }
 }
 
+/** Raccourcis à lettre, tous préfixés par Ctrl+Meta : une frappe isolée ne doit
+ *  plus lancer la recherche de texte du navigateur. */
+const CTRL_META_KEYS = {
+  v: () => setTool('move'),
+  r: () => setTool('reveal'),
+  h: () => setTool('hide'),
+  t: () => setTool('token'),
+  g: () => toggleConfig(),
+  a: () => quickAddToken(),
+  n: () => advanceTurn(1),
+  f: () => stage.fit(),
+  m: () => toggleRuler(),
+};
+
 function wireKeyboard() {
   window.addEventListener('keydown', (e) => {
     if (e.target?.matches?.('input, textarea, select, [contenteditable="true"]')) return;
     if (e.code === 'Space') { spaceHeld = true; $('#gm-canvas').style.cursor = 'grab'; return; }
     if (!stage.scene) return;
     const k = e.key.toLowerCase();
-    // Ctrl/Cmd+M : bascule la règle de mesure
-    if ((e.ctrlKey || e.metaKey) && k === 'm') {
-      e.preventDefault();
-      toggleRuler();
+
+    // Testé AVANT les branches (e.ctrlKey || e.metaKey) qui suivent : sur Mac, ⌘
+    // est metaKey, donc Ctrl+⌘+Z y retomberait au lieu d'être ignoré.
+    if (e.ctrlKey && e.metaKey) {
+      const action = CTRL_META_KEYS[k];
+      if (action) { e.preventDefault(); action(); }
       return;
     }
+
     // Ctrl/Cmd+Z : annuler le dernier coup de pinceau de brouillard
     if ((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) {
       e.preventDefault();
@@ -2230,14 +2247,6 @@ function wireKeyboard() {
       return;
     }
     if (e.ctrlKey || e.metaKey || e.altKey) return; // laisse les raccourcis navigateur
-    if (k === 'f') stage.fit();
-    if (k === 'v') setTool('move');
-    if (k === 'r') setTool('reveal');
-    if (k === 'h') setTool('hide');
-    if (k === 't') setTool('token');
-    if (k === 'g') toggleConfig();
-    if (k === 'a') quickAddToken();
-    if (k === 'n') advanceTurn(1);
     if ((e.key === 'Delete' || e.key === 'Backspace') && stage.selectedIds.size) {
       deleteTokens(new Set(stage.selectedIds));
     }

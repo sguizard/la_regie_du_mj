@@ -22,7 +22,6 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   deck, avec un trait indiquant le point d'insertion. « Sans deck » reste épinglé en
   tête. L'ordre est enregistré (le champ `order` des decks était déjà persisté mais
   n'avait aucune interface).
-
 - **ATK et DM sur les tokens** : bonus d'attaque (affiché signé) et dégâts en notation
   de dés (`2d6`, `1d8 + 3`). Champs dans les propriétés (⚙) et dans l'édition multiple,
   et troisième ligne dans la liste des tokens — affichée seulement si l'un des deux est
@@ -32,6 +31,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   en pleine partie. Infos MJ uniquement, comme la DEF.
 
 ### Modifié
+- **Tous les raccourcis à lettre passent sous `Ctrl+Meta`** : `Ctrl+Meta+V`, `+R`, `+H`,
+  `+T`, `+A`, `+N`, `+G`, `+F`, et `Ctrl+M` devient `Ctrl+Meta+M` pour la règle de
+  mesure. Les lettres nues ne sont plus reconnues : une frappe isolée ne déclenche donc
+  plus la recherche de texte du navigateur. `Ctrl+Z` (annuler) et `Ctrl+D` (dupliquer)
+  restent inchangés, tout comme `Suppr`, `Échap`, les flèches et `Espace`.
 - **Initiative et DEF sont désormais l'une au-dessus de l'autre** dans les propriétés
   d'un token comme dans l'édition multiple, au lieu d'être côte à côte : leurs champs
   occupent toute la largeur du panneau.
