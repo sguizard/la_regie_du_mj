@@ -213,8 +213,9 @@ El botón **📝** de la barra de herramientas (o `Ctrl+Alt+B`) abre un panel co
 notas del **mapa abierto**. **+ Nueva nota** añade una; cada una tiene un título y un
 cuerpo, se pliega con un clic en su cabecera, se reordena arrastrándola y se elimina
 con **✕** (con confirmación). Todo se guarda solo mientras escribes.
-**Arrastra la barra de título «Notas» para mover el panel**; su posición se
-recuerda, también entre sesiones.
+**Arrastra la barra de título «Notas» para mover el panel**, y el tirador de la
+esquina inferior derecha para redimensionarlo (mínimo 200 × 150). Posición y tamaño
+se recuerdan, también entre sesiones.
 
 Las notas pertenecen al mapa: siguen su duplicación, desaparecen con él y se incluyen
 en la exportación. **Nunca se envían a la vista de jugadores** — la sincronización solo

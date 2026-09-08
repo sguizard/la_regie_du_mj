@@ -864,10 +864,9 @@ function wireToolbar() {
   $('#btn-config').addEventListener('click', toggleConfig);
   $('#config-panel-close').addEventListener('click', () => setConfigOpen(false));
   $('#btn-notes').addEventListener('click', toggleNotes);
-  makeDraggable($('#notes-panel'), $('#notes-panel').querySelector('h3'), (pos) => {
-    notesPos = pos;
-    db.setMeta('notesPanelPos', pos);
-  });
+  const keepNotesBox = (box) => { notesPos = box; db.setMeta('notesPanelPos', box); };
+  makeDraggable($('#notes-panel'), $('#notes-panel').querySelector('h3'), keepNotesBox);
+  makeResizable($('#notes-panel'), $('#notes-resize'), keepNotesBox);
   $('#notes-close').addEventListener('click', () => setNotesOpen(false));
   $('#notes-add').addEventListener('click', addNote);
   $('#token-props-close').addEventListener('click', () => $('#token-props').classList.add('hidden'));
@@ -1198,11 +1197,16 @@ function closeFloaties() {
   setNotesOpen(false);
 }
 
-// ---------------------------------------------------------------- panneaux déplaçables
-/** Position retenue du panneau de notes, {left, top} en pixels dans .stage-wrap.
- *  null tant que l'utilisateur n'a rien déplacé : le panneau garde alors son
- *  ancrage CSS par défaut (en haut à droite). */
+// ---------------------------------------------------------------- panneaux flottants
+/** Géométrie retenue du panneau de notes : {left, top} en pixels dans .stage-wrap,
+ *  plus {w, h} une fois redimensionné. null tant que rien n'a été touché — le
+ *  panneau garde alors son ancrage CSS d'origine (en haut à droite, 230 px).
+ *  Les enregistrements antérieurs ne portent que left/top : w/h restent absents,
+ *  ce qui laisse la taille par défaut. */
 let notesPos = null;
+
+const PANEL_MIN_W = 200;
+const PANEL_MIN_H = 150;
 
 /** Borne une position pour qu'une bonne part du panneau reste visible : sinon on
  *  peut le pousser hors de la zone de carte et ne plus jamais le rattraper. */
@@ -1214,49 +1218,113 @@ function clampPanelPos(panel, left, top) {
   return { left: clamp(left, 0, maxL), top: clamp(top, 0, maxH) };
 }
 
-/** Passe le panneau d'un ancrage `right` à un ancrage `left`/`top` explicite. */
+/** Borne une taille : jamais plus petite qu'utilisable, jamais débordante. */
+function clampPanelSize(panel, w, h) {
+  const host = panel.offsetParent;
+  const r = panel.getBoundingClientRect();
+  const hr = host ? host.getBoundingClientRect() : { left: 0, top: 0 };
+  const maxW = host ? Math.max(PANEL_MIN_W, host.clientWidth - (r.left - hr.left)) : w;
+  const maxH = host ? Math.max(PANEL_MIN_H, host.clientHeight - (r.top - hr.top)) : h;
+  return { w: clamp(w, PANEL_MIN_W, maxW), h: clamp(h, PANEL_MIN_H, maxH) };
+}
+
+/** Applique la géométrie retenue : ancrage left/top explicite, et taille si elle
+ *  a été fixée. Une hauteur explicite prend le pas sur le max-height de .floaty,
+ *  sinon le CSS écraserait le choix de l'utilisateur. */
 function applyPanelPos(panel, pos) {
   if (!pos) return;
   const { left, top } = clampPanelPos(panel, pos.left, pos.top);
   panel.style.left = `${left}px`;
   panel.style.top = `${top}px`;
   panel.style.right = 'auto';
+  if (pos.w && pos.h) {
+    const { w, h } = clampPanelSize(panel, pos.w, pos.h);
+    panel.style.width = `${w}px`;
+    panel.style.height = `${h}px`;
+    panel.style.maxHeight = 'none';
+    panel.classList.add('sized');
+  }
 }
 
-/** Rend au panneau son ancrage CSS d'origine (en haut à droite). */
+/** Rend au panneau sa géométrie CSS d'origine. */
 function resetPanelPos(panel) {
   panel.style.left = panel.style.top = panel.style.right = '';
+  panel.style.width = panel.style.height = panel.style.maxHeight = '';
+  panel.classList.remove('sized');
 }
 
-/** Rend un panneau flottant déplaçable par une poignée. `onDrop` reçoit la
- *  position finale, à charge de l'appelant de la conserver. */
-function makeDraggable(panel, handle, onDrop) {
+/** Plomberie commune au déplacement et au redimensionnement : capture le pointeur
+ *  sur la poignée, relaie chaque mouvement avec le déplacement depuis l'origine,
+ *  puis prévient à la fin. `onStart` sert à relever l'état de départ. */
+function onPointerDrag(handle, { onStart, onMove, onEnd }) {
   handle.addEventListener('pointerdown', (e) => {
     // bouton gauche seulement, et pas depuis un contrôle posé dans la poignée
     if (e.button !== 0 || e.target.closest('button, input, textarea, select')) return;
     e.preventDefault();
-    const r = panel.getBoundingClientRect();
-    const host = panel.offsetParent.getBoundingClientRect();
-    const grabX = e.clientX - r.left;
-    const grabY = e.clientY - r.top;
+    const x0 = e.clientX, y0 = e.clientY;
+    onStart?.(e);
 
-    const move = (ev) => {
-      const pos = clampPanelPos(panel, ev.clientX - grabX - host.left, ev.clientY - grabY - host.top);
-      applyPanelPos(panel, pos);
-    };
+    const move = (ev) => onMove(ev.clientX - x0, ev.clientY - y0, ev);
     const up = (ev) => {
       handle.releasePointerCapture?.(ev.pointerId);
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', up);
       handle.removeEventListener('pointercancel', up);
-      const now = panel.getBoundingClientRect();
-      const h = panel.offsetParent.getBoundingClientRect();
-      onDrop?.({ left: Math.round(now.left - h.left), top: Math.round(now.top - h.top) });
+      onEnd?.();
     };
-    handle.setPointerCapture?.(e.pointerId);
+    // setPointerCapture jette si le pointeur a déjà disparu : le glisser doit
+    // fonctionner quand même, la capture n'est qu'un confort.
+    try { handle.setPointerCapture?.(e.pointerId); } catch { /* ignore */ }
     handle.addEventListener('pointermove', move);
     handle.addEventListener('pointerup', up);
     handle.addEventListener('pointercancel', up);
+  });
+}
+
+/** Géométrie courante du panneau, relative à son offsetParent. */
+function panelBox(panel) {
+  const r = panel.getBoundingClientRect();
+  const h = panel.offsetParent.getBoundingClientRect();
+  return { left: Math.round(r.left - h.left), top: Math.round(r.top - h.top),
+           w: Math.round(r.width), h: Math.round(r.height) };
+}
+
+/** Rend un panneau flottant déplaçable par une poignée. */
+function makeDraggable(panel, handle, onDrop) {
+  let box = null;
+  onPointerDrag(handle, {
+    onStart: () => { box = panelBox(panel); },
+    onMove: (dx, dy) => {
+      const { left, top } = clampPanelPos(panel, box.left + dx, box.top + dy);
+      panel.style.left = `${left}px`;
+      panel.style.top = `${top}px`;
+      panel.style.right = 'auto';
+    },
+    onEnd: () => onDrop?.(panelBox(panel)),
+  });
+}
+
+/** Rend un panneau flottant redimensionnable par une poignée (coin bas-droit). */
+function makeResizable(panel, handle, onDrop) {
+  let box = null;
+  onPointerDrag(handle, {
+    onStart: () => {
+      box = panelBox(panel);
+      // Tant que le panneau reste ancré à droite (right: 12px), augmenter sa
+      // largeur pousse son bord GAUCHE. On fige donc l'ancrage en left/top avant
+      // de toucher à la taille, comme le fait le déplacement.
+      panel.style.left = `${box.left}px`;
+      panel.style.top = `${box.top}px`;
+      panel.style.right = 'auto';
+    },
+    onMove: (dx, dy) => {
+      const { w, h } = clampPanelSize(panel, box.w + dx, box.h + dy);
+      panel.style.width = `${w}px`;
+      panel.style.height = `${h}px`;
+      panel.style.maxHeight = 'none';
+      panel.classList.add('sized');
+    },
+    onEnd: () => onDrop?.(panelBox(panel)),
   });
 }
 

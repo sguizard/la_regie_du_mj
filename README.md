@@ -209,8 +209,9 @@ Bouton **📝** de la barre d'outils (ou `Ctrl+Alt+B`) : un panneau listant les 
 la **carte ouverte**. **+ Nouvelle note** en ajoute une ; chacune a un titre et un
 corps de texte, se replie d'un clic sur son en-tête, se réordonne en la glissant et se
 supprime par **✕** (avec confirmation). Tout s'enregistre tout seul pendant la frappe.
-**Glisse la barre de titre « Notes » pour déplacer le panneau** ; sa position est
-retenue, y compris d'une session à l'autre.
+**Glisse la barre de titre « Notes » pour déplacer le panneau**, et la poignée du
+coin bas-droit pour le redimensionner (minimum 200 × 150). Position et taille sont
+retenues, y compris d'une session à l'autre.
 
 Les notes appartiennent à la carte : elles suivent sa duplication, disparaissent avec
 elle, et sont incluses dans l'export. **Elles ne sont jamais transmises à la vue

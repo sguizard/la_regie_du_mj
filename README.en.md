@@ -198,8 +198,8 @@ The **📝** toolbar button (or `Ctrl+Alt+B`) opens a panel listing the notes of
 **open map**. **+ New note** adds one; each has a title and a body, collapses with a
 click on its header, is reordered by dragging it, and is deleted with **✕** (with
 confirmation). Everything saves itself as you type.
-**Drag the "Notes" title bar to move the panel**; its position is remembered,
-across sessions too.
+**Drag the "Notes" title bar to move the panel**, and the bottom-right grip to resize
+it (minimum 200 × 150). Position and size are both remembered, across sessions too.
 
 Notes belong to the map: they follow its duplication, disappear with it, and are
 included in the export. **They are never sent to the player view** — sync only carries

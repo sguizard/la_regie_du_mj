@@ -113,6 +113,7 @@ const DICT = {
     'notes.deleteTitle': 'Supprimer cette note',
     'notes.untitled': 'sans titre',
     'notes.confirmDelete': 'Supprimer la note « {name} » ? Action irréversible.',
+    'notes.resizeTitle': 'Redimensionner le panneau',
 
     'frame.stateFull': 'Toute la carte',
     'frame.stateCustom': 'Cadre personnalisé',
@@ -326,6 +327,7 @@ const DICT = {
     'notes.deleteTitle': 'Delete this note',
     'notes.untitled': 'untitled',
     'notes.confirmDelete': 'Delete the note "{name}"? This cannot be undone.',
+    'notes.resizeTitle': 'Resize the panel',
 
     'frame.stateFull': 'Whole map',
     'frame.stateCustom': 'Custom frame',
@@ -539,6 +541,7 @@ const DICT = {
     'notes.deleteTitle': 'Eliminar esta nota',
     'notes.untitled': 'sin título',
     'notes.confirmDelete': '¿Eliminar la nota «{name}»? Acción irreversible.',
+    'notes.resizeTitle': 'Redimensionar el panel',
 
     'frame.stateFull': 'Todo el mapa',
     'frame.stateCustom': 'Encuadre personalizado',
