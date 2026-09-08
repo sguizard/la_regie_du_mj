@@ -2180,10 +2180,16 @@ function wireCanvas() {
   }, { passive: false });
   cv.addEventListener('pointerleave', () => stage.setBrushCursor(null));
 
-  // double-clic = ping (« regarde ici ») pour soi + les joueurs
+  // double-clic sur un token = ouvrir ses propriétés ; ailleurs = ping
   cv.addEventListener('dblclick', (e) => {
     if (!stage.scene) return;
-    const w = stage.screenToWorld(stage.localPoint(e));
+    const p = stage.localPoint(e);
+    // Réservé à l'outil ✋ : avec ⛃ Token un clic POSE un token (on en poserait
+    // deux avant d'ouvrir le panneau), et avec les pinceaux le double-clic fait
+    // partie du geste de peinture.
+    const hit = tool === 'move' ? stage.tokenAt(p) : null;
+    if (hit) { openTokenProps(hit); return; }   // pas de ping : il désignerait la case aux joueurs
+    const w = stage.screenToWorld(p);
     stage.addPing(w);
     if (selectedId === presentingId) push('ping', { sceneId: selectedId, x: w.x, y: w.y });
   });

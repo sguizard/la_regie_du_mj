@@ -197,8 +197,12 @@ joueurs) est enregistré avec la scène.
 **Molette de la souris** sur n'importe quel champ numérique ou curseur (PV, initiative,
 taille de case, pinceau…) : ajuste la valeur d'un cran.
 
-**Ping** : double-clique n'importe où sur la carte pour faire apparaître un repère
-animé « regarde ici » — visible sur ta régie et sur la vue joueurs.
+**Ping** : double-clique sur une zone **vide** de la carte pour faire apparaître un
+repère animé « regarde ici » — visible sur ta régie et sur la vue joueurs.
+
+**Double-clic sur un token** (avec l'outil ✋) : ouvre directement ses propriétés,
+sans passer par le ⚙ de la liste. Pas de ping dans ce cas — il désignerait la case aux
+joueurs. Avec les autres outils, le double-clic reste un ping.
 
 Une fois la carte présentée, chaque déplacement de token, coup de pinceau ou dégât
 est répercuté en direct sur la vue joueurs.
@@ -256,7 +260,8 @@ suppression demande une seule confirmation, qui annonce le nombre de cartes.
 | `Ctrl` + `Alt` + `F` | Ajuster la vue |
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |
-| double-clic sur la carte | Ping (repère « regarde ici ») |
+| double-clic sur une zone vide | Ping (repère « regarde ici ») |
+| double-clic sur un token (outil ✋) | Ouvrir ses propriétés |
 | `Ctrl`/`⌘` + `Z` | Annuler : dernier coup de pinceau de brouillard ou suppression de token |
 | `Ctrl`/`⌘` + clic · `Maj` + clic · `Maj` + glisser | Sélection multiple de tokens |
 | `Suppr` | Supprimer le(s) token(s) sélectionné(s) |

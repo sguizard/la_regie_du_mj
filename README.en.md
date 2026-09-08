@@ -186,8 +186,12 @@ display) is saved with the scene.
 **Mouse wheel** over any number field or slider (HP, initiative, cell size, brush…):
 adjusts the value by one step.
 
-**Ping**: double-click anywhere on the map to make an animated "look here" marker
-appear — visible on your console and on the player view.
+**Ping**: double-click an **empty** area of the map to make an animated "look here"
+marker appear — visible on your console and on the player view.
+
+**Double-click a token** (with the ✋ tool): opens its properties directly, without
+going through the row's ⚙. No ping in that case — it would point the square out to the
+players. With the other tools, a double-click is still a ping.
 
 Once a map is presented, every token move, brush stroke or damage is mirrored live to
 the player view.
@@ -245,7 +249,8 @@ single confirmation stating how many maps are involved.
 | `Ctrl` + `Alt` + `F` | Fit the view |
 | `Space` + drag | Pan the view |
 | wheel | Zoom |
-| double-click on the map | Ping ("look here" marker) |
+| double-click an empty area | Ping ("look here" marker) |
+| double-click a token (✋ tool) | Open its properties |
 | `Ctrl`/`⌘` + `Z` | Undo: last fog brush stroke or token deletion |
 | `Ctrl`/`⌘` + click · `Shift` + click · `Shift` + drag | Multiple token selection |
 | `Delete` | Delete the selected token(s) |

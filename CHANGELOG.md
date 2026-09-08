@@ -40,6 +40,10 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   en pleine partie. Infos MJ uniquement, comme la DEF.
 
 ### Modifié
+- **Double-cliquer un token ouvre ses propriétés** (avec l'outil ✋), sans passer par
+  le ⚙ de sa ligne. Le double-clic sur une zone vide reste un ping, et le geste reste
+  un ping avec les autres outils — avec ⛃ Token un clic pose un token, et avec les
+  pinceaux le double-clic fait partie du geste de peinture.
 - **Tous les raccourcis à lettre passent sous `Ctrl+Alt`** : `Ctrl+Alt+V`, `+R`, `+H`,
   `+T`, `+A`, `+N`, `+G`, `+F`, et `Ctrl+M` devient `Ctrl+Alt+M` pour la règle de
   mesure. Les lettres nues ne sont plus reconnues : une frappe isolée ne déclenche donc

@@ -201,8 +201,12 @@ visualización para jugadores) se guarda con la escena.
 **Rueda del ratón** sobre cualquier campo numérico o deslizador (PV, iniciativa,
 tamaño de casilla, pincel…): ajusta el valor un paso.
 
-**Ping**: haz doble clic en cualquier punto del mapa para hacer aparecer una marca
+**Ping**: haz doble clic en una zona **vacía** del mapa para hacer aparecer una marca
 animada de «mira aquí» — visible en tu consola y en la vista de jugadores.
+
+**Doble clic en un token** (con la herramienta ✋): abre directamente sus propiedades,
+sin pasar por el ⚙ de la fila. Sin ping en ese caso — señalaría la casilla a los
+jugadores. Con las demás herramientas, el doble clic sigue siendo un ping.
 
 Una vez presentado un mapa, cada movimiento de token, trazo de pincel o daño se
 refleja en directo en la vista de jugadores.
@@ -261,7 +265,8 @@ eliminación pide una sola confirmación, que indica cuántos mapas hay.
 | `Ctrl` + `Alt` + `F` | Ajustar la vista |
 | `Espacio` + arrastrar | Desplazar la vista |
 | rueda | Zoom |
-| doble clic en el mapa | Ping (marca de «mira aquí») |
+| doble clic en una zona vacía | Ping (marca de «mira aquí») |
+| doble clic en un token (herr. ✋) | Abrir sus propiedades |
 | `Ctrl`/`⌘` + `Z` | Deshacer: último trazo de pincel de niebla o eliminación de token |
 | `Ctrl`/`⌘` + clic · `Mayús` + clic · `Mayús` + arrastrar | Selección múltiple de tokens |
 | `Supr` | Eliminar el/los token(s) seleccionado(s) |
