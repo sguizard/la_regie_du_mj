@@ -28,7 +28,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   les supprime par ✕ avec confirmation, et tout s'enregistre pendant la frappe. Les
   notes vivent sur la scène, comme ses tokens et sa grille : elles suivent sa
   duplication, disparaissent avec elle et sont incluses dans l'export. Elles ne sont
-  jamais transmises à la vue joueurs.
+  jamais transmises à la vue joueurs. Le panneau se déplace en glissant sa barre de
+  titre, et sa position est conservée d'une session à l'autre.
 - **ATK et DM sur les tokens** : bonus d'attaque (affiché signé) et dégâts en notation
   de dés (`2d6`, `1d8 + 3`). Champs dans les propriétés (⚙) et dans l'édition multiple,
   et troisième ligne dans la liste des tokens — affichée seulement si l'un des deux est

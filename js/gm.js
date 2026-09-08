@@ -149,6 +149,7 @@ export async function initGM() {
   // restaure l'état après un rechargement de la régie
   const has = (id) => id && scenes.some((s) => s.id === id);
   tlSort = (await db.getMeta('tokenSort')) || 'init';
+  notesPos = await db.getMeta('notesPanelPos', null);
   $('#tl-sort').value = tlSort;
   const presentedId = await db.getMeta('presentingSceneId');
   if (has(presentedId)) presentingId = presentedId;
@@ -280,6 +281,8 @@ async function wipeAll() {
   sceneSel.clear();
   collapsedDecks.clear();
   collapsedNotes.clear();
+  notesPos = null;                       // clearAll() a vidé meta : on suit
+  resetPanelPos($('#notes-panel'));
   if (blackout) await setBlackout(false);
   stage.setScene(null, null);
   bus.send({ t: 'clear' });
@@ -861,6 +864,10 @@ function wireToolbar() {
   $('#btn-config').addEventListener('click', toggleConfig);
   $('#config-panel-close').addEventListener('click', () => setConfigOpen(false));
   $('#btn-notes').addEventListener('click', toggleNotes);
+  makeDraggable($('#notes-panel'), $('#notes-panel').querySelector('h3'), (pos) => {
+    notesPos = pos;
+    db.setMeta('notesPanelPos', pos);
+  });
   $('#notes-close').addEventListener('click', () => setNotesOpen(false));
   $('#notes-add').addEventListener('click', addNote);
   $('#token-props-close').addEventListener('click', () => $('#token-props').classList.add('hidden'));
@@ -1191,6 +1198,68 @@ function closeFloaties() {
   setNotesOpen(false);
 }
 
+// ---------------------------------------------------------------- panneaux déplaçables
+/** Position retenue du panneau de notes, {left, top} en pixels dans .stage-wrap.
+ *  null tant que l'utilisateur n'a rien déplacé : le panneau garde alors son
+ *  ancrage CSS par défaut (en haut à droite). */
+let notesPos = null;
+
+/** Borne une position pour qu'une bonne part du panneau reste visible : sinon on
+ *  peut le pousser hors de la zone de carte et ne plus jamais le rattraper. */
+function clampPanelPos(panel, left, top) {
+  const host = panel.offsetParent;
+  if (!host) return { left, top };
+  const maxL = Math.max(0, host.clientWidth - panel.offsetWidth);
+  const maxH = Math.max(0, host.clientHeight - panel.offsetHeight);
+  return { left: clamp(left, 0, maxL), top: clamp(top, 0, maxH) };
+}
+
+/** Passe le panneau d'un ancrage `right` à un ancrage `left`/`top` explicite. */
+function applyPanelPos(panel, pos) {
+  if (!pos) return;
+  const { left, top } = clampPanelPos(panel, pos.left, pos.top);
+  panel.style.left = `${left}px`;
+  panel.style.top = `${top}px`;
+  panel.style.right = 'auto';
+}
+
+/** Rend au panneau son ancrage CSS d'origine (en haut à droite). */
+function resetPanelPos(panel) {
+  panel.style.left = panel.style.top = panel.style.right = '';
+}
+
+/** Rend un panneau flottant déplaçable par une poignée. `onDrop` reçoit la
+ *  position finale, à charge de l'appelant de la conserver. */
+function makeDraggable(panel, handle, onDrop) {
+  handle.addEventListener('pointerdown', (e) => {
+    // bouton gauche seulement, et pas depuis un contrôle posé dans la poignée
+    if (e.button !== 0 || e.target.closest('button, input, textarea, select')) return;
+    e.preventDefault();
+    const r = panel.getBoundingClientRect();
+    const host = panel.offsetParent.getBoundingClientRect();
+    const grabX = e.clientX - r.left;
+    const grabY = e.clientY - r.top;
+
+    const move = (ev) => {
+      const pos = clampPanelPos(panel, ev.clientX - grabX - host.left, ev.clientY - grabY - host.top);
+      applyPanelPos(panel, pos);
+    };
+    const up = (ev) => {
+      handle.releasePointerCapture?.(ev.pointerId);
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', up);
+      handle.removeEventListener('pointercancel', up);
+      const now = panel.getBoundingClientRect();
+      const h = panel.offsetParent.getBoundingClientRect();
+      onDrop?.({ left: Math.round(now.left - h.left), top: Math.round(now.top - h.top) });
+    };
+    handle.setPointerCapture?.(e.pointerId);
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+    handle.addEventListener('pointercancel', up);
+  });
+}
+
 // ---------------------------------------------------------------- notes du MJ
 // Les notes vivent sur la scène (s.notes), comme ses tokens et sa grille : elles
 // suivent donc la duplication et l'export sans magasin dédié, disparaissent avec
@@ -1216,7 +1285,9 @@ function setNotesOpen(open) {
   const can = open && !!selectedId;
   $('#notes-panel').classList.toggle('hidden', !can);
   $('#btn-notes').classList.toggle('active', can);
-  if (can) renderNotes();
+  // Reposée à chaque ouverture : un panneau caché a une taille nulle, donc le
+  // bornage ne peut pas se faire tant qu'il n'est pas affiché.
+  if (can) { applyPanelPos($('#notes-panel'), notesPos); renderNotes(); }
 }
 function toggleNotes() {
   setNotesOpen($('#notes-panel').classList.contains('hidden'));
