@@ -4,7 +4,7 @@
 //   decks         { id, name, order }
 //   scenes        { id, kind:'battlemap', name, deckId, order,
 //                   imageBlob, thumbBlob,
-//                   grid?, fogBlob?, tokens? }        (champs battlemap)
+//                   grid?, fogBlob?, tokens?, notes? }  (champs battlemap)
 //   tokenLibrary  { id, name, imageBlob, thumbBlob }
 //   templates     { id, name, color, type, def, sizeCells, hpMax, hpShare, conditions, imageRef }
 //   meta          { key, value }

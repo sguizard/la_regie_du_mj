@@ -279,6 +279,7 @@ async function wipeAll() {
   selectedId = presentingId = null;
   sceneSel.clear();
   collapsedDecks.clear();
+  collapsedNotes.clear();
   if (blackout) await setBlackout(false);
   stage.setScene(null, null);
   bus.send({ t: 'clear' });
@@ -288,6 +289,7 @@ async function wipeAll() {
   $('#map-toolbar').classList.add('hidden');
   $('.side-tokens').classList.add('hidden');
   setConfigOpen(false);
+  setNotesOpen(false);
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
   resetCombatUI();
@@ -716,6 +718,7 @@ function sceneCopy(s, nextOrder) {
     grid: structuredClone(s.grid ?? null),
     tokens: structuredClone(s.tokens ?? []),
     combat: structuredClone(s.combat ?? null),
+    notes: structuredClone(s.notes ?? []),
     imageBlob: s.imageBlob,
     thumbBlob: s.thumbBlob,
     fogBlob: s.fogBlob ?? null,
@@ -794,6 +797,7 @@ async function removeScenes(ids) {
     $('#map-toolbar').classList.add('hidden');
     $('.side-tokens').classList.add('hidden');
     setConfigOpen(false);
+    setNotesOpen(false);
     $('#token-props').classList.add('hidden');
     $('#multi-props').classList.add('hidden');
     resetCombatUI();
@@ -825,6 +829,10 @@ async function selectScene(id) {
   $('.side-tokens').classList.remove('hidden');
   syncGridPanel();
   setTool('move');
+  // Les notes appartiennent à la carte : on referme le panneau et on oublie
+  // les replis de la carte précédente.
+  collapsedNotes.clear();
+  setNotesOpen(false);
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
   const cs = combatState();
@@ -852,6 +860,9 @@ function wireToolbar() {
 
   $('#btn-config').addEventListener('click', toggleConfig);
   $('#config-panel-close').addEventListener('click', () => setConfigOpen(false));
+  $('#btn-notes').addEventListener('click', toggleNotes);
+  $('#notes-close').addEventListener('click', () => setNotesOpen(false));
+  $('#notes-add').addEventListener('click', addNote);
   $('#token-props-close').addEventListener('click', () => $('#token-props').classList.add('hidden'));
 
   // grille — application visuelle immédiate, persistance / diffusion différée
@@ -1177,6 +1188,148 @@ function toggleConfig() {
 }
 function closeFloaties() {
   setConfigOpen(false);
+  setNotesOpen(false);
+}
+
+// ---------------------------------------------------------------- notes du MJ
+// Les notes vivent sur la scène (s.notes), comme ses tokens et sa grille : elles
+// suivent donc la duplication et l'export sans magasin dédié, disparaissent avec
+// la carte, et ne peuvent pas atteindre la vue joueurs — la synchro n'envoie que
+// des charges explicites (grid, tokens, fog, frame, initiative, ping).
+const collapsedNotes = new Set();   // ids repliés — hors du DOM, que renderNotes() reconstruit
+
+/** Notes de la carte ouverte. Renvoie le tableau vivant, créé au besoin. */
+function currentNotes() {
+  const sc = scenes.find((x) => x.id === selectedId);
+  if (!sc) return null;
+  if (!Array.isArray(sc.notes)) sc.notes = [];
+  return sc.notes;
+}
+
+async function persistNotes() {
+  const sc = scenes.find((x) => x.id === selectedId);
+  if (sc) await db.put('scenes', sc);
+}
+const persistNotesSoon = debounce(persistNotes, 300);
+
+function setNotesOpen(open) {
+  const can = open && !!selectedId;
+  $('#notes-panel').classList.toggle('hidden', !can);
+  $('#btn-notes').classList.toggle('active', can);
+  if (can) renderNotes();
+}
+function toggleNotes() {
+  setNotesOpen($('#notes-panel').classList.contains('hidden'));
+}
+
+function renderNotes() {
+  const host = $('#notes-list');
+  if (!host) return;
+  const notes = currentNotes();
+  host.innerHTML = '';
+  $('#notes-count').textContent = notes && notes.length ? String(notes.length) : '';
+
+  if (!notes || !notes.length) {
+    host.append(el('p', { class: 'notes-empty', text: tr('notes.empty') }));
+    return;
+  }
+  for (const n of notes) host.append(noteCard(n));
+}
+
+function noteCard(n) {
+  const collapsed = collapsedNotes.has(n.id);
+  const wrap = el('div', { class: 'note' + (collapsed ? ' collapsed' : '') });
+
+  const head = el('div', { class: 'note-head', draggable: 'true' }, [
+    el('span', { class: 'note-caret', text: '▾' }),
+  ]);
+  const title = el('input', {
+    class: 'note-title', type: 'text', maxlength: '60',
+    value: n.title || '', placeholder: tr('notes.titlePlaceholder'),
+  });
+  title.addEventListener('click', (e) => e.stopPropagation());
+  title.addEventListener('input', () => { n.title = title.value; persistNotesSoon(); });
+  const del = el('button', { class: 'note-del', text: '✕', title: tr('notes.deleteTitle') });
+  del.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const label = (n.title || '').trim() || tr('notes.untitled');
+    if (!(await askConfirm(tr('notes.confirmDelete', { name: label })))) return;
+    const notes = currentNotes();
+    const i = notes.findIndex((x) => x.id === n.id);
+    if (i >= 0) notes.splice(i, 1);
+    collapsedNotes.delete(n.id);
+    await persistNotes();
+    renderNotes();
+  });
+  head.append(title, del);
+  head.addEventListener('click', () => {
+    if (collapsedNotes.has(n.id)) collapsedNotes.delete(n.id); else collapsedNotes.add(n.id);
+    wrap.classList.toggle('collapsed');
+  });
+
+  // réordonnancement : même geste que les decks, sur un type distinct
+  head.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/note-id', n.id);
+    e.dataTransfer.effectAllowed = 'move';
+    wrap.classList.add('dragging');
+  });
+  head.addEventListener('dragend', () => {
+    wrap.classList.remove('dragging');
+    $$('.note').forEach((x) => x.classList.remove('note-drop-before', 'note-drop-after'));
+  });
+  ;['dragenter', 'dragover'].forEach((ev) => wrap.addEventListener(ev, (e) => {
+    if (!e.dataTransfer.types.includes('text/note-id') || wrap.classList.contains('dragging')) return;
+    e.preventDefault();
+    const r = wrap.getBoundingClientRect();
+    const before = e.clientY < r.top + r.height / 2;
+    wrap.classList.toggle('note-drop-before', before);
+    wrap.classList.toggle('note-drop-after', !before);
+  }));
+  wrap.addEventListener('dragleave', (e) => {
+    if (e.relatedTarget && wrap.contains(e.relatedTarget)) return;
+    wrap.classList.remove('note-drop-before', 'note-drop-after');
+  });
+  wrap.addEventListener('drop', async (e) => {
+    const before = wrap.classList.contains('note-drop-before');
+    wrap.classList.remove('note-drop-before', 'note-drop-after');
+    const id = e.dataTransfer.getData('text/note-id');
+    if (!id || id === n.id) return;
+    e.preventDefault();
+    await moveNote(id, n.id, before);
+  });
+
+  const body = el('textarea', { class: 'note-body', rows: '6', placeholder: tr('notes.bodyPlaceholder') });
+  body.value = n.body || '';
+  body.addEventListener('click', (e) => e.stopPropagation());
+  body.addEventListener('input', () => { n.body = body.value; persistNotesSoon(); });
+
+  wrap.append(head, body);
+  return wrap;
+}
+
+/** Réordonne une note : l'insère avant ou après `targetId`. */
+async function moveNote(dragId, targetId, before) {
+  const notes = currentNotes();
+  if (!notes) return;
+  const from = notes.findIndex((x) => x.id === dragId);
+  if (from < 0) return;
+  const [moved] = notes.splice(from, 1);
+  const at = notes.findIndex((x) => x.id === targetId);
+  if (at < 0) { notes.splice(from, 0, moved); return; }
+  notes.splice(before ? at : at + 1, 0, moved);
+  await persistNotes();
+  renderNotes();
+}
+
+async function addNote() {
+  const notes = currentNotes();
+  if (!notes) return;
+  const n = { id: uid('note'), title: '', body: '' };
+  notes.push(n);
+  await persistNotes();
+  renderNotes();
+  // curseur dans le titre de la note qu'on vient de créer
+  $$('#notes-list .note-title').at(-1)?.focus();
 }
 
 function syncGridPanel() {
@@ -2218,6 +2371,7 @@ const CTRL_ALT_KEYS = {
   n: () => advanceTurn(1),
   f: () => stage.fit(),
   m: () => toggleRuler(),
+  b: () => toggleNotes(),          // b comme bloc-notes : n est pris par « combattant suivant »
 };
 
 function wireKeyboard() {

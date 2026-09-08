@@ -192,6 +192,17 @@ appear — visible on your console and on the player view.
 Once a map is presented, every token move, brush stroke or damage is mirrored live to
 the player view.
 
+### 📝 GM notes
+
+The **📝** toolbar button (or `Ctrl+Alt+B`) opens a panel listing the notes of the
+**open map**. **+ New note** adds one; each has a title and a body, collapses with a
+click on its header, is reordered by dragging it, and is deleted with **✕** (with
+confirmation). Everything saves itself as you type.
+
+Notes belong to the map: they follow its duplication, disappear with it, and are
+included in the export. **They are never sent to the player view** — sync only carries
+the grid, tokens, fog, framing, initiative and pings.
+
 ### Decks
 
 **+ New deck**, then drag thumbnails onto the deck. Double-click a deck or scene name
@@ -228,6 +239,7 @@ single confirmation stating how many maps are involved.
 | `Ctrl` + `Alt` + `N` | Next combatant (initiative tracker) |
 | `Ctrl`/`⌘` + `D` | Duplicate the selected token(s) |
 | `Ctrl` + `Alt` + `G` | Toggle the ⚙ Grid panel |
+| `Ctrl` + `Alt` + `B` | Toggle the 📝 Notes panel |
 | `Ctrl` + `Alt` + `F` | Fit the view |
 | `Space` + drag | Pan the view |
 | wheel | Zoom |

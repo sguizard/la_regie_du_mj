@@ -353,6 +353,43 @@ button.tl-name.tl-add { text-align: left; }
 .tl-x:hover { background: #3a201d; color: #fff; }
 
 /* ---------- Modèles de créature ---------- */
+/* ---------- Notes du MJ (panneau flottant) ---------- */
+.notes-count { font-size: 12px; color: var(--text-dim); font-weight: 400; }
+/* Plafonné pour que « + Nouvelle note » et « Fermer » restent atteignables. */
+.notes-list { display: flex; flex-direction: column; gap: 6px; max-height: 48vh; overflow-y: auto; }
+.notes-empty { color: var(--text-dim); font-size: 12px; margin: 2px 0; }
+.note {
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg-elev-2); overflow: hidden;
+  flex: 0 0 auto;                 /* sinon le flex column l'écrase au lieu de faire défiler */
+}
+.note.dragging { opacity: .5; }
+.note-drop-before { box-shadow: inset 0 3px 0 var(--accent); }
+.note-drop-after { box-shadow: inset 0 -3px 0 var(--accent); }
+.note-head {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 6px; cursor: pointer; user-select: none;
+}
+.note-head:hover { background: #2d3242; }
+.note-caret { width: 10px; color: var(--text-dim); transition: transform .12s; flex: 0 0 auto; }
+.note.collapsed .note-caret { transform: rotate(-90deg); }
+.note.collapsed .note-body { display: none; }
+.note-title {
+  flex: 1; min-width: 0; background: transparent; border: 1px solid transparent;
+  color: var(--text); font: inherit; font-weight: 600; border-radius: 4px; padding: 2px 4px;
+}
+.note-title:hover { border-color: var(--border); }
+.note-title:focus { border-color: var(--accent-2); outline: none; background: var(--bg); }
+.note-del { opacity: 0; border: none; background: none; color: var(--text-dim); cursor: pointer; font-size: 13px; flex: 0 0 auto; }
+.note-head:hover .note-del { opacity: 1; }
+.note-del:hover { color: var(--danger); }
+.note-body {
+  display: block; width: 100%; box-sizing: border-box; resize: vertical;
+  background: var(--bg); border: none; border-top: 1px solid var(--border);
+  color: var(--text); font: inherit; padding: 6px; min-height: 60px;
+}
+.note-body:focus { outline: none; box-shadow: inset 0 0 0 1px var(--accent-2); }
+
 .tpl-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
 .tpl-chip {
   display: inline-flex; align-items: center; gap: 5px; max-width: 100%;

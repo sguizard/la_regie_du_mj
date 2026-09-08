@@ -203,6 +203,18 @@ animé « regarde ici » — visible sur ta régie et sur la vue joueurs.
 Une fois la carte présentée, chaque déplacement de token, coup de pinceau ou dégât
 est répercuté en direct sur la vue joueurs.
 
+### 📝 Notes du MJ
+
+Bouton **📝** de la barre d'outils (ou `Ctrl+Alt+B`) : un panneau listant les notes de
+la **carte ouverte**. **+ Nouvelle note** en ajoute une ; chacune a un titre et un
+corps de texte, se replie d'un clic sur son en-tête, se réordonne en la glissant et se
+supprime par **✕** (avec confirmation). Tout s'enregistre tout seul pendant la frappe.
+
+Les notes appartiennent à la carte : elles suivent sa duplication, disparaissent avec
+elle, et sont incluses dans l'export. **Elles ne sont jamais transmises à la vue
+joueurs** — la synchronisation n'envoie que la grille, les tokens, le brouillard, le
+cadrage, l'initiative et les pings.
+
 ### Decks
 **+ Nouveau deck**, puis glisse les vignettes vers le deck. Double-clic sur un nom de
 deck ou de scène pour le renommer. La barre de recherche filtre par nom. Un deck qui
@@ -237,6 +249,7 @@ suppression demande une seule confirmation, qui annonce le nombre de cartes.
 | `Ctrl` + `Alt` + `N` | Combattant suivant (suivi d'initiative) |
 | `Ctrl`/`⌘` + `D` | Dupliquer le(s) token(s) sélectionné(s) |
 | `Ctrl` + `Alt` + `G` | Ouvrir/fermer le panneau ⚙ Grille |
+| `Ctrl` + `Alt` + `B` | Ouvrir/fermer le panneau 📝 Notes |
 | `Ctrl` + `Alt` + `F` | Ajuster la vue |
 | `Espace` + glisser | Déplacer la vue |
 | molette | Zoom |

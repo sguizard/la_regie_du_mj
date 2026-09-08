@@ -81,6 +81,7 @@
             <button class="tool" data-tool="grid" data-i18n-title="tool.grid">▦</button>
             <button class="tool" data-tool="ruler" data-i18n-title="tool.ruler">📏</button>
             <button class="tool" data-tool="frame" data-i18n-title="tool.frame">📺</button>
+            <button id="btn-notes" class="tool" data-i18n-title="tool.notes">📝</button>
             <button id="btn-config" class="tool" data-i18n-title="tool.config">⚙</button>
           </div>
 
@@ -96,6 +97,14 @@
             <button id="btn-frame-view" class="btn btn-small" data-i18n="frame.toView" data-i18n-title="frame.toViewTitle">🎯 Ma vue</button>
             <button id="btn-frame-full" class="btn btn-small" data-i18n="frame.full">🗺 Toute la carte</button>
           </div>
+        </div>
+
+        <!-- Notes du MJ, propres à la carte ouverte -->
+        <div id="notes-panel" class="floaty hidden">
+          <h3><span data-i18n="notes.title">Notes</span> <span id="notes-count" class="notes-count"></span></h3>
+          <button id="notes-add" class="btn btn-small btn-block" data-i18n="notes.add">+ Nouvelle note</button>
+          <div id="notes-list" class="notes-list"></div>
+          <button id="notes-close" class="btn btn-small btn-block" data-i18n="config.close">Fermer</button>
         </div>
 
         <!-- Panneau de configuration (grille) -->

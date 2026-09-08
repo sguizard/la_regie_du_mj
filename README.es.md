@@ -207,6 +207,17 @@ animada de «mira aquí» — visible en tu consola y en la vista de jugadores.
 Una vez presentado un mapa, cada movimiento de token, trazo de pincel o daño se
 refleja en directo en la vista de jugadores.
 
+### 📝 Notas del DJ
+
+El botón **📝** de la barra de herramientas (o `Ctrl+Alt+B`) abre un panel con las
+notas del **mapa abierto**. **+ Nueva nota** añade una; cada una tiene un título y un
+cuerpo, se pliega con un clic en su cabecera, se reordena arrastrándola y se elimina
+con **✕** (con confirmación). Todo se guarda solo mientras escribes.
+
+Las notas pertenecen al mapa: siguen su duplicación, desaparecen con él y se incluyen
+en la exportación. **Nunca se envían a la vista de jugadores** — la sincronización solo
+transmite la rejilla, los tokens, la niebla, el encuadre, la iniciativa y los pings.
+
 ### Mazos
 
 **+ Nuevo mazo**, luego arrastra las miniaturas al mazo. Doble clic en el nombre de un
@@ -243,6 +254,7 @@ eliminación pide una sola confirmación, que indica cuántos mapas hay.
 | `Ctrl` + `Alt` + `N` | Siguiente combatiente (seguimiento de iniciativa) |
 | `Ctrl`/`⌘` + `D` | Duplicar el/los token(s) seleccionado(s) |
 | `Ctrl` + `Alt` + `G` | Abrir/cerrar el panel ⚙ Rejilla |
+| `Ctrl` + `Alt` + `B` | Abrir/cerrar el panel 📝 Notas |
 | `Ctrl` + `Alt` + `F` | Ajustar la vista |
 | `Espacio` + arrastrar | Desplazar la vista |
 | rueda | Zoom |
