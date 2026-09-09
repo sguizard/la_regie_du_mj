@@ -2,7 +2,7 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
-## [1.4.0] - 2026-09-02
+## [1.4.0] - 2026-09-09
 
 ### Corrigé
 - **Les decks pliés se dépliaient tout seuls** dès qu'on cliquait sur une carte, ou à
