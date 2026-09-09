@@ -215,7 +215,8 @@ refleja en directo en la vista de jugadores.
 
 El botón **📝** de la barra de herramientas (o `Ctrl+Alt+B`) abre un panel con las
 notas del **mapa abierto**. **+ Nueva nota** añade una; cada una tiene un título y un
-cuerpo, se pliega con un clic en su cabecera, se reordena arrastrándola y se elimina
+cuerpo, aparece **plegada por defecto** y se despliega con un clic en su cabecera, se
+reordena arrastrándola y se elimina
 con **✕** (con confirmación). Todo se guarda solo mientras escribes.
 **Arrastra la barra de título «Notas» para mover el panel**, y el tirador de la
 esquina inferior derecha para redimensionarlo (mínimo 200 × 150). Posición y tamaño

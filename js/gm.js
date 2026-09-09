@@ -280,7 +280,7 @@ async function wipeAll() {
   selectedId = presentingId = null;
   sceneSel.clear();
   collapsedDecks.clear();
-  collapsedNotes.clear();
+  expandedNotes.clear();
   notesPos = null;                       // clearAll() a vidé meta : on suit
   resetPanelPos($('#notes-panel'));
   if (blackout) await setBlackout(false);
@@ -834,7 +834,7 @@ async function selectScene(id) {
   setTool('move');
   // Les notes appartiennent à la carte : on referme le panneau et on oublie
   // les replis de la carte précédente.
-  collapsedNotes.clear();
+  expandedNotes.clear();
   setNotesOpen(false);
   $('#token-props').classList.add('hidden');
   $('#multi-props').classList.add('hidden');
@@ -1333,7 +1333,10 @@ function makeResizable(panel, handle, onDrop) {
 // suivent donc la duplication et l'export sans magasin dédié, disparaissent avec
 // la carte, et ne peuvent pas atteindre la vue joueurs — la synchro n'envoie que
 // des charges explicites (grid, tokens, fog, frame, initiative, ping).
-const collapsedNotes = new Set();   // ids repliés — hors du DOM, que renderNotes() reconstruit
+// Ids des notes DÉPLIÉES : le sens est inversé pour qu'une note inconnue du Set —
+// donc toute note au chargement ou au changement de carte — s'affiche repliée.
+// Hors du DOM, que renderNotes() reconstruit à chaque rendu.
+const expandedNotes = new Set();
 
 /** Notes de la carte ouverte. Renvoie le tableau vivant, créé au besoin. */
 function currentNotes() {
@@ -1376,7 +1379,7 @@ function renderNotes() {
 }
 
 function noteCard(n) {
-  const collapsed = collapsedNotes.has(n.id);
+  const collapsed = !expandedNotes.has(n.id);
   const wrap = el('div', { class: 'note' + (collapsed ? ' collapsed' : '') });
 
   const head = el('div', { class: 'note-head', draggable: 'true' }, [
@@ -1396,13 +1399,13 @@ function noteCard(n) {
     const notes = currentNotes();
     const i = notes.findIndex((x) => x.id === n.id);
     if (i >= 0) notes.splice(i, 1);
-    collapsedNotes.delete(n.id);
+    expandedNotes.delete(n.id);
     await persistNotes();
     renderNotes();
   });
   head.append(title, del);
   head.addEventListener('click', () => {
-    if (collapsedNotes.has(n.id)) collapsedNotes.delete(n.id); else collapsedNotes.add(n.id);
+    if (expandedNotes.has(n.id)) expandedNotes.delete(n.id); else expandedNotes.add(n.id);
     wrap.classList.toggle('collapsed');
   });
 
@@ -1465,6 +1468,7 @@ async function addNote() {
   if (!notes) return;
   const n = { id: uid('note'), title: '', body: '' };
   notes.push(n);
+  expandedNotes.add(n.id);   // sinon « + Nouvelle note » semblerait ne rien faire
   await persistNotes();
   renderNotes();
   // curseur dans le titre de la note qu'on vient de créer

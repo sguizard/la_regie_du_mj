@@ -211,7 +211,8 @@ est répercuté en direct sur la vue joueurs.
 
 Bouton **📝** de la barre d'outils (ou `Ctrl+Alt+B`) : un panneau listant les notes de
 la **carte ouverte**. **+ Nouvelle note** en ajoute une ; chacune a un titre et un
-corps de texte, se replie d'un clic sur son en-tête, se réordonne en la glissant et se
+corps de texte, s'affiche **repliée par défaut** et se déplie d'un clic sur son
+en-tête, se réordonne en la glissant et se
 supprime par **✕** (avec confirmation). Tout s'enregistre tout seul pendant la frappe.
 **Glisse la barre de titre « Notes » pour déplacer le panneau**, et la poignée du
 coin bas-droit pour le redimensionner (minimum 200 × 150). Position et taille sont

@@ -24,7 +24,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   n'avait aucune interface).
 - **Notes du MJ, propres à chaque carte** : bouton 📝 de la barre d'outils ou
   `Ctrl+Alt+B`. Chaque carte porte sa liste de notes, avec un titre et un corps de
-  texte ; on les replie d'un clic sur l'en-tête, on les réordonne en les glissant, on
+  texte ; elles s'affichent repliées et se déplient d'un clic sur l'en-tête (une note
+  qu'on vient de créer s'ouvre dépliée), on les réordonne en les glissant, on
   les supprime par ✕ avec confirmation, et tout s'enregistre pendant la frappe. Les
   notes vivent sur la scène, comme ses tokens et sa grille : elles suivent sa
   duplication, disparaissent avec elle et sont incluses dans l'export. Elles ne sont
