@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - 'v*'
+  # Lancement manuel : construit les trois paquets sans rien publier, pour
+  # éprouver la chaîne sans avoir à poser un tag.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,9 +25,9 @@ jobs:
             plat: linux
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -59,7 +62,7 @@ jobs:
           print('made', name + '.zip')
           PY
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: pkg-${{ matrix.plat }}
           path: la-regie-du-mj-*.zip
@@ -67,11 +70,14 @@ jobs:
 
   release:
     needs: build
+    # Sans ce garde-fou, un lancement manuel publierait une release nommée
+    # d'après la branche : GITHUB_REF_NAME vaut « main » hors d'un tag.
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: pkg-*
           merge-multiple: true
