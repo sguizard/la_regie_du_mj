@@ -21,7 +21,7 @@ jobs:
             plat: windows
           - os: macos-latest
             plat: macos-apple-silicon
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             plat: linux
     runs-on: ${{ matrix.os }}
     steps:
