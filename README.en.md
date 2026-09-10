@@ -93,7 +93,8 @@ the same machine**.
    - or the **⛃ Token** tool, then click on the map where you want it;
    - or a **template**: below "+ Add a token", one chip per saved template
      (colour / thumbnail + name). Click = drops a pre-filled token (name, HP, colour,
-     type, size, image, conditions). To create a template: a token's ⚙ →
+     type, initiative, DEF, ATK, DM, size, image, conditions). To create a template:
+     a token's ⚙ →
      **⭐ Save as a template**. The chip is removed on hover (**✕**). Templates are
      shared across every scene and included in the export.
    A new token has no name, type, initiative, DEF or HP: on its row, **+ name**,

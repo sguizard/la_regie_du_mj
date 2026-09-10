@@ -99,7 +99,8 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
    - o la herramienta **⛃ Token** y luego clic en el mapa en el punto deseado;
    - o una **plantilla**: bajo «+ Añadir un token», una pastilla por plantilla guardada
      (color / miniatura + nombre). Clic = coloca un token predefinido (nombre, PV,
-     color, tipo, tamaño, imagen, estados). Para crear una plantilla: el ⚙ de un token
+     color, tipo, iniciativa, DEF, ATK, DM, tamaño, imagen, estados). Para crear una
+     plantilla: el ⚙ de un token
      → **⭐ Guardar como plantilla**. La pastilla se elimina al pasar el ratón (**✕**).
      Las plantillas se comparten entre todas las escenas y se incluyen en la
      exportación.

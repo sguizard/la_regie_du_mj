@@ -2,6 +2,16 @@
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
+## [1.4.1] - 2026-09-10
+
+### Corrigé
+- **L'initiative n'était pas conservée dans les modèles de créature** : le champ n'a
+  jamais fait partie du schéma des modèles depuis leur introduction en 1.2.0 — ni à
+  l'enregistrement, ni à la repose, ni dans la liste blanche de l'import. DEF puis ATK
+  et DM, ajoutés plus tard, avaient bien traité les trois points ; l'initiative, plus
+  ancienne, n'avait jamais été reprise. Les modèles déjà enregistrés n'ont pas de
+  valeur : ré-enregistre-les depuis un token pour la leur donner.
+
 ## [1.4.0] - 2026-09-09
 
 ### Corrigé

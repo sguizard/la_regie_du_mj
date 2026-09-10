@@ -100,7 +100,8 @@ doivent tourner **dans le même navigateur sur la même machine**.
    - ou outil **⛃ Token** puis clic sur la carte à l'endroit voulu ;
    - ou un **modèle** : sous « + Ajouter un token », une puce par modèle enregistré
      (couleur / vignette + nom). Clic = pose un token pré-rempli (nom, PV, couleur,
-     type, taille, image, états). Pour créer un modèle : ⚙ d'un token →
+     type, initiative, DEF, ATK, DM, taille, image, états). Pour créer un modèle :
+     ⚙ d'un token →
      **⭐ Enregistrer comme modèle**. La puce se supprime au survol (**✕**). Les
      modèles sont partagés entre toutes les scènes et inclus dans l'export.
    Un nouveau token n'a ni nom, ni type, ni initiative, ni DEF, ni PV : sur sa ligne,

@@ -123,6 +123,7 @@ export async function restoreBackup(data) {
       name: t.name || '',
       color: t.color || '#c0392b',
       type: t.type ?? null,
+      initiative: t.initiative ?? null,
       def: t.def ?? null,
       atk: t.atk ?? null,
       dm: t.dm ?? null,
