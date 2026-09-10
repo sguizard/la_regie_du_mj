@@ -13,6 +13,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
   token, un double-clic en aurait posé deux avant d'ouvrir le panneau.
 
 ### Corrigé
+- **Le champ ATK refusait tout ce qui n'était pas un entier nu** : `<input type="number">`
+  rapporte une valeur vide dès que la saisie lui déplaît, et le code traduisait ce vide
+  en « pas de valeur ». `+4 / +6` était donc jeté en silence — mais aussi un simple
+  `+4`, alors même que le champ s'intitule « bonus d'attaque ». ATK devient du texte
+  libre dans les trois panneaux (⚙, modèle, édition groupée) comme dans la liste des
+  tokens : `+4`, `+4 / +6`, ou toute autre notation. En contrepartie le signe se saisit
+  à la main, il n'est plus ajouté d'office. Les valeurs déjà enregistrées, qui sont des
+  nombres, continuent de s'afficher signées sans migration.
 - **L'initiative n'était pas conservée dans les modèles de créature** : le champ n'a
   jamais fait partie du schéma des modèles depuis leur introduction en 1.2.0 — ni à
   l'enregistrement, ni à la repose, ni dans la liste blanche de l'import. DEF puis ATK

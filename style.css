@@ -320,7 +320,7 @@ button.tl-name.tl-add { text-align: left; }
   background: var(--bg); border: 1px solid var(--border); color: var(--text);
   border-radius: 4px; padding: 2px 3px; font: inherit; text-align: center;
 }
-.tl-atk-inp { width: 34px; }
+.tl-atk-inp { width: 64px; }   /* « +4 / +6 » ne tient pas dans 34 px */
 .tl-dm-inp { width: 72px; text-align: left; }
 /* Saisie hors notation de dés : signalée, jamais refusée. (Même doré que la
    barre de PV à mi-course — il n'y a pas de variable d'avertissement.)

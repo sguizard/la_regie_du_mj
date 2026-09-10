@@ -938,7 +938,7 @@ function wireToolbar() {
     t.type = ['pj', 'pnj'].includes($('#tp-type').value) ? $('#tp-type').value : null;
     t.initiative = $('#tp-init').value === '' ? null : Math.round(+$('#tp-init').value);
     t.def = $('#tp-def').value === '' ? null : Math.round(+$('#tp-def').value);
-    t.atk = $('#tp-atk').value === '' ? null : Math.round(+$('#tp-atk').value);
+    t.atk = $('#tp-atk').value.trim() || null;
     t.dm = $('#tp-dm').value.trim() || null;
     markDmValidity($('#tp-dm'));
     t.color = $('#tp-color').value;
@@ -1652,7 +1652,7 @@ function openTokenProps(t) {
   $('#tp-type').value = t.type === 'pj' || t.type === 'pnj' ? t.type : '';
   $('#tp-init').value = t.initiative ?? '';
   $('#tp-def').value = t.def ?? '';
-  $('#tp-atk').value = t.atk ?? '';
+  $('#tp-atk').value = atkText(t.atk);
   $('#tp-dm').value = t.dm ?? '';
   markDmValidity($('#tp-dm'));
   $('#tp-color').value = t.color || '#c0392b';
@@ -1773,8 +1773,8 @@ function wireMultiProps() {
     commit();
   });
   $('#mp-atk').addEventListener('change', (e) => {
-    if (e.target.value === '') return;
-    const v = Math.round(+e.target.value || 0);
+    const v = e.target.value.trim();
+    if (v === '') return;
     for (const t of sel()) t.atk = v;
     commit();
   });
@@ -1839,10 +1839,11 @@ function fmtAtk(v) {
   return v == null ? '' : (v >= 0 ? '+' : '-') + Math.abs(v);
 }
 
-/** Lit un bonus d'attaque saisi à la main : « +5 », « 5 » et « -1 » sont acceptés. */
-function parseAtk(s) {
-  const v = parseInt(String(s).replace(/[−–—]/g, '-').replace(/\s|\+/g, ''), 10);
-  return Number.isFinite(v) ? v : null;
+/** ATK à afficher. C'est désormais du texte libre — « +4 / +6 » pour une attaque
+ *  multiple — mais les valeurs enregistrées avant ce changement sont des nombres :
+ *  on les signe au vol plutôt que d'imposer une migration. */
+function atkText(v) {
+  return typeof v === 'number' ? fmtAtk(v) : (v ?? '');
 }
 
 /** Copie triée de stage.tokens pour l'affichage (n'altère pas l'ordre de rendu). */
@@ -2024,12 +2025,13 @@ function tokenListRow(t) {
     const line3 = el('div', { class: 'tl-line3' });
 
     if (t.atk != null) {
-      // Texte plutôt que number : seul un champ texte peut montrer le « + » du bonus.
-      const inp = el('input', { class: 'tl-atk-inp', type: 'text', inputmode: 'numeric', maxlength: '4', value: fmtAtk(t.atk) });
+      // Texte libre : le bonus porte son signe, et une attaque multiple s'écrit
+      // « +4 / +6 » — ce qu'un champ numérique rejetterait en silence.
+      const inp = el('input', { class: 'tl-atk-inp', type: 'text', maxlength: '16', value: atkText(t.atk) });
       inp.addEventListener('click', (e) => e.stopPropagation());
       inp.addEventListener('change', () => {
-        t.atk = inp.value.trim() === '' ? null : parseAtk(inp.value);
-        if (stage.selectedTokenId === t.id) $('#tp-atk').value = t.atk ?? '';
+        t.atk = inp.value.trim() || null;
+        if (stage.selectedTokenId === t.id) $('#tp-atk').value = atkText(t.atk);
         afterTokenEdit();
       });
       line3.append(el('span', { class: 'tl-stat', title: tr('tokens.atkTitle') }, [
@@ -2473,7 +2475,7 @@ function openTplProps(tpl) {
   $('#tplp-type').value = tpl.type === 'pj' || tpl.type === 'pnj' ? tpl.type : '';
   $('#tplp-init').value = tpl.initiative ?? '';
   $('#tplp-def').value = tpl.def ?? '';
-  $('#tplp-atk').value = tpl.atk ?? '';
+  $('#tplp-atk').value = atkText(tpl.atk);
   $('#tplp-dm').value = tpl.dm ?? '';
   markDmValidity($('#tplp-dm'));
   $('#tplp-color').value = tpl.color || '#c0392b';
@@ -2519,7 +2521,7 @@ function wireTplProps() {
     editingTpl.type = ['pj', 'pnj'].includes($('#tplp-type').value) ? $('#tplp-type').value : null;
     editingTpl.initiative = $('#tplp-init').value === '' ? null : Math.round(+$('#tplp-init').value);
     editingTpl.def = $('#tplp-def').value === '' ? null : Math.round(+$('#tplp-def').value);
-    editingTpl.atk = $('#tplp-atk').value === '' ? null : Math.round(+$('#tplp-atk').value);
+    editingTpl.atk = $('#tplp-atk').value.trim() || null;
     editingTpl.dm = $('#tplp-dm').value.trim() || null;
     markDmValidity($('#tplp-dm'));
     editingTpl.color = $('#tplp-color').value;

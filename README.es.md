@@ -117,7 +117,7 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
    barra de PV + PV editables, botones **−/+** que aplican la **cantidad ±** de la
    parte superior de la lista.
    Fila 3 (solo si al menos uno de los dos está definido): **ATK** (bonificación de
-   ataque, mostrada con su signo) y **DM** (daño en notación de dados — `2d6`,
+   ataque, texto libre: `+4`, o `+4 / +6` para un ataque múltiple) y **DM** (daño en notación de dados — `2d6`,
    `1d8 + 3`), ambos editables in situ. Se definen con **⚙** o una plantilla de
    criatura; un DM fuera de la notación de dados se señala en dorado, pero nunca se
    rechaza. Como la DEF, son datos solo del DJ, nunca enviados a los jugadores.
