@@ -101,7 +101,9 @@ deben ejecutarse **en el mismo navegador y en la misma máquina**.
      (color / miniatura + nombre). Clic = coloca un token predefinido (nombre, PV,
      color, tipo, iniciativa, DEF, ATK, DM, tamaño, imagen, estados). Para crear una
      plantilla: el ⚙ de un token
-     → **⭐ Guardar como plantilla**. La pastilla se elimina al pasar el ratón (**✕**).
+     → **⭐ Guardar como plantilla**. Al pasar el ratón por una pastilla: **✎** abre un
+     panel de edición (todos los campos, apariencia y estados incluidos), **✕** la
+     elimina.
      Las plantillas se comparten entre todas las escenas y se incluyen en la
      exportación.
    Un token nuevo no tiene nombre, tipo, iniciativa, DEF ni PV: en su fila,

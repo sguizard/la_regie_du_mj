@@ -4,6 +4,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ## [1.4.1] - 2026-09-10
 
+### Ajouté
+- **Panneau d'édition des modèles de créature** : au survol d'une puce, **✎** ouvre un
+  panneau reprenant tous les champs du modèle — nom, type, initiative, DEF, ATK, DM,
+  couleur, taille, PV max, PV vus par les joueurs, apparence et états. Modifier un
+  modèle ne demande donc plus de le recréer depuis un token puis de supprimer l'ancien.
+  Le bouton est un **✎** et non un double-clic : un clic simple sur la puce pose déjà un
+  token, un double-clic en aurait posé deux avant d'ouvrir le panneau.
+
 ### Corrigé
 - **L'initiative n'était pas conservée dans les modèles de créature** : le champ n'a
   jamais fait partie du schéma des modèles depuis leur introduction en 1.2.0 — ni à

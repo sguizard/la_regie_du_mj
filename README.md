@@ -102,8 +102,10 @@ doivent tourner **dans le même navigateur sur la même machine**.
      (couleur / vignette + nom). Clic = pose un token pré-rempli (nom, PV, couleur,
      type, initiative, DEF, ATK, DM, taille, image, états). Pour créer un modèle :
      ⚙ d'un token →
-     **⭐ Enregistrer comme modèle**. La puce se supprime au survol (**✕**). Les
-     modèles sont partagés entre toutes les scènes et inclus dans l'export.
+     **⭐ Enregistrer comme modèle**. Au survol d'une puce : **✎** ouvre un panneau
+     d'édition (tous les champs du modèle, apparence et états compris), **✕** le
+     supprime. Les modèles sont partagés entre toutes les scènes et inclus dans
+     l'export.
    Un nouveau token n'a ni nom, ni type, ni initiative, ni DEF, ni PV : sur sa ligne,
    **+ nom**, **+ type**, **+ init**, **+ DEF** (défense / CA) et **+ PV** les ajoutent
    en un clic. Une fois définis : le nom s'édite via ⚙, l'initiative et la DEF dans de

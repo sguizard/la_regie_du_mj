@@ -120,6 +120,7 @@ export async function initGM() {
   wireSidebar();
   wireToolbar();
   wireMultiProps();
+  wireTplProps();
   wireCanvas();
   wireKeyboard();
   wireWheelNumbers();
@@ -917,6 +918,13 @@ function wireToolbar() {
     const created = await importTokens([...e.target.files]);
     e.target.value = '';
     await reloadAll();
+    // Le même champ fichier sert aux deux panneaux : sans cet aiguillage, une
+    // image importée depuis l'édition d'un modèle irait au token sélectionné.
+    if (editingTpl) {
+      if (created[0]) { editingTpl.imageRef = created[0].id; await persistTpl(); }
+      renderTplAppearance();
+      return;
+    }
     const t = selectedToken();
     if (t && created[0]) { t.imageRef = created[0].id; await afterTokenEdit(); }
     renderAppearance();
@@ -1195,6 +1203,7 @@ function toggleConfig() {
 function closeFloaties() {
   setConfigOpen(false);
   setNotesOpen(false);
+  setTplPropsOpen(false);
 }
 
 // ---------------------------------------------------------------- panneaux flottants
@@ -1638,6 +1647,7 @@ async function duplicateSelectedTokens() {
 function openTokenProps(t) {
   stage.selectOnly(t.id);
   $('#multi-props').classList.add('hidden');
+  setTplPropsOpen(false);
   $('#tp-label').value = t.label || '';
   $('#tp-type').value = t.type === 'pj' || t.type === 'pnj' ? t.type : '';
   $('#tp-init').value = t.initiative ?? '';
@@ -1660,46 +1670,52 @@ function openTokenProps(t) {
 // ---------------------------------------------------------------- états (conditions)
 const CONDITION_PRESETS = ['☠️', '😵', '💤', '🔥', '🩸', '⬇️', '🕸️', '🛡️', '⚡', '🐌'];
 
-function renderTokenConditions() {
-  const presetHost = $('#tp-cond-presets');
-  const listHost = $('#tp-cond-list');
+/** Éditeur d'états, pour une cible quelconque : un token de la scène comme un
+ *  modèle de créature. `onChange` enregistre et redessine, à charge de l'appelant. */
+function renderConditionsInto(presetHost, listHost, target, onChange) {
   if (!presetHost || !listHost) return;
   presetHost.innerHTML = '';
   listHost.innerHTML = '';
-  const t = stage.tokens.find((x) => x.id === stage.selectedTokenId);
-  if (!t) return;
-  const conds = t.conditions || [];
+  if (!target) return;
+  const conds = target.conditions || [];
 
   for (const emo of CONDITION_PRESETS) {
     const b = el('button', { class: 'cond-btn' + (conds.includes(emo) ? ' active' : ''), text: emo });
-    b.addEventListener('click', () => toggleCondition(t, emo));
+    b.addEventListener('click', () => toggleCondition(target, emo, onChange));
     presetHost.append(b);
   }
   for (const c of conds.filter((x) => !CONDITION_PRESETS.includes(x))) {
     const x = el('button', { class: 'cond-x', text: '✕' });
-    x.addEventListener('click', () => toggleCondition(t, c));
+    x.addEventListener('click', () => toggleCondition(target, c, onChange));
     listHost.append(el('span', { class: 'cond-chip' }, [el('span', { text: c }), x]));
   }
   const add = el('button', { class: 'cond-btn cond-add', text: '＋', title: tr('props.condPrompt') });
   add.addEventListener('click', async () => {
     const v = ((await askPrompt(tr('props.condPrompt'))) || '').trim();
-    if (v && !(t.conditions || []).includes(v)) {
-      (t.conditions ||= []).push(v);
-      afterTokenEdit();
-      renderTokenConditions();
+    if (v && !(target.conditions || []).includes(v)) {
+      (target.conditions ||= []).push(v);
+      onChange();
     }
   });
   listHost.append(add);
 }
 
-function toggleCondition(t, c) {
-  t.conditions ||= [];
-  const i = t.conditions.indexOf(c);
-  if (i >= 0) t.conditions.splice(i, 1);
-  else t.conditions.push(c);
-  if (!t.conditions.length) delete t.conditions;
-  afterTokenEdit();
-  renderTokenConditions();
+/** États du token sélectionné, dans le panneau ⚙. */
+function renderTokenConditions() {
+  const t = stage.tokens.find((x) => x.id === stage.selectedTokenId);
+  renderConditionsInto($('#tp-cond-presets'), $('#tp-cond-list'), t, () => {
+    afterTokenEdit();
+    renderTokenConditions();
+  });
+}
+
+function toggleCondition(target, c, onChange) {
+  target.conditions ||= [];
+  const i = target.conditions.indexOf(c);
+  if (i >= 0) target.conditions.splice(i, 1);
+  else target.conditions.push(c);
+  if (!target.conditions.length) delete target.conditions;
+  onChange();
 }
 
 // ---------------------------------------------------------------- liste des tokens (combat)
@@ -2042,11 +2058,12 @@ function tokenListRow(t) {
 }
 
 // ---------------------------------------------------------------- apparence du token sélectionné
-function renderAppearance() {
-  const host = $('#tp-lib-grid');
+/** Grille de la bibliothèque d'images, pour une cible quelconque : un token de la
+ *  scène comme un modèle. `onChange` enregistre et redessine. */
+function renderAppearanceInto(host, target, onChange) {
   if (!host) return;
   host.innerHTML = '';
-  const sel = stage.tokens.find((x) => x.id === stage.selectedTokenId);
+  const sel = target;
   for (const t of tokenLib) {
     const wrap = el('div', { class: 'tl-wrap' });
     const img = el('img', {
@@ -2056,8 +2073,7 @@ function renderAppearance() {
     img.addEventListener('click', () => {
       if (!sel) return;
       sel.imageRef = t.id;
-      afterTokenEdit();
-      renderAppearance();
+      onChange();
     });
     const del = el('button', { class: 'tl-del', text: '✕', title: tr('appearance.removeLibTitle') });
     del.addEventListener('click', async (e) => {
@@ -2072,6 +2088,15 @@ function renderAppearance() {
     wrap.append(img, del);
     host.append(wrap);
   }
+}
+
+/** Apparence du token sélectionné, dans le panneau ⚙. */
+function renderAppearance() {
+  const sel = stage.tokens.find((x) => x.id === stage.selectedTokenId);
+  renderAppearanceInto($('#tp-lib-grid'), sel, () => {
+    afterTokenEdit();
+    renderAppearance();
+  });
 }
 
 // ---- menu rapide d'apparence (clic sur la pastille d'un token) ----
@@ -2429,6 +2454,101 @@ function quickAddToken() {
   createTokenAt(stage.snapWorld(stage.screenToWorld({ x: stage.cssW / 2, y: stage.cssH / 2 })));
 }
 
+// ---------------------------------------------------------------- édition d'un modèle
+/** Modèle actuellement ouvert dans #tpl-props. Sert aussi de cible à l'import
+ *  d'image : sans lui, #file-token affecterait l'image au token sélectionné. */
+let editingTpl = null;
+
+function setTplPropsOpen(open) {
+  $('#tpl-props').classList.toggle('hidden', !open);
+  if (!open) editingTpl = null;
+}
+
+function openTplProps(tpl) {
+  editingTpl = tpl;
+  // un seul panneau de propriétés à la fois
+  $('#token-props').classList.add('hidden');
+  $('#multi-props').classList.add('hidden');
+  $('#tplp-name').value = tpl.name || '';
+  $('#tplp-type').value = tpl.type === 'pj' || tpl.type === 'pnj' ? tpl.type : '';
+  $('#tplp-init').value = tpl.initiative ?? '';
+  $('#tplp-def').value = tpl.def ?? '';
+  $('#tplp-atk').value = tpl.atk ?? '';
+  $('#tplp-dm').value = tpl.dm ?? '';
+  markDmValidity($('#tplp-dm'));
+  $('#tplp-color').value = tpl.color || '#c0392b';
+  $('#tplp-size').value = tpl.sizeCells || 1;
+  $('#tplp-hpmax').value = tpl.hpMax ?? '';
+  $('#tplp-hpshare').value = tpl.hpShare || 'off';
+  setTplPropsOpen(true);
+  renderTplAppearance();
+  renderTplConditions();
+}
+
+/** Enregistre le modèle ouvert et rafraîchit sa puce : le nom et la couleur y
+ *  sont visibles, la liste doit donc être redessinée.
+ *
+ *  Surtout, ne PAS passer par reloadAll() : il remplacerait le tableau templates
+ *  par des objets neufs, et editingTpl devrait être réaffecté. Or les boutons
+ *  d'apparence et d'états gardent une fermeture sur l'objet qu'ils ont reçu au
+ *  rendu — après un échange, ils muteraient un orphelin et leurs clics seraient
+ *  sans effet. editingTpl est l'élément même du tableau : le muter suffit. */
+async function persistTpl() {
+  if (!editingTpl) return;
+  await db.put('templates', editingTpl);
+  templates.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'fr', { numeric: true }));
+  renderTemplates();
+}
+const persistTplSoon = debounce(persistTpl, 200);
+
+function renderTplAppearance() {
+  renderAppearanceInto($('#tplp-lib-grid'), editingTpl, () => {
+    persistTpl().then(renderTplAppearance);
+  });
+}
+function renderTplConditions() {
+  renderConditionsInto($('#tplp-cond-presets'), $('#tplp-cond-list'), editingTpl, () => {
+    persistTpl().then(renderTplConditions);
+  });
+}
+
+function wireTplProps() {
+  const apply = debounce(() => {
+    if (!editingTpl) return;
+    editingTpl.name = $('#tplp-name').value.trim() || editingTpl.name;
+    editingTpl.type = ['pj', 'pnj'].includes($('#tplp-type').value) ? $('#tplp-type').value : null;
+    editingTpl.initiative = $('#tplp-init').value === '' ? null : Math.round(+$('#tplp-init').value);
+    editingTpl.def = $('#tplp-def').value === '' ? null : Math.round(+$('#tplp-def').value);
+    editingTpl.atk = $('#tplp-atk').value === '' ? null : Math.round(+$('#tplp-atk').value);
+    editingTpl.dm = $('#tplp-dm').value.trim() || null;
+    markDmValidity($('#tplp-dm'));
+    editingTpl.color = $('#tplp-color').value;
+    editingTpl.sizeCells = clamp(+$('#tplp-size').value || 1, 0.25, 8);
+    editingTpl.hpMax = Math.max(0, Math.round(+$('#tplp-hpmax').value || 0)) || null;
+    editingTpl.hpShare = $('#tplp-hpshare').value;
+    persistTplSoon();
+  }, 150);
+  ['#tplp-name', '#tplp-init', '#tplp-def', '#tplp-atk', '#tplp-dm', '#tplp-color', '#tplp-size', '#tplp-hpmax']
+    .forEach((sel) => $(sel).addEventListener('input', apply));
+  ['#tplp-type', '#tplp-hpshare'].forEach((sel) => $(sel).addEventListener('change', apply));
+
+  $('#tplp-appear-disc').addEventListener('click', () => {
+    if (!editingTpl) return;
+    editingTpl.imageRef = null;
+    persistTpl().then(renderTplAppearance);
+  });
+  $('#tplp-import').addEventListener('click', () => $('#file-token').click());
+  $('#tplp-close').addEventListener('click', () => setTplPropsOpen(false));
+  $('#tplp-delete').addEventListener('click', async () => {
+    if (!editingTpl) return;
+    const { id, name } = editingTpl;
+    if (!(await askConfirm(tr('templates.confirmDelete', { name })))) return;
+    setTplPropsOpen(false);
+    await db.del('templates', id);
+    await reloadAll();
+  });
+}
+
 // ---------------------------------------------------------------- modèles de créature
 function renderTemplates() {
   const host = $('#template-list');
@@ -2440,6 +2560,10 @@ function renderTemplates() {
       ? el('img', { class: 'tpl-sw', src: thumbUrls.get(tpl.imageRef), alt: '' })
       : el('span', { class: 'tpl-sw' });
     if (!tpl.imageRef) sw.style.background = tpl.color || '#c0392b';
+    // ✎ plutôt qu'un double-clic : un clic simple pose déjà un token, un
+    // double-clic en poserait donc deux avant d'ouvrir le panneau.
+    const ed = el('button', { class: 'tpl-edit', text: '✎', title: tr('templates.editTitle') });
+    ed.addEventListener('click', (e) => { e.stopPropagation(); openTplProps(tpl); });
     const x = el('button', { class: 'tpl-x', text: '✕', title: tr('templates.deleteTitle') });
     x.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -2448,7 +2572,7 @@ function renderTemplates() {
         await reloadAll();
       }
     });
-    chip.append(sw, el('span', { class: 'tpl-name', text: tpl.name }), x);
+    chip.append(sw, el('span', { class: 'tpl-name', text: tpl.name }), ed, x);
     chip.addEventListener('click', () => {
       if (!stage.scene) return;
       createTokenAt(stage.snapWorld(stage.screenToWorld({ x: stage.cssW / 2, y: stage.cssH / 2 })), {

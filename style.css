@@ -420,7 +420,12 @@ button.tl-name.tl-add { text-align: left; }
   border: none; background: none; color: var(--text-dim); cursor: pointer;
   font-size: 10px; padding: 0 2px; opacity: 0; flex: 0 0 auto;
 }
-.tpl-chip:hover .tpl-x { opacity: 1; }
+.tpl-chip:hover .tpl-x, .tpl-chip:hover .tpl-edit { opacity: 1; }
+.tpl-edit {
+  opacity: 0; border: none; background: none; color: var(--text-dim);
+  cursor: pointer; font-size: 12px; padding: 0 1px; line-height: 1;
+}
+.tpl-edit:hover { color: var(--accent-2); }
 .tpl-x:hover { color: var(--danger); }
 
 .storage-usage.warn { color: var(--accent); font-weight: 600; }

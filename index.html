@@ -99,6 +99,51 @@
           </div>
         </div>
 
+        <!-- Édition d'un modèle de créature (✎ sur sa puce) -->
+        <div id="tpl-props" class="floaty hidden">
+          <h3 data-i18n="props.template">Modèle</h3>
+          <label class="ctl"><span data-i18n="props.name">Nom</span> <input id="tplp-name" type="text" maxlength="24"></label>
+          <label class="ctl"><span data-i18n="props.type">Type</span>
+            <select id="tplp-type">
+              <option value="" data-i18n="props.typeNone">—</option>
+              <option value="pnj">PNJ</option>
+              <option value="pj">PJ</option>
+            </select>
+          </label>
+          <label class="ctl"><span data-i18n="props.initiative">Initiative</span> <input id="tplp-init" type="number" step="1"></label>
+          <label class="ctl"><span data-i18n="props.def">DEF</span> <input id="tplp-def" type="number" step="1"></label>
+          <label class="ctl"><span data-i18n="props.atk">ATK</span> <input id="tplp-atk" type="number" step="1"></label>
+          <label class="ctl"><span data-i18n="props.dm">DM</span> <input id="tplp-dm" type="text" maxlength="16" placeholder="1d8 + 3"></label>
+          <div class="hp-row">
+            <label class="ctl"><span data-i18n="props.color">Couleur</span> <input id="tplp-color" type="color"></label>
+            <label class="ctl"><span data-i18n="props.size">Taille</span> <input id="tplp-size" type="number" min="0.25" max="6" step="0.25"></label>
+          </div>
+
+          <p class="floaty-sub" data-i18n="props.appearance">Apparence</p>
+          <div class="tp-appearance">
+            <button id="tplp-appear-disc" class="btn btn-small" data-i18n="props.disc">Disque</button>
+            <button id="tplp-import" class="btn btn-small" data-i18n="props.importImage">Importer une image…</button>
+          </div>
+          <div id="tplp-lib-grid" class="token-lib-grid"></div>
+
+          <p class="floaty-sub" data-i18n="props.hpSection">Points de vie</p>
+          <label class="ctl"><span data-i18n="props.hpMax">PV max</span> <input id="tplp-hpmax" type="number" min="0" step="1"></label>
+          <label class="ctl"><span data-i18n="props.hpShare">PV vus par les joueurs</span>
+            <select id="tplp-hpshare">
+              <option value="off" data-i18n="props.hpShareOff">Masqués</option>
+              <option value="bar" data-i18n="props.hpShareBar">Barre seule</option>
+              <option value="full" data-i18n="props.hpShareFull">Barre + chiffres</option>
+            </select>
+          </label>
+
+          <p class="floaty-sub" data-i18n="props.conditions">États</p>
+          <div id="tplp-cond-presets" class="cond-presets"></div>
+          <div id="tplp-cond-list" class="cond-list"></div>
+
+          <button id="tplp-delete" class="btn btn-small btn-danger btn-block" data-i18n="props.deleteTemplate">Supprimer le modèle</button>
+          <button id="tplp-close" class="btn btn-small btn-block" data-i18n="props.close">Fermer</button>
+        </div>
+
         <!-- Notes du MJ, propres à la carte ouverte -->
         <div id="notes-panel" class="floaty hidden">
           <h3><span data-i18n="notes.title">Notes</span> <span id="notes-count" class="notes-count"></span></h3>

@@ -95,7 +95,8 @@ the same machine**.
      (colour / thumbnail + name). Click = drops a pre-filled token (name, HP, colour,
      type, initiative, DEF, ATK, DM, size, image, conditions). To create a template:
      a token's ⚙ →
-     **⭐ Save as a template**. The chip is removed on hover (**✕**). Templates are
+     **⭐ Save as a template**. On chip hover: **✎** opens an edit panel (every template
+     field, appearance and conditions included), **✕** deletes it. Templates are
      shared across every scene and included in the export.
    A new token has no name, type, initiative, DEF or HP: on its row, **+ name**,
    **+ type**, **+ init**, **+ DEF** (defence / AC) and **+ HP** add them in one click.
